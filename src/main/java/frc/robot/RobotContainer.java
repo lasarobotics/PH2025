@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -12,7 +14,9 @@ import frc.robot.subsystems.drivetrain.DriveSubsystem;
 public class RobotContainer {
     private final CommandXboxController joystick = new CommandXboxController(0);
 
-    private final DriveSubsystem DRIVE_SUBSYSTEM = new DriveSubsystem(new DriveSubsystem.Hardware());
+    private final Telemetry logger = new Telemetry(Constants.Drive.MAX_SPEED.in(MetersPerSecond));
+
+    private final DriveSubsystem DRIVE_SUBSYSTEM = new DriveSubsystem(new DriveSubsystem.Hardware(), logger);
 
     public RobotContainer() {
         configureBindings();
@@ -35,8 +39,6 @@ public class RobotContainer {
 
         // // reset the field-centric heading on left bumper press
         // joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
-        // drivetrain.registerTelemetry(logger::telemeterize);
     }
 
     public Command getAutonomousCommand() {
