@@ -618,12 +618,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   public static Hardware initializeHardware() {
     Hardware liftHardware = new Hardware(
-      new TalonFX(Constants.Lift.ELEVATOR_MOTOR_ID),
-      new TalonFX(Constants.Lift.PIVOT_MOTOR_ID),
-      new Spark(Constants.Lift.OUTTAKE_MOTOR_ID, MotorKind.NEO_VORTEX),
-      new DigitalInput(Constants.Lift.INSIDE_END_EFFECTOR_BEAM_BREAK_PORT),
-      new DigitalInput(Constants.Lift.OUTSIDE_END_EFFECTOR_BEAM_BREAK_PORT),
-      new DigitalInput(Constants.Lift.ELEVATOR_HOMING_BEAM_BREAK_PORT)
+      new TalonFX(Constants.LiftHardware.ELEVATOR_MOTOR_ID),
+      new TalonFX(Constants.LiftHardware.PIVOT_MOTOR_ID),
+      new Spark(Constants.LiftHardware.OUTTAKE_MOTOR_ID, MotorKind.NEO_VORTEX),
+      new DigitalInput(Constants.LiftHardware.INSIDE_END_EFFECTOR_BEAM_BREAK_PORT),
+      new DigitalInput(Constants.LiftHardware.OUTSIDE_END_EFFECTOR_BEAM_BREAK_PORT),
+      new DigitalInput(Constants.LiftHardware.ELEVATOR_HOMING_BEAM_BREAK_PORT)
     );
 
     return liftHardware;
@@ -642,7 +642,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    * @param height The height you want to move the elevator to
    */
   public void setElevatorHeight(Distance height) {
-    Distance SPROCKET_RADIUS = Constants.Lift.SPROCKET_PITCH_RADIUS;
+    Distance SPROCKET_RADIUS = Constants.LiftHardware.SPROCKET_PITCH_RADIUS;
     double circumference = 2 * Math.PI * SPROCKET_RADIUS.in(Meters);
     Angle elevatorMoveAngle = Rotations.of(height.in(Meters) / circumference);
     m_elevatorMotor.setControl(new MotionMagicVoltage(elevatorMoveAngle));
@@ -660,7 +660,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   public Distance getElevatorHeight() {
     Angle elevatorAngle = m_elevatorMotor.getPosition().getValue();
-    Distance SPROCKET_RADIUS = Constants.Lift.SPROCKET_PITCH_RADIUS;
+    Distance SPROCKET_RADIUS = Constants.LiftHardware.SPROCKET_PITCH_RADIUS;
     double circumference = 2 * Math.PI * SPROCKET_RADIUS.in(Meters);
     Distance height = Meters.of(circumference * elevatorAngle.in(Rotations));
     return height;
