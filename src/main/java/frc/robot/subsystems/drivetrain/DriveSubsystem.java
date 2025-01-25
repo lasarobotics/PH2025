@@ -2,7 +2,8 @@ package frc.robot.subsystems.drivetrain;
 
 import java.util.function.DoubleSupplier;
 
-import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
+import org.lasarobotics.fsm.StateMachine;
+import org.lasarobotics.fsm.SystemState;
 import org.lasarobotics.vision.AprilTagCamera;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -13,8 +14,6 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.Constants;
 import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.StateMachine;
-import frc.robot.subsystems.SystemState;
 
 public class DriveSubsystem extends StateMachine implements AutoCloseable {
   public static record Hardware(

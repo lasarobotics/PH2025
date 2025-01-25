@@ -1,10 +1,12 @@
 package frc.robot.subsystems.lift;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 
+import org.lasarobotics.fsm.StateMachine;
+import org.lasarobotics.fsm.SystemState;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 
@@ -23,8 +25,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
-import frc.robot.subsystems.StateMachine;
-import frc.robot.subsystems.SystemState;
 
 public class LiftSubsystem extends StateMachine implements AutoCloseable {
   public static record Hardware (
