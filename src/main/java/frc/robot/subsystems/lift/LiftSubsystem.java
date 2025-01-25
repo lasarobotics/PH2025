@@ -1,16 +1,22 @@
 package frc.robot.subsystems.lift;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Rotations;
+
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import frc.robot.Constants;
 import frc.robot.subsystems.StateMachine;
 import frc.robot.subsystems.SystemState;
-import frc.robot.Constants;
 
 
 public class LiftSubsystem extends StateMachine implements AutoCloseable {
@@ -43,7 +49,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 		this.m_pivotMotor = liftHardware.pivotMotor;
 		this.m_outtakeMotor = liftHardware.outtakeMotor;
 
-		//TODO: figure out motor configurations
+		//TODO: figure out motor configurations (gear ratios, sensors, etc)
 
 		//Create configurations for each motor
 		TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
@@ -79,7 +85,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 	}
 
 	/**
-   * Initialize hardware devices for lif tsubsystem
+   * Initialize hardware devices for lift subsystem
    * @return Hardware object containing all necessary devices for this subsystem
    */
 	public static Hardware initializeHardware() {
@@ -90,6 +96,35 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 		);
 		return liftHardware;
 	}
+
+	/**
+	 * Move arm pivot to a certain angle
+	 * @param angle The angle you want to move the pivot
+	 */
+	private void movePivot(Angle angle) {
+		m_pivotMotor.setControl(new MotionMagicVoltage(angle));
+	}
+
+	/**
+	 * Move elevator to a certain position
+	 * @param Distance The distance you want to move the elevator to
+	 */
+	private void moveElevator(Distance distance) {
+		Distance SPROCKET_RADIUS = Constants.Lift.SPROCKET_PITCH_RADIUS;
+		double circumference = 2 * Math.PI * SPROCKET_RADIUS.in(Meters);
+		Angle elevatorMoveangle = Rotations.of(distance.in(Meters) / circumference);
+		m_elevatorMotor.setControl(new MotionMagicVoltage(elevatorMoveangle));
+	}
+
+	/**
+	 * Run the scoring outtake to score coral on the reef
+	 * @param dutyCycleOutput The dutycycle output to set the motor at for outtake
+	 */
+	private void runScoringMech(double dutyCycleOutput) {
+		m_outtakeMotor.set(dutyCycleOutput);
+	}
+
+
 
 	public void close() {
 		m_elevatorMotor.close();
