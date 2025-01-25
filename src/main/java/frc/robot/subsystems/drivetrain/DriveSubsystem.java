@@ -8,6 +8,7 @@ import org.lasarobotics.vision.AprilTagCamera;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.Constants;
 import frc.robot.Telemetry;
@@ -79,7 +80,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       Constants.VisionHardware.CAMERA_A_LOCATION,
       Constants.VisionHardware.CAMERA_A_RESOLUTION,
       Constants.VisionHardware.CAMERA_A_FOV,
-      AprilTagFields.k2025Reefscape.loadAprilTagLayoutField()
+      AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape)
     );
 
     AprilTagCamera frontRightCamera = new AprilTagCamera(
@@ -87,7 +88,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       Constants.VisionHardware.CAMERA_B_LOCATION,
       Constants.VisionHardware.CAMERA_B_RESOLUTION,
       Constants.VisionHardware.CAMERA_B_FOV,
-      AprilTagFields.k2025Reefscape.loadAprilTagLayoutField()
+      AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape)
     );
 
     AprilTagCamera rearCamera = new AprilTagCamera(
@@ -95,7 +96,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       Constants.VisionHardware.CAMERA_C_LOCATION,
       Constants.VisionHardware.CAMERA_C_RESOLUTION,
       Constants.VisionHardware.CAMERA_C_FOV,
-      AprilTagFields.k2025Reefscape.loadAprilTagLayoutField()
+      AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape)
     );
 
     Hardware driveHardware = new Hardware(
