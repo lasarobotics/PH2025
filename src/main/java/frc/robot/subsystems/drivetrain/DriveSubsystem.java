@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drivetrain;
 
+import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
 
 import org.lasarobotics.fsm.StateMachine;
@@ -9,8 +10,6 @@ import org.lasarobotics.vision.AprilTagCamera;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.Constants;
 import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants;
@@ -53,8 +52,14 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   private static Telemetry s_logger;
 
+  private static ArrayList<AprilTagCamera> m_cameras;
+
   public DriveSubsystem(Hardware driveHardware, Telemetry logger) {
     super(State.DRIVER_CONTROL);
+    m_cameras = new ArrayList<AprilTagCamera>();
+    m_cameras.add(driveHardware.frontLeftCamera);
+    m_cameras.add(driveHardware.frontRightCamera);
+    m_cameras.add(driveHardware.rearCamera);
 
     s_drivetrain = TunerConstants.createDrivetrain();
 
@@ -79,7 +84,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       Constants.VisionHardware.CAMERA_A_LOCATION,
       Constants.VisionHardware.CAMERA_A_RESOLUTION,
       Constants.VisionHardware.CAMERA_A_FOV,
-      AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape)
+      Constants.Field.FIELD_LAYOUT
     );
 
     AprilTagCamera frontRightCamera = new AprilTagCamera(
@@ -87,7 +92,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       Constants.VisionHardware.CAMERA_B_LOCATION,
       Constants.VisionHardware.CAMERA_B_RESOLUTION,
       Constants.VisionHardware.CAMERA_B_FOV,
-      AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape)
+      Constants.Field.FIELD_LAYOUT
     );
 
     AprilTagCamera rearCamera = new AprilTagCamera(
@@ -95,7 +100,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       Constants.VisionHardware.CAMERA_C_LOCATION,
       Constants.VisionHardware.CAMERA_C_RESOLUTION,
       Constants.VisionHardware.CAMERA_C_FOV,
-      AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape)
+      Constants.Field.FIELD_LAYOUT
     );
 
     Hardware driveHardware = new Hardware(
@@ -110,6 +115,23 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_driveRequest = driveRequest;
     s_strafeRequest = strafeRequest;
     s_rotateRequest = rotateRequest;
+  }
+
+  @Override
+  public void periodic() {
+    // Add AprilTag pose estimates if available
+    for (var camera : m_cameras) {
+      var result = camera.getLatestEstimatedPose();
+
+      // If no updated vision pose estimate, continue
+      if (result == null) continue;
+      // Add vision measurement
+      s_drivetrain.addVisionMeasurement(
+        result.estimatedRobotPose.estimatedPose.toPose2d(),
+        result.estimatedRobotPose.timestampSeconds,
+        result.standardDeviation
+      );
+    }
   }
 
   @Override

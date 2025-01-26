@@ -6,6 +6,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.vision.AprilTagCamera.Resolution;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -16,6 +18,10 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.generated.TunerConstants;
 
 public final class Constants {
+  public static class Field {
+    public static final AprilTagFieldLayout FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+  }
+
   public static class Drive {
     public static final LinearVelocity MAX_SPEED = TunerConstants.kSpeedAt12Volts;
     public static final AngularVelocity MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75); // TODO measure this value
