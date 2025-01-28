@@ -31,13 +31,17 @@ public class RobotContainer {
             DRIVE_SUBSYSTEM.requestAutoAlign(new TrapezoidProfile.State(100, 0));
         }));
 
+        joystick.a().onTrue(Commands.run(() -> {
+            DRIVE_SUBSYSTEM.requestAutoAlign(new TrapezoidProfile.State(100, 0));
+        }));
+
         // joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // joystick.b().whileTrue(drivetrain.applyRequest(() ->
         // point.withModuleDirection(new Rotation2d(-joystick.getLeftY(),
         // -joystick.getLeftX()))
         // ));
 
-        // // Run SysId routines when holding back/start and X/Y.
+        // // Run SysId routines when holding back/start and X/Y. 
         // // Note that each routine should be run exactly once in a single log.
         // joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
         // joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));

@@ -66,13 +66,15 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 m_lastTime = System.currentTimeMillis();
                 m_currentState = new TrapezoidProfile.State(s_drivetrain.getRotation3d().getZ(), 0);
 
-                TrapezoidProfile.State newState = s_turnProfile.calculate(dt / 1000.0, m_currentState,
-                        s_autoAlignTargetState.orElseThrow());
-                // System.out.println("new state: " + newState.position + ", " +
-                // newState.velocity);
-
-                s_drivetrain
-                        .setControl(s_autoDrive.withRotationalDeadband(0).withTargetDirection(new Rotation2d(3.14159)));
+                TrapezoidProfile.State newState = s_turnProfile.calculate(dt / 1000.0, m_currentState, s_autoAlignTargetState.orElseThrow());
+                // System.out.println("new state: " + newState.position + ", " + newState.velocity);
+                
+                
+                s_drivetrain.setControl(
+                    s_autoDrive
+                    .withRotationalDeadband(0)
+                    .withTargetDirection(new Rotation2d(3.14159))
+                );
             }
 
             @Override
@@ -93,7 +95,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     private static CommandSwerveDrivetrain s_drivetrain;
     private static SwerveRequest.FieldCentric s_drive;
     private static SwerveRequest.FieldCentricFacingAngle s_autoDrive;
-
     private static DoubleSupplier s_driveRequest = () -> 0;
     private static DoubleSupplier s_strafeRequest = () -> 0;
     private static DoubleSupplier s_rotateRequest = () -> 0;
@@ -128,6 +129,12 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 .withDriveRequestType(DriveRequestType.Velocity)
                 .withDeadband(0)
                 .withRotationalDeadband(0);
+        s_autoDrive.HeadingController.setPID(1, 0, 0);
+
+        s_autoDrive = new SwerveRequest.FieldCentricFacingAngle()
+            .withDriveRequestType(DriveRequestType.Velocity)
+            .withDeadband(0)
+            .withRotationalDeadband(0);
         s_autoDrive.HeadingController.setPID(1, 0, 0);
 
         s_logger = logger;
