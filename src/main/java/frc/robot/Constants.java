@@ -32,9 +32,9 @@ public final class Constants {
   }
 
   public static class LiftHardware {
+   public static final Frequency TALON_UPDATE_RATE = Hertz.of(50);
    public static final TalonFX.ID ELEVATOR_MOTOR_ID = new TalonFX.ID("LiftHardware/Elevator", PhoenixCANBus.CANIVORE, 4);
    public static final TalonFX.ID PIVOT_MOTOR_ID = new TalonFX.ID("LiftHardware/Pivot", PhoenixCANBus.CANIVORE, 5);
-   public static final Frequency TALON_UPDATE_RATE = Hertz.of(50);
    public static final Distance SPROCKET_PITCH_RADIUS = Inches.of((1.751)/(2.0));
    public static final LimitSwitch.ID ELEVATOR_HOMING_BEAM_BREAK_PORT = new LimitSwitch.ID("LiftHardware/HomingSwitch", 0);
   }

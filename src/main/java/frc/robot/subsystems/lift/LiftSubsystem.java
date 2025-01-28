@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Millimeters;
 
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
@@ -13,6 +14,7 @@ import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.lasarobotics.hardware.generic.LimitSwitch.SwitchPolarity;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -38,23 +40,26 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L4
   }
 
-  public static final Angle SCORING_L1_ANGLE = Degrees.of(0);
-  public static final Angle SCORING_L2_ANGLE = Degrees.of(0);
-  public static final Angle SCORING_L3_ANGLE = Degrees.of(0);
-  public static final Angle SCORING_L4_ANGLE = Degrees.of(0);
+  static final DutyCycleOut HOMING_SPEED = new DutyCycleOut(-0.05);
+  static final Distance HOMING_EPSILON = Millimeters.of(5);
 
-  public static final Angle SAFE_REEF_ANGLE_BOTTOM = Degrees.of(0);
-  public static final Angle SAFE_REEF_ANGLE_TOP = Degrees.of(0);
-  public static final Angle SAFE_INTAKE_ANGLE = Degrees.of(0);
+  static final Angle SCORING_L1_ANGLE = Degrees.of(0);
+  static final Angle SCORING_L2_ANGLE = Degrees.of(0);
+  static final Angle SCORING_L3_ANGLE = Degrees.of(0);
+  static final Angle SCORING_L4_ANGLE = Degrees.of(0);
 
-  public static final Angle STOW_ANGLE = Degrees.of(0);
-  public static final Distance STOW_HEIGHT = Inches.of(0);
+  static final Angle SAFE_REEF_ANGLE_BOTTOM = Degrees.of(0);
+  static final Angle SAFE_REEF_ANGLE_TOP = Degrees.of(0);
+  static final Angle SAFE_INTAKE_ANGLE = Degrees.of(0);
 
-  public static final Distance L1_HEIGHT = Inches.of(0);
-  public static final Distance L2_HEIGHT = Inches.of(0);
-  public static final Distance CLEAR_HEIGHT = Inches.of(0);
-  public static final Distance L3_HEIGHT = Inches.of(0);
-  public static final Distance L4_HEIGHT = Inches.of(0);
+  static final Angle STOW_ANGLE = Degrees.of(0);
+  static final Distance STOW_HEIGHT = Inches.of(0);
+
+  static final Distance L1_HEIGHT = Inches.of(0);
+  static final Distance L2_HEIGHT = Inches.of(0);
+  static final Distance CLEAR_HEIGHT = Inches.of(0);
+  static final Distance L3_HEIGHT = Inches.of(0);
+  static final Distance L4_HEIGHT = Inches.of(0);
 
   /* TODO: Actually get user input */
   private static USER_INPUT getUserInput() { return USER_INPUT.STOW; }
@@ -62,12 +67,28 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   public enum LiftStates implements SystemState {
     IDLE {
       @Override
+      public LiftStates nextState() {
+        return this;
+      }
+    },
+    HOME {
+      @Override
       public void initialize() {
+        s_liftinstance.startHomingElevator();
+      }
 
+      @Override
+      public void execute() {
+        if (s_liftinstance.elevatorAtHome()) {
+          s_liftinstance.resetElevatorEncoder();
+          s_liftinstance.stopElevator();
+        }
       }
 
       @Override
       public LiftStates nextState() {
+        if (s_liftinstance.elevatorAtHome() && s_liftinstance.getElevatorHeight().isNear(Meters.zero(), HOMING_EPSILON))
+          return IDLE;
         return this;
       }
     },
@@ -607,7 +628,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     Hardware liftHardware = new Hardware(
       new TalonFX(Constants.LiftHardware.ELEVATOR_MOTOR_ID, Constants.LiftHardware.TALON_UPDATE_RATE),
       new TalonFX(Constants.LiftHardware.PIVOT_MOTOR_ID, Constants.LiftHardware.TALON_UPDATE_RATE),
-      new LimitSwitch(Constants.LiftHardware.ELEVATOR_HOMING_BEAM_BREAK_PORT, SwitchPolarity.NORMALLY_CLOSED)
+      new LimitSwitch(Constants.LiftHardware.ELEVATOR_HOMING_BEAM_BREAK_PORT, SwitchPolarity.NORMALLY_OPEN)
     );
 
     return liftHardware;
@@ -651,10 +672,24 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
+   * Slowly run the elevator motor
+   */
+  private void startHomingElevator() {
+    m_elevatorMotor.setControl(HOMING_SPEED);
+  }
+
+  /**
    * Zero the elevator encoder
    */
-  private void homeElevator() {
-    m_elevatorMotor.setPosition(Degrees.of(0));
+  private void resetElevatorEncoder() {
+    m_elevatorMotor.setPosition(Degrees.of(0.0));
+  }
+
+  /**
+   * Stop the elevator motor
+   */
+  private void stopElevator() {
+    m_elevatorMotor.stopMotor();
   }
 
   /**
