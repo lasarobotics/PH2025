@@ -1,5 +1,6 @@
 package frc.robot.subsystems.lift;
 
+import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
@@ -42,6 +43,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   static final DutyCycleOut HOMING_SPEED = new DutyCycleOut(-0.05);
   static final Distance HOMING_EPSILON = Millimeters.of(5);
+
+  // Tolerance in cm of top and bottom minimum clearance
+  static final Distance ELEVATOR_TOLERANCE = Centimeters.of(0.5);
+
+  // Tolerance in degrees of arm
+  static final Angle ARM_TOLERANCE = Degrees.of(0.5);
 
   static final Angle SCORING_L1_ANGLE = Degrees.of(0);
   static final Angle SCORING_L2_ANGLE = Degrees.of(0);
@@ -96,6 +103,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         s_liftinstance.setElevatorHeight(STOW_HEIGHT);
+        s_liftinstance.setArmAngle(STOW_ANGLE);
       }
 
       @Override
@@ -165,7 +173,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_INTAKE_ANGLE)) {
+        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE)) {
           return STOW_L4_S1;
         }
         return this;
@@ -303,21 +311,20 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       }
 
       @Override
-      public void execute() {
-        if (s_liftinstance.getElevatorHeight() == CLEAR_HEIGHT && s_liftinstance.getArmAngle() == STOW_ANGLE) {
-          s_liftinstance.setArmAngle(SCORING_L4_ANGLE);
-        }
-      }
-
-      @Override
       public SystemState nextState() {
-        if (s_liftinstance.getElevatorHeight() == L4_HEIGHT && s_liftinstance.getArmAngle() == SCORING_L4_ANGLE) {
+        if (s_liftinstance.getElevatorHeight().gte(CLEAR_HEIGHT)) {
           return L4;
         }
         return this;
       }
     },
     L4 {
+      @Override
+      public void initialize() {
+        s_liftinstance.setElevatorHeight(L4_HEIGHT);
+        s_liftinstance.setArmAngle(SCORING_L4_ANGLE);
+      }
+
       @Override
       public SystemState nextState() {
         if (getUserInput() == USER_INPUT.STOW) {
@@ -343,7 +350,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle() == STOW_ANGLE) {
+        if (s_liftinstance.getArmAngle().gte(STOW_ANGLE)) {
           return STOW;
         }
         return this;
@@ -357,7 +364,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle() == STOW_ANGLE) {
+        if (s_liftinstance.getArmAngle().gte(STOW_ANGLE)) {
           return STOW;
         }
         return this;
@@ -371,7 +378,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getElevatorHeight() == CLEAR_HEIGHT) {
+        if (s_liftinstance.getElevatorHeight().gte(CLEAR_HEIGHT)) {
           return L3_STOW_S2;
         }
         return this;
@@ -385,7 +392,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle() == STOW_ANGLE) {
+        if (s_liftinstance.getArmAngle().gte(STOW_ANGLE)) {
           return STOW;
         }
         return this;
@@ -399,7 +406,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle() == STOW_ANGLE) {
+        if (s_liftinstance.getArmAngle().gte(STOW_ANGLE)) {
           return STOW;
         }
         return this;
@@ -413,7 +420,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle() == SAFE_REEF_ANGLE_BOTTOM) {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
           return STOW_L3_S1;
         }
         return this;
@@ -427,7 +434,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle() == SAFE_REEF_ANGLE_BOTTOM) {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
           return STOW_L4_S1;
         }
         return this;
@@ -441,7 +448,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle() == SAFE_REEF_ANGLE_BOTTOM) {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
           return STOW_L1_S1;
         }
         return this;
@@ -455,7 +462,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle() == SAFE_REEF_ANGLE_BOTTOM) {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
           return STOW_L3_S1;
         }
         return this;
@@ -469,7 +476,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle() == SAFE_REEF_ANGLE_BOTTOM) {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
           return STOW_L4_S1;
         }
         return this;
@@ -483,7 +490,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle() == SAFE_REEF_ANGLE_TOP) {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_TOP)) {
           return L3_L1_S2;
         }
         return this;
@@ -497,7 +504,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getElevatorHeight() == CLEAR_HEIGHT) {
+        if (s_liftinstance.getElevatorHeight().gte(CLEAR_HEIGHT)) {
           return L3_L1_S3;
         }
         return this;
@@ -506,17 +513,31 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L3_L1_S3 {
       @Override
       public void initialize() {
-        s_liftinstance.setElevatorHeight(CLEAR_HEIGHT);
+        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM);
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getElevatorHeight() == CLEAR_HEIGHT) {
-          return L3_L1_S3;
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
+          return L3_L1_S4;
         }
         return this;
       }
-    };
+    },
+    L3_L1_S4 {
+      @Override
+      public void initialize() {
+        s_liftinstance.setElevatorHeight(L1_HEIGHT);
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getElevatorHeight().lte(L1_HEIGHT)) {
+          return L1;
+        }
+        return this;
+      }
+    },
   }
 
   private static LiftSubsystem s_liftinstance;
@@ -704,5 +725,23 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     m_elevatorMotor.close();
     m_pivotMotor.close();
     s_liftinstance = null;
+  }
+
+  /**
+   * Return whether the elevator is at a target height or not
+   * @return Boolean of if elevator is at target height
+   */
+  public boolean elevatorAt(Distance targetHeight) {
+    Distance currentHeight = getElevatorHeight();
+    return (currentHeight.isNear(currentHeight, ELEVATOR_TOLERANCE));
+  }
+
+  /**
+   * Return whether the arm is at a target angle or not
+   * @return Boolean of if arm is at target angle
+   */
+  public boolean armAt(Angle targetAngle) {
+    Angle currentAngle = getArmAngle();
+    return (currentAngle.isNear(targetAngle, ARM_TOLERANCE));
   }
 }
