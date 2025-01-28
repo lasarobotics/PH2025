@@ -37,6 +37,12 @@ public final class Constants {
    public static final int ELEVATOR_HOMING_BEAM_BREAK_PORT = 2;
   }
 
+  public static class EndEffecterHardware {
+    public static final Spark.ID OUTTAKE_MOTOR_ID = new Spark.ID("LiftHardware/Outtake", 6);
+    public static final int INSIDE_END_EFFECTOR_BEAM_BREAK_PORT = 1;
+    public static final int OUTSIDE_END_EFFECTOR_BEAM_BREAK_PORT = 2;
+  }
+
   public static class VisionHardware {
     public static final String CAMERA_A_NAME = "Arducam_OV9782_USB_Camera_A";
     public static final Transform3d CAMERA_A_LOCATION = new Transform3d(
