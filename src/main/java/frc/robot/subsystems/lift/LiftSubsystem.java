@@ -707,24 +707,11 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * Stop the elevator motor
-   */
-  private void stopElevator() {
-    m_elevatorMotor.stopMotor();
-  }
-
-  /**
    * Check if elevator is at home
    * @return True if elevator is home
    */
   public boolean elevatorAtHome() {
     return m_elevatorHomingBeamBreak.getInputs().value;
-  }
-
-  public void close() {
-    m_elevatorMotor.close();
-    m_pivotMotor.close();
-    s_liftinstance = null;
   }
 
   /**
@@ -743,5 +730,21 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   public boolean armAt(Angle targetAngle) {
     Angle currentAngle = getArmAngle();
     return (currentAngle.isNear(targetAngle, ARM_TOLERANCE));
+  }
+
+  /**
+   * Stop the elevator motor
+   */
+  private void stopElevator() {
+    m_elevatorMotor.stopMotor();
+  }
+
+  /**
+   * Close the motors of the lift subsystem, make the instance null
+   */
+  public void close() {
+    m_elevatorMotor.close();
+    m_pivotMotor.close();
+    s_liftinstance = null;
   }
 }
