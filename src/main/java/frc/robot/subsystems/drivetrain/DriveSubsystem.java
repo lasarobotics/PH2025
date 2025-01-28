@@ -162,6 +162,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     private static DoubleSupplier s_strafeRequest = () -> 0;
     private static DoubleSupplier s_rotateRequest = () -> 0;
 
+    private static Optional<TrapezoidProfile.State> s_autoAlignTargetState = Optional.empty();
+
     private static boolean s_shouldAutoAlign = false;
     private static TrapezoidProfile.State s_autoAlignTargetDriveX;
     private static TrapezoidProfile.State s_autoAlignTargetDriveY;
