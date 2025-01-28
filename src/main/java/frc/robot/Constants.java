@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.vision.AprilTagCamera.Resolution;
 
@@ -36,6 +37,13 @@ public final class Constants {
    public static final int OUTSIDE_END_EFFECTOR_BEAM_BREAK_PORT = 1;
    public static final int ELEVATOR_HOMING_BEAM_BREAK_PORT = 2;
   }
+
+ public static class IntakeHardware {
+  public static final Spark.ID FRONT_INTAKE_MOTOR_ID = new Spark.ID("IntakeHardware/FrontIntakeMotor", 7);
+  public static final Spark.ID BACK_INTAKE_MOTOR_ID = new Spark.ID("IntakeHardware/BackIntakeMotor", 8);
+  public static final LimitSwitch.ID FRONT_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/FrontIntakeBeamBreak", 1);
+  public static final LimitSwitch.ID BACK_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/BackIntakeBeamBreak", 2);
+ }
 
   public static class VisionHardware {
     public static final String CAMERA_A_NAME = "Arducam_OV9782_USB_Camera_A";
