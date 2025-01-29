@@ -26,13 +26,17 @@ public final class Constants {
     public static final AprilTagFieldLayout FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
   }
 
+  public static class Frequencies {
+    public static final Frequency TALON_UPDATE_RATE = Hertz.of(50);
+    public static final Frequency BEAM_BREAK_UPDATE_RATE = Hertz.of(50);
+  }
+
   public static class Drive {
     public static final LinearVelocity MAX_SPEED = TunerConstants.kSpeedAt12Volts;
     public static final AngularVelocity MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75); // TODO measure this value
   }
 
   public static class LiftHardware {
-   public static final Frequency TALON_UPDATE_RATE = Hertz.of(50);
    public static final TalonFX.ID ELEVATOR_MOTOR_ID = new TalonFX.ID("LiftHardware/Elevator", PhoenixCANBus.CANIVORE, 4);
    public static final TalonFX.ID PIVOT_MOTOR_ID = new TalonFX.ID("LiftHardware/Pivot", PhoenixCANBus.CANIVORE, 5);
    public static final Distance SPROCKET_PITCH_RADIUS = Inches.of((1.751)/(2.0));

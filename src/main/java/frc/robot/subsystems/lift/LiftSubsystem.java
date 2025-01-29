@@ -647,9 +647,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   public static Hardware initializeHardware() {
     Hardware liftHardware = new Hardware(
-      new TalonFX(Constants.LiftHardware.ELEVATOR_MOTOR_ID, Constants.LiftHardware.TALON_UPDATE_RATE),
-      new TalonFX(Constants.LiftHardware.PIVOT_MOTOR_ID, Constants.LiftHardware.TALON_UPDATE_RATE),
-      new LimitSwitch(Constants.LiftHardware.ELEVATOR_HOMING_BEAM_BREAK_PORT, SwitchPolarity.NORMALLY_OPEN)
+      new TalonFX(Constants.LiftHardware.ELEVATOR_MOTOR_ID, Constants.Frequencies.TALON_UPDATE_RATE),
+      new TalonFX(Constants.LiftHardware.PIVOT_MOTOR_ID, Constants.Frequencies.TALON_UPDATE_RATE),
+      new LimitSwitch(Constants.LiftHardware.ELEVATOR_HOMING_BEAM_BREAK_PORT, SwitchPolarity.NORMALLY_OPEN, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE)
     );
 
     return liftHardware;
