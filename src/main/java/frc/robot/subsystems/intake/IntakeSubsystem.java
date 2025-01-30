@@ -13,10 +13,10 @@ import frc.robot.Constants;
 
 public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   public static record Hardware (
-    Spark frontIntakeMotor,
-    Spark backIntakeMotor,
-    LimitSwitch frontBeamBreak,
-    LimitSwitch backBeamBreak
+    Spark flapperMotor,
+    Spark funnelMotor,
+    LimitSwitch firstBeamBreak,
+    LimitSwitch secondBeamBreak
   ) {}
 
   public enum IntakeStates implements SystemState {
@@ -33,26 +33,26 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   }
 
   private static IntakeSubsystem s_intakeInstance;
-  private final Spark m_frontIntakeMotor;
-  private final Spark m_backIntakeMotor;
-  private final LimitSwitch m_frontBeamBreak;
-  private final LimitSwitch m_backBeamBreak;
+  private final Spark m_flapperMotor;
+  private final Spark m_funnelMotor;
+  private final LimitSwitch m_firstBeamBreak;
+  private final LimitSwitch m_secondBeamBreak;
 
   /** Creates a new IntakeSubsystem */
   private IntakeSubsystem(Hardware intakeHardware) {
     super(IntakeStates.IDLE);
-    this.m_frontIntakeMotor = intakeHardware.frontIntakeMotor;
-    this.m_backIntakeMotor = intakeHardware.backIntakeMotor;
-    this.m_frontBeamBreak = intakeHardware.frontBeamBreak;
-    this.m_backBeamBreak = intakeHardware.backBeamBreak;
+    this.m_flapperMotor = intakeHardware.flapperMotor;
+    this.m_funnelMotor = intakeHardware.funnelMotor;
+    this.m_firstBeamBreak = intakeHardware.firstBeamBreak;
+    this.m_secondBeamBreak = intakeHardware.secondBeamBreak;
 
     // Restore to factory defaults
-    m_frontIntakeMotor.restoreFactoryDefaults();
-    m_backIntakeMotor.restoreFactoryDefaults();
+    m_flapperMotor.restoreFactoryDefaults();
+    m_funnelMotor.restoreFactoryDefaults();
 
     // Set idle mode
-    m_frontIntakeMotor.setIdleMode(IdleMode.kBrake);
-    m_backIntakeMotor.setIdleMode(IdleMode.kBrake);
+    m_flapperMotor.setIdleMode(IdleMode.kBrake);
+    m_funnelMotor.setIdleMode(IdleMode.kBrake);
   }
 
   /**
@@ -75,28 +75,28 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
    */
   public static Hardware initializeHardware() {
     Hardware intakeHardware = new Hardware(
-      new Spark(Constants.IntakeHardware.FRONT_INTAKE_MOTOR_ID, MotorKind.NEO_VORTEX),
-      new Spark(Constants.IntakeHardware.BACK_INTAKE_MOTOR_ID, MotorKind.NEO_VORTEX),
-      new LimitSwitch(Constants.IntakeHardware.FRONT_INTAKE_BEAM_BREAK, SwitchPolarity.NORMALLY_OPEN, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE),
-      new LimitSwitch(Constants.IntakeHardware.BACK_INTAKE_BEAM_BREAK, SwitchPolarity.NORMALLY_OPEN, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE)
+      new Spark(Constants.IntakeHardware.FLAPPER_MOTOR_ID, MotorKind.NEO_VORTEX),
+      new Spark(Constants.IntakeHardware.FUNNEL_MOTOR_ID, MotorKind.NEO_VORTEX),
+      new LimitSwitch(Constants.IntakeHardware.FIRST_INTAKE_BEAM_BREAK, SwitchPolarity.NORMALLY_OPEN, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE),
+      new LimitSwitch(Constants.IntakeHardware.SECOND_INTAKE_BEAM_BREAK, SwitchPolarity.NORMALLY_OPEN, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE)
     );
     return intakeHardware;
   }
 
   /**
-   * Intake coral using only front intake motor
+   * Intake coral using only flapper intake motor
    * @param dutyCycleOutput Duty cycle to set motor to
    */
-  public void frontMotorIntake(double dutyCycleOutput) {
-    m_frontIntakeMotor.set(dutyCycleOutput);
+  private void flapperMotorIntake(double dutyCycleOutput) {
+    m_flapperMotor.set(dutyCycleOutput);
   }
 
   /**
-   *	Intakes the coral using the back motors into the end effector
+   *	Intakes the coral using the funnel motor into the end effector
    *	@param dutyCycleOutput Duty cycle to set motor to
    */
-  public void backMotorIntake(double dutyCycleOutput) {
-    m_backIntakeMotor.set(dutyCycleOutput);
+  private void funnelMotorIntake(double dutyCycleOutput) {
+    m_funnelMotor.set(dutyCycleOutput);
   }
 
   /**
@@ -104,15 +104,31 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
    * @return Boolean value whether coral is fully in intake or not
    */
   public boolean coralFullyInIntake() {
-    return ((m_frontBeamBreak.getInputs().value) && m_backBeamBreak.getInputs().value);
+    return ((m_firstBeamBreak.getInputs().value) && !(m_secondBeamBreak.getInputs().value));
+  }
+
+  /**
+   * Checks if the first beam break is broken or not
+   * @return A boolean to check if the first beam break is broken or not
+   */
+  public boolean firstBeamBreakStatus() {
+    return ((m_firstBeamBreak.getInputs().value));
+  }
+
+  /**
+   *  Stops all the motors
+   */
+  private void stop() {
+    m_flapperMotor.stopMotor();
+    m_funnelMotor.stopMotor();
   }
 
   /**
    * Closes all the motors, makes intake instance null
    */
   public void close() {
-    m_frontIntakeMotor.close();
-    m_backIntakeMotor.close();
+    m_flapperMotor.close();
+    m_funnelMotor.close();
     s_intakeInstance = null;
   }
 }

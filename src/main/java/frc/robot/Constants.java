@@ -46,10 +46,10 @@ public final class Constants {
   }
 
   public static class IntakeHardware {
-    public static final Spark.ID FRONT_INTAKE_MOTOR_ID = new Spark.ID("IntakeHardware/FrontIntakeMotor", 7);
-    public static final Spark.ID BACK_INTAKE_MOTOR_ID = new Spark.ID("IntakeHardware/BackIntakeMotor", 8);
-    public static final LimitSwitch.ID FRONT_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/FrontIntakeBeamBreak", 1);
-    public static final LimitSwitch.ID BACK_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/BackIntakeBeamBreak", 2);
+    public static final Spark.ID FLAPPER_MOTOR_ID = new Spark.ID("IntakeHardware/FlapperIntakeMotor", 7);
+    public static final Spark.ID FUNNEL_MOTOR_ID = new Spark.ID("IntakeHardware/FrontIntakeMotor", 8);
+    public static final LimitSwitch.ID FIRST_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/FirstIntakeBeamBreak", 1);
+    public static final LimitSwitch.ID SECOND_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/SecondIntakeBeamBreak", 2);
   }
 
   public static class VisionHardware {
