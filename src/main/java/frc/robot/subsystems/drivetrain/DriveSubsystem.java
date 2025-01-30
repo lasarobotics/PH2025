@@ -135,8 +135,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     private static TrapezoidProfile s_turnProfile;
 
-    private static SystemState s_lastState;
-
     public DriveSubsystem(Hardware driveHardware, Telemetry logger) {
         super(State.DRIVER_CONTROL);
 
@@ -181,7 +179,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             return;
         }
         s_autoAlignTargetState = Optional.of(state);
-        s_lastState = getState();
     }
 
     /**
