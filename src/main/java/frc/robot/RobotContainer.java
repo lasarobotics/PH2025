@@ -30,12 +30,12 @@ public class RobotContainer {
         DRIVE_SUBSYSTEM.bindControls(() -> -joystick.getLeftY(), () -> -joystick.getLeftX(),
                 () -> -joystick.getRightX());
 
-        joystick.a().onTrue(Commands.run(() -> {
-            DRIVE_SUBSYSTEM.requestAutoAlign(new TrapezoidProfile.State(100, 0));
-        }));
 
-        joystick.a().onTrue(Commands.run(() -> {
-            DRIVE_SUBSYSTEM.requestAutoAlign(new TrapezoidProfile.State(100, 0));
+        joystick.a().onTrue(Commands.runOnce(() -> {
+            DRIVE_SUBSYSTEM.requestAutoAlign(new TrapezoidProfile.State(3.14159/2, 0));
+        }));
+        joystick.b().onTrue(Commands.runOnce(() -> {
+            DRIVE_SUBSYSTEM.requestAutoAlign(null);
         }));
 
         // joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));

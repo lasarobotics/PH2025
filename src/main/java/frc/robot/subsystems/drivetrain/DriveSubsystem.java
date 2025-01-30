@@ -8,6 +8,7 @@ import java.util.function.DoubleSupplier;
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
 import org.lasarobotics.vision.AprilTagCamera;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
@@ -15,6 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
 
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -56,31 +58,57 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         AUTO_ALIGN {
             long m_lastTime;
             TrapezoidProfile.State m_currentState;
+            double m_angleOffset;
+            double PI2 = Math.PI * 2;
 
             @Override
             public void initialize() {
                 m_lastTime = System.currentTimeMillis();
+
+                // distance to shift all positions
+                m_angleOffset = Math.PI - s_autoAlignTargetState.orElseThrow().position;
+                s_autoAlignTargetState.orElseThrow().position += m_angleOffset; // equivalent to position = Math.PI
+                assert s_autoAlignTargetState.orElseThrow().position == Math.PI;
             }
 
             @Override
             public void execute() {
+                if (s_autoAlignTargetState.isEmpty()) {
+                    System.err.println("s_autoAlignState was empty in DriveSubsystem.execute()");
+                    return;
+                }
                 long dt = System.currentTimeMillis() - m_lastTime;
                 m_lastTime = System.currentTimeMillis();
-                m_currentState = new TrapezoidProfile.State(s_drivetrain.getRotation3d().getZ(), 0);
+                m_currentState = new TrapezoidProfile.State(
+                    ((s_drivetrain.getState().Pose.getRotation().getRadians() + m_angleOffset) % PI2 + PI2) % PI2,
+                    s_drivetrain.getState().Speeds.omegaRadiansPerSecond
+                );
 
                 TrapezoidProfile.State newState = s_turnProfile.calculate(dt / 1000.0, m_currentState, s_autoAlignTargetState.orElseThrow());
-                // System.out.println("new state: " + newState.position + ", " + newState.velocity);
-                
+                newState.position -= m_angleOffset;
+
+                Logger.recordOutput("Drive/autoAlign/targetPosition", newState.position);
+                Logger.recordOutput("Drive/autoAlign/targetVelocity", newState.velocity);
+
+                Logger.recordOutput("Drive/autoAlign/currentPosition", m_currentState.position);
+                Logger.recordOutput("Drive/autoAlign/currentVelocity", m_currentState.velocity);
+
+                Logger.recordOutput("Drive/autoAlign/targetPosition2", s_autoAlignTargetState.orElseThrow().position);
                 
                 s_drivetrain.setControl(
                     s_autoDrive
                     .withRotationalDeadband(0)
-                    .withTargetDirection(new Rotation2d(3.14159))
+                    .withTargetDirection(new Rotation2d(newState.position))
+                    .withTargetRateFeedforward(Units.RadiansPerSecond.of(newState.velocity))
                 );
             }
 
             @Override
             public State nextState() {
+                if (s_autoAlignTargetState.isEmpty()) {
+                    return DRIVER_CONTROL;
+                }
+
                 if (Math.abs(m_currentState.position - s_autoAlignTargetState.orElseThrow().position) < 0.05) {
                     return DRIVER_CONTROL;
                 }
@@ -129,10 +157,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
         s_autoDrive = new SwerveRequest.FieldCentricFacingAngle()
-            .withDriveRequestType(DriveRequestType.Velocity)
-            .withDeadband(0)
-            .withRotationalDeadband(0);
-        s_autoDrive.HeadingController.setPID(1, 0, 0);
+                .withDriveRequestType(DriveRequestType.Velocity)
+                .withDeadband(0)
+                .withRotationalDeadband(0);
+        s_autoDrive.HeadingController.setPID(100, 0, 0);
 
         s_logger = logger;
         s_drivetrain.registerTelemetry(logger::telemeterize);
@@ -146,7 +174,15 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         s_rotateRequest = rotateRequest;
     }
 
+    /**
+     * Request that the drivetrain aligns to the reef. Pass null to cancel.
+     * @param state
+     */
     public void requestAutoAlign(TrapezoidProfile.State state) {
+        if (state == null) {
+            s_autoAlignTargetState = Optional.empty();
+            return;
+        }
         s_autoAlignTargetState = Optional.of(state);
         s_lastState = getState();
     }
