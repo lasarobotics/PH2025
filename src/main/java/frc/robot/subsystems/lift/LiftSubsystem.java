@@ -4,9 +4,12 @@ import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.Millimeters;
+import static edu.wpi.first.units.Units.Volts;
+
+import java.util.function.Consumer;
 
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
@@ -14,9 +17,11 @@ import org.lasarobotics.hardware.ctre.TalonFX;
 import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.lasarobotics.hardware.generic.LimitSwitch.SwitchPolarity;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -24,6 +29,9 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.State;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 
 public class LiftSubsystem extends StateMachine implements AutoCloseable {
@@ -734,6 +742,11 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   private final MotionMagicVoltage m_pivotPositionSetter;
   private final MotionMagicVoltage m_elevatorPositionSetter;
   private final LimitSwitch m_elevatorHomingBeamBreak;
+  private final Consumer<SysIdRoutineLog.State> m_elevatorSysIDLogConsumer;
+  private final Consumer<SysIdRoutineLog.State> m_pivotSysIDLogConsumer;
+  private static final String ELEVATOR_MOTOR_SYSID_STATE_LOG_ENTRY = "/ElevatorMotorSysIDTestState";
+  private static final String PIVOT_MOTOR_SYSID_STATE_LOG_ENTRY = "/PivotMotorSysIDTestState";
+
 
   /** Creates a new LiftSubsystem */
   private LiftSubsystem(Hardware liftHardware) {
@@ -808,6 +821,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     pivotConfig.Slot0.kG = 0;
     pivotConfig.Slot0.kS = 0;
     pivotConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+
+    m_elevatorSysIDLogConsumer = state -> SignalLogger.writeString(getName() + ELEVATOR_MOTOR_SYSID_STATE_LOG_ENTRY, state.toString());
+    m_pivotSysIDLogConsumer = state -> SignalLogger.writeString(getName() + PIVOT_MOTOR_SYSID_STATE_LOG_ENTRY, state.toString());
 
     // Apply configs for TalonFX motors
     m_elevatorMotor.applyConfigs(elevatorConfig);
@@ -918,6 +934,43 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     Angle currentAngle = getArmAngle();
     return (currentAngle.isNear(targetAngle, ARM_TOLERANCE));
   }
+
+  /**
+   * Gets the SysID routine for the elevator
+   */
+  public SysIdRoutine getElevatorSysIDRoutine() {
+    return new SysIdRoutine(
+      new SysIdRoutine.Config(
+        null,
+        Volts.of(4),
+        null,
+        m_elevatorSysIDLogConsumer
+      ),
+      new SysIdRoutine.Mechanism(
+      voltage -> m_elevatorMotor.setControl(new VoltageOut(voltage)),
+      null, s_liftinstance)
+    );
+  }
+
+
+  /**
+   * 
+   * @return
+   */
+  public SysIdRoutine getPivotSysIDRoutine() {
+    return new SysIdRoutine(
+      new SysIdRoutine.Config(
+        null,
+        Volts.of(4),
+        null,
+        m_pivotSysIDLogConsumer
+      ),
+      new SysIdRoutine.Mechanism(
+      voltage -> m_pivotMotor.setControl(new VoltageOut(voltage)),
+      null, s_liftinstance)
+    );
+  }
+
 
   /**
    * Stop the elevator motor
