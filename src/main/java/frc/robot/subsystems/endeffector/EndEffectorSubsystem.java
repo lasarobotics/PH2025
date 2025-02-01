@@ -288,6 +288,8 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     this.nextState = nextState;
   }
 
+
+
   @Override
   public void periodic() {
     super.periodic();
