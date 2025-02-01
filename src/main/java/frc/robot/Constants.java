@@ -31,6 +31,7 @@ public final class Constants {
     public static final double INTAKE_MOTOR_SPEED = 0.5;
     public static final double REGURGITATE_MOTOR_SPEED = -0.5;
     public static final double SCORE_MOTOR_SPEED = 1.0;
+    public static final double CENTER_CORAL_MOTOR_SPEED = -0.4;
   }
 
   public static class LiftHardware {

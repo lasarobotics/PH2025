@@ -15,7 +15,7 @@ import frc.robot.Constants;
 public class EndEffectorSubsystem extends StateMachine implements AutoCloseable {
 
   public static record Hardware (
-    Spark endEffectorMotor
+    Spark endEffectorMotor  
   ) {}
 
   public enum endEffectorStates implements SystemState {
@@ -117,8 +117,6 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   
   private static EndEffectorSubsystem s_endEffectorInstance;
   private Spark m_endEffectorMotor;
-  private LimitSwitch m_insideEndEffectorBeamBreak;
-  private LimitSwitch m_outsideEndEffectorBeamBreak;
   private endEffectorStates nextState;
 
   /**
@@ -135,7 +133,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   }
 
     /** Creates a new endEffectorSubsystem. */
-  public EndEffectorSubsystem(Hardware endEffectorHardware) {
+  private EndEffectorSubsystem(Hardware endEffectorHardware) {
     super(endEffectorStates.IDLE);
     this.m_endEffectorMotor = endEffectorHardware.endEffectorMotor;
 
@@ -153,11 +151,11 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
       return endEffectorHardware;
   }
   /**
-   * Sets motor power
-   * @param power double ranging from -1.0 to 1.0
+   * Sets motor 
+   * @param dutyCycle -1.0 to 1.0
    */
-  private void setMotorPower(double power) {
-    m_endEffectorMotor.set(power);
+  private void setMotorPower(double dutyCycle){
+    m_endEffectorMotor.set(dutyCycle);
   }
 
   /**
@@ -245,7 +243,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   private void centerCoral() {
     if(forwardBeamBreakStatus()) {
       m_endEffectorMotor.enableReverseLimitSwitch();
-      m_endEffectorMotor.set(-0.4);
+      m_endEffectorMotor.set(Constants.EndEffector.CENTER_CORAL_MOTOR_SPEED);
     }
     if(reverseBeamBreakStatus()) {
       s_endEffectorInstance.stopMotor();
@@ -277,8 +275,6 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
   public void close() {
     m_endEffectorMotor.close();
-    m_insideEndEffectorBeamBreak.close();
-    m_outsideEndEffectorBeamBreak.close();
     s_endEffectorInstance = null;
   }
 }

@@ -21,44 +21,90 @@ import frc.robot.subsystems.endeffector.EndEffectorSubsystem;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class EndEffectorSubsystemTest {
-    private EndEffectorSubsystem m_endEffectorSystem;
-    private EndEffectorSubsystem.Hardware m_endEffectorHardware;
+  private EndEffectorSubsystem m_endEffectorSystem;
+  private EndEffectorSubsystem.Hardware m_endEffectorHardware;
+  
+  private Spark m_endEffectorMotor;
+  
+  @BeforeEach
+  public void setup() {
+    HAL.initialize(500, 0);
+    
+    m_endEffectorMotor = mock(Spark.class);
+    
+    SparkInputsAutoLogged sparkInputs = new SparkInputsAutoLogged();
+    when(m_endEffectorMotor.getInputs()).thenReturn(sparkInputs);
+    
+    when(m_endEffectorMotor.getKind()).thenReturn(MotorKind.NEO_VORTEX);
+    
+    when(m_endEffectorMotor.getID()).thenReturn(Constants.EndEffectorHardware.OUTTAKE_MOTOR_ID);
+    
+    m_endEffectorHardware = new EndEffectorSubsystem.Hardware(m_endEffectorMotor);
+    
+    m_endEffectorSystem = EndEffectorSubsystem.getInstance(m_endEffectorHardware);
+  }
+  
+  public void close() {
+    m_endEffectorSystem.close();
+    m_endEffectorSystem = null;
+  }
+  
+  @Test
+  @Order(1)
+  @DisplayName("Test if End Effector can outtake")
+  public void outtake() {
+    SparkInputsAutoLogged sparkInputs = new SparkInputsAutoLogged();
+    
+    m_endEffectorSystem.setState(EndEffectorSubsystem.endEffectorStates.SCORE);
+    
+    when(m_endEffectorMotor.getInputs()).thenReturn(sparkInputs);
+    
+    verify(m_endEffectorMotor, times(1)).set(1.0);
 
-    private Spark m_endEffectorMotor;
+    m_endEffectorSystem.setState(EndEffectorSubsystem.endEffectorStates.IDLE);
 
-    @BeforeEach
-    public void setup() {
-        HAL.initialize(500, 0);
+  }
+  
+  @Test
+  @Order(2)
+  @DisplayName("Test if End Effector can regurgitate")
+  public void regurgitate() {
+    SparkInputsAutoLogged sparkInputs = new SparkInputsAutoLogged();
+    
+    m_endEffectorSystem.setState(EndEffectorSubsystem.endEffectorStates.REGURGITATE);
+    
+    when(m_endEffectorMotor.getInputs()).thenReturn(sparkInputs);
+    
+    verify(m_endEffectorMotor, times(1)).set(-1.0);
 
-        m_endEffectorMotor = mock(Spark.class);
+    m_endEffectorSystem.setState(EndEffectorSubsystem.endEffectorStates.IDLE);
 
-        SparkInputsAutoLogged sparkInputs = new SparkInputsAutoLogged();
-        when(m_endEffectorMotor.getInputs()).thenReturn(sparkInputs);
+  }
 
-        when(m_endEffectorMotor.getKind()).thenReturn(MotorKind.NEO_VORTEX);
+  @Test
+  @Order(3)
+  @DisplayName("Test if End Effector can Intake")
+  public void intake() {
+    SparkInputsAutoLogged sparkInputs = new SparkInputsAutoLogged();
 
-        when(m_endEffectorMotor.getID()).thenReturn(Constants.EndEffectorHardware.OUTTAKE_MOTOR_ID);
+    sparkInputs.forwardLimitSwitch = false;
+    sparkInputs.reverseLimitSwitch = false;
 
-        m_endEffectorHardware = new EndEffectorSubsystem.Hardware(m_endEffectorMotor);
+    m_endEffectorSystem.setState(EndEffectorSubsystem.endEffectorStates.INTAKE);
 
-        m_endEffectorSystem = EndEffectorSubsystem.getInstance(m_endEffectorHardware);
-    }
+    verify(m_endEffectorMotor, times(1)).set(Constants.EndEffector.INTAKE_MOTOR_SPEED);
 
-    public void close() {
-        m_endEffectorSystem.close();
-        m_endEffectorSystem = null;
-    }
+    sparkInputs.forwardLimitSwitch = true;
+    sparkInputs.reverseLimitSwitch = false;
 
-    @Test
-    @Order(1)
-    @DisplayName("Test if End Effector can outtake")
-    public void outtake() {
-        SparkInputsAutoLogged sparkInputs = new SparkInputsAutoLogged();
+    verify(m_endEffectorMotor, times(1)).set(Constants.EndEffector.CENTER_CORAL_MOTOR_SPEED);
 
-        m_endEffectorSystem.setState(EndEffectorSubsystem.endEffectorStates.SCORE);
+    sparkInputs.forwardLimitSwitch = true;
+    sparkInputs.reverseLimitSwitch = true;
 
-        when(m_endEffectorMotor.getInputs()).thenReturn(sparkInputs);
+    verify(m_endEffectorMotor, times(1)).close();
 
-        verify(m_endEffectorMotor, times(1)).set(1.0);
-    }
+
+
+  }
 }
