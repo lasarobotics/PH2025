@@ -256,6 +256,44 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     this.nextState = nextState;
   }
 
+  /**
+   * Check if end effector is empty
+   * @return Boolean indicating whether there is a coral in end effector
+   */
+  public boolean isEmpty() {
+    return !forwardBeamBreakStatus() && !reverseBeamBreakStatus();
+  }
+
+    /**
+   * Runs motor at power required for intaking
+   */
+  public void intake() {
+    m_endEffectorMotor.set(Constants.EndEffector.INTAKE_MOTOR_SPEED);
+  }
+
+  /**
+   * Runs motor at power required for scoring
+   */
+  public void score() {
+    m_endEffectorMotor.set(Constants.EndEffector.SCORE_MOTOR_SPEED);
+  }
+
+  /**
+   * Runs motor at power required for scoring at L4
+   */
+  public void scoreL4() {
+    m_endEffectorMotor.set(-Constants.EndEffector.SCORE_MOTOR_SPEED);
+  }
+
+  /**
+   * Regurgitates Coral back into lift
+   */
+  public void regurgitate() {
+    m_endEffectorMotor.set(Constants.EndEffector.REGURGITATE_MOTOR_SPEED);
+  }
+
+
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
