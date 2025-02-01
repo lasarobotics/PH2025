@@ -43,6 +43,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                     .withVelocityY(Constants.Drive.MAX_SPEED.times(-s_strafeRequest.getAsDouble()))
                     .withRotationalRate(Constants.Drive.MAX_ANGULAR_RATE.times(-s_rotateRequest.getAsDouble()))
                 );
+
+                double angle = Math.atan2(s_drivetrain.getState().Pose.getX() - Constants.Field.REEF_LOCATION.getX(), s_drivetrain.getState().Pose.getY() - Constants.Field.REEF_LOCATION.getY());
+                Logger.recordOutput("Drive/angle", angle);
             }
 
             @Override
@@ -60,7 +63,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             @Override
             public void initialize() {
                 m_lastTime = System.currentTimeMillis();
-
+                System.out.println(s_drivetrain.getState().Pose.getRotation().getRadians() + "\n");
                 m_currentTurnState = new TrapezoidProfile.State(
                     s_drivetrain.getState().Pose.getRotation().getRadians(),
                     s_drivetrain.getState().Speeds.omegaRadiansPerSecond
@@ -104,7 +107,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 double goalMinDistance =
                     MathUtil.inputModulus(s_autoAlignTargetTurn.position - measurement, -errorBound, errorBound);
                 double setpointMinDistance =
-                    MathUtil.inputModulus(s_autoAlignTargetTurn.position - measurement, -errorBound, errorBound);
+                    MathUtil.inputModulus(m_currentTurnState.position - measurement, -errorBound, errorBound);
 
                 // Recompute the profile goal with the smallest error, thus giving the shortest path. The goal
                 // may be outside the input range after this operation, but that's OK because the controller
@@ -182,8 +185,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
         /* Setting up bindings for necessary control of the swerve drive platform */
         s_drive = new SwerveRequest.FieldCentric()
-                .withDeadband(Constants.Drive.MAX_SPEED.times(0.1))
-                .withRotationalDeadband(Constants.Drive.MAX_ANGULAR_RATE.times(0.1)) // Add a 10% deadband
+                // .withDeadband(Constants.Drive.MAX_SPEED.times(0.1))
+                // .withRotationalDeadband(Constants.Drive.MAX_ANGULAR_RATE.times(0.1)) // Add a 10% deadband
+                .withDeadband(0)
+                .withRotationalDeadband(0)
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
         s_autoDrive = new FieldCentricWithPose()
@@ -219,8 +224,27 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         s_shouldAutoAlign = true;
     }
 
+    public void requestAutoAlign() {
+        requestAutoAlign(findAutoAlignTarget());
+    }
+
     public void cancelAutoAlign() {
         s_shouldAutoAlign = false;
+    }
+
+    public Pose2d getPose() {
+        return s_drivetrain.getState().Pose;
+    }
+
+    /**
+     * Returns the location the robot should go to in order to align to the nearest reef pole
+     */
+    private Pose2d findAutoAlignTarget() {
+        double angle = Math.toDegrees(Math.atan2(s_drivetrain.getState().Pose.getX() - Constants.Field.REEF_LOCATION.getX(), s_drivetrain.getState().Pose.getY() - Constants.Field.REEF_LOCATION.getY())) + 360;
+        angle = (((angle / 30)) + 10) % 12;
+        Logger.recordOutput("Drive/snappedAngle", angle);
+        return Constants.Drive.AUTO_ALIGN_LOCATIONS.get((int) angle);
+        // return Constants.Drive.AUTO_ALIGN_LOCATIONS.get(0);
     }
 
     /**
@@ -274,6 +298,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         }
 
         Logger.recordOutput("Drive/state", getState().toString());
+        Logger.recordOutput("Drive/autotarget", findAutoAlignTarget());
+        Logger.recordOutput("Drive/autoAlign/temp", s_drivetrain.getState().Pose.getRotation().getRadians());
     }
 
     @Override
