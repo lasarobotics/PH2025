@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import org.lasarobotics.hardware.ctre.PhoenixCANBus;
+import org.lasarobotics.hardware.ctre.TalonFX;
 import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.vision.AprilTagCamera.Resolution;
@@ -28,7 +30,8 @@ public final class Constants {
     public static final AprilTagFieldLayout FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
     public static final Pose2d SOURCE_INTAKE_POINT = new Pose2d(
       new Translation2d(Meters.of(1.209), Meters.of(1.1)),
-      Rotation2d.fromDegrees(-145.305));
+      Rotation2d.fromDegrees(-145.305)
+    );
   }
 
   public static class Frequencies {
@@ -49,24 +52,10 @@ public final class Constants {
   }
 
   public static class LiftHardware {
-   public static final int ELEVATOR_MOTOR_ID = 4;
-   public static final int PIVOT_MOTOR_ID = 5;
-   public static final Spark.ID OUTTAKE_MOTOR_ID = new Spark.ID("LiftHardware/Outtake", 6);
+   public static final TalonFX.ID ELEVATOR_MOTOR_ID = new TalonFX.ID("LiftHardware/Elevator", PhoenixCANBus.RIO, 4);
+   public static final TalonFX.ID PIVOT_MOTOR_ID = new TalonFX.ID("LiftHardware/Pivot", PhoenixCANBus.RIO, 5);
    public static final Distance SPROCKET_PITCH_RADIUS = Inches.of((1.751)/(2.0));
-   public static final int INSIDE_END_EFFECTOR_BEAM_BREAK_PORT = 0;
-   public static final int OUTSIDE_END_EFFECTOR_BEAM_BREAK_PORT = 1;
-   public static final int ELEVATOR_HOMING_BEAM_BREAK_PORT = 2;
-  }
-
-  public static class IntakeHardware {
-    public static final Spark.ID FLAPPER_MOTOR_ID = new Spark.ID("IntakeHardware/FlapperIntakeMotor", 7);
-    public static final Spark.ID FUNNEL_MOTOR_ID = new Spark.ID("IntakeHardware/FrontIntakeMotor", 8);
-    public static final LimitSwitch.ID FIRST_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/FirstIntakeBeamBreak", 1);
-    public static final LimitSwitch.ID SECOND_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/SecondIntakeBeamBreak", 2);
-  }
-
-  public static class EndEffectorHardware {
-    public static final Spark.ID OUTTAKE_MOTOR_ID =  new Spark.ID("endEffecterMotor", 7);
+   public static final LimitSwitch.ID ELEVATOR_HOMING_BEAM_BREAK_PORT = new LimitSwitch.ID("LiftHardware/HomingSwitch", 0);
   }
 
   public static class IntakeHardware {
