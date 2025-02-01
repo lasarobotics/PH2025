@@ -41,6 +41,13 @@ public final class Constants {
     public static final AngularVelocity MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75); // TODO measure this value
   }
 
+  public static class EndEffector {
+    public static final double INTAKE_MOTOR_SPEED = 0.5;
+    public static final double REGURGITATE_MOTOR_SPEED = -0.5;
+    public static final double SCORE_MOTOR_SPEED = 1.0;
+    public static final double CENTER_CORAL_MOTOR_SPEED = -0.4;
+  }
+
   public static class LiftHardware {
    public static final int ELEVATOR_MOTOR_ID = 4;
    public static final int PIVOT_MOTOR_ID = 5;
@@ -56,6 +63,10 @@ public final class Constants {
     public static final Spark.ID FUNNEL_MOTOR_ID = new Spark.ID("IntakeHardware/FrontIntakeMotor", 8);
     public static final LimitSwitch.ID FIRST_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/FirstIntakeBeamBreak", 1);
     public static final LimitSwitch.ID SECOND_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/SecondIntakeBeamBreak", 2);
+  }
+
+  public static class EndEffectorHardware {
+    public static final Spark.ID OUTTAKE_MOTOR_ID =  new Spark.ID("endEffecterMotor", 7);
   }
 
   public static class VisionHardware {
