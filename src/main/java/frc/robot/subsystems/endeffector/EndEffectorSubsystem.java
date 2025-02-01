@@ -122,7 +122,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   private endEffectorStates nextState;
 
   /**
-   * Returns an instance of EndEffecterSubsystem
+   * Returns an instance of EndEffectorSubsystem
    * 
    * @param endEffectorHardware Hardware for the system
    * @return Subsystem Instance
@@ -241,7 +241,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   }
 
   /**
-   * Centers Coral in end effecter
+   * Centers Coral in end effector
    */
   private void centerCoral() {
     if(forwardBeamBreakStatus()) {
@@ -254,7 +254,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   }
 
   /**
-   * Checks if coral is centered in end effecter
+   * Checks if coral is centered in end effector
    * @return true if both beam breaks are true, false otherwise
    */
   public boolean isCoralCentered() {
@@ -265,7 +265,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * Sets next state instance variable used in state machines
    * @param nextState next state to transition to
    */
-  public void setNextState(endEffectorStates nextState) {
+  public void setState(endEffectorStates nextState) {
     this.nextState = nextState;
   }
 
