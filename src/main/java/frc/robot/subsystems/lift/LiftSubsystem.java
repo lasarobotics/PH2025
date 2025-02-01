@@ -40,13 +40,16 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     LimitSwitch elevatorHomingBeamBreak
   ) {}
 
-  public static enum USER_INPUT {
+  public static enum TargetLiftStates {
     STOW,
     L1,
     L2,
     L3,
     L4
   }
+
+  private static TargetLiftStates nextState;
+  private static TargetLiftStates curState;
 
   static final DutyCycleOut HOMING_SPEED = new DutyCycleOut(-0.05);
   static final Distance HOMING_EPSILON = Millimeters.of(5);
@@ -76,13 +79,13 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Distance L3_HEIGHT = Inches.of(0);
   static final Distance L4_HEIGHT = Inches.of(0);
 
-  /* TODO: Actually get user input */
-  private static USER_INPUT getUserInput() { return USER_INPUT.STOW; }
-
   public enum LiftStates implements SystemState {
     IDLE {
       @Override
       public LiftStates nextState() {
+        if (nextState == TargetLiftStates.STOW) {
+          return STOW;
+        }
         return this;
       }
     },
@@ -116,16 +119,17 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (getUserInput() == USER_INPUT.L1) {
+        curState = TargetLiftStates.STOW;
+        if (nextState == TargetLiftStates.L1) {
           return STOW_L1_S0;
         }
-        if (getUserInput() == USER_INPUT.L2) {
+        if (nextState == TargetLiftStates.L2) {
           return STOW_L2_S0;
         }
-        if (getUserInput() == USER_INPUT.L3) {
+        if (nextState == TargetLiftStates.L3) {
           return STOW_L3_S0;
         }
-        if (getUserInput() == USER_INPUT.L4) {
+        if (nextState == TargetLiftStates.L4) {
           return STOW_L4_S0;
         }
         return this;
@@ -168,16 +172,17 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (getUserInput() == USER_INPUT.STOW) {
+        curState = TargetLiftStates.L1;
+        if (nextState == TargetLiftStates.STOW) {
           return L1_STOW_S1;
         }
-        if (getUserInput() == USER_INPUT.L2) {
+        if (nextState == TargetLiftStates.L2) {
           return L1_L2_S1;
         }
-        if (getUserInput() == USER_INPUT.L3) {
+        if (nextState == TargetLiftStates.L3) {
           return L1_L3_S1;
         }
-        if (getUserInput() == USER_INPUT.L4) {
+        if (nextState == TargetLiftStates.L4) {
           return L1_L4_S1;
         }
         return this;
@@ -304,16 +309,17 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (getUserInput() == USER_INPUT.STOW) {
+        curState = TargetLiftStates.L2;
+        if (nextState == TargetLiftStates.STOW) {
           return L1_STOW_S1;
         }
-        if (getUserInput() == USER_INPUT.L1) {
+        if (nextState == TargetLiftStates.L1) {
           return L2_L1_S1;
         }
-        if (getUserInput() == USER_INPUT.L3) {
+        if (nextState == TargetLiftStates.L3) {
           return L2_L3_S1;
         }
-        if (getUserInput() == USER_INPUT.L4) {
+        if (nextState == TargetLiftStates.L4) {
           return L2_L4_S1;
         }
         return this;
@@ -426,16 +432,17 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (getUserInput() == USER_INPUT.STOW) {
+        curState = TargetLiftStates.L3;
+        if (nextState == TargetLiftStates.STOW) {
           return L3_STOW_S1;
         }
-        if (getUserInput() == USER_INPUT.L1) {
+        if (nextState == TargetLiftStates.L1) {
           return L3_L1_S1;
         }
-        if (getUserInput() == USER_INPUT.L3) {
+        if (nextState == TargetLiftStates.L3) {
           return L3_L2_S1;
         }
-        if (getUserInput() == USER_INPUT.L4) {
+        if (nextState == TargetLiftStates.L4) {
           return L3_L4_S1;
         }
         return this;
@@ -674,16 +681,17 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (getUserInput() == USER_INPUT.STOW) {
+        curState = TargetLiftStates.L4;
+        if (nextState == TargetLiftStates.STOW) {
           return L4_STOW_S1;
         }
-        if (getUserInput() == USER_INPUT.L1) {
+        if (nextState == TargetLiftStates.L1) {
           return L4_L1_S1;
         }
-        if (getUserInput() == USER_INPUT.L3) {
+        if (nextState == TargetLiftStates.L3) {
           return L4_L2_S1;
         }
-        if (getUserInput() == USER_INPUT.L4) {
+        if (nextState == TargetLiftStates.L4) {
           return L4_L3_S1;
         }
         return this;
@@ -1054,5 +1062,21 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     m_elevatorMotor.close();
     m_pivotMotor.close();
     s_liftinstance = null;
+  }
+
+  /**
+   * Set state of lift state machine
+   * @param state The target TargetLiftStates state to go to
+   */
+  public void setState(TargetLiftStates state) {
+    nextState = state;
+  }
+
+  /**
+   * See if the current nextState is at a given state
+   * @param state The LiftStates state to check against
+   */
+  public boolean isAtState(TargetLiftStates state) {
+    return curState == state;
   }
 }
