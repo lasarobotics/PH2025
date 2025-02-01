@@ -8,6 +8,9 @@ import org.lasarobotics.fsm.SystemState;
 import org.lasarobotics.vision.AprilTagCamera;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+
+import edu.wpi.first.math.geometry.Pose2d;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import frc.robot.Constants;
@@ -116,6 +119,15 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_strafeRequest = strafeRequest;
     s_rotateRequest = rotateRequest;
   }
+
+  /**
+   * Get's the robot current pose
+   * @return Robot's current pose
+   */
+  public Pose2d getPose(){
+    return s_drivetrain.getState().Pose;
+  }
+
 
   @Override
   public void periodic() {

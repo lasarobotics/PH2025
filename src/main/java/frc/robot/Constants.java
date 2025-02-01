@@ -1,25 +1,39 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.vision.AprilTagCamera.Resolution;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.generated.TunerConstants;
 
 public final class Constants {
   public static class Field {
     public static final AprilTagFieldLayout FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    public static final Pose2d SOURCE_INTAKE_POINT = new Pose2d(
+      new Translation2d(Meters.of(1.209), Meters.of(1.1)),
+      Rotation2d.fromDegrees(-145.305));
+  }
+
+  public static class Frequencies {
+    public static final Frequency TALON_UPDATE_RATE = Hertz.of(50);
+    public static final Frequency BEAM_BREAK_UPDATE_RATE = Hertz.of(50);
   }
 
   public static class Drive {
@@ -35,6 +49,13 @@ public final class Constants {
    public static final int INSIDE_END_EFFECTOR_BEAM_BREAK_PORT = 0;
    public static final int OUTSIDE_END_EFFECTOR_BEAM_BREAK_PORT = 1;
    public static final int ELEVATOR_HOMING_BEAM_BREAK_PORT = 2;
+  }
+
+  public static class IntakeHardware {
+    public static final Spark.ID FLAPPER_MOTOR_ID = new Spark.ID("IntakeHardware/FlapperIntakeMotor", 7);
+    public static final Spark.ID FUNNEL_MOTOR_ID = new Spark.ID("IntakeHardware/FrontIntakeMotor", 8);
+    public static final LimitSwitch.ID FIRST_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/FirstIntakeBeamBreak", 1);
+    public static final LimitSwitch.ID SECOND_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/SecondIntakeBeamBreak", 2);
   }
 
   public static class VisionHardware {
