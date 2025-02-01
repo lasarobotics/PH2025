@@ -1,18 +1,14 @@
 package frc.robot.subsystems.drivetrain;
 
-import java.util.ArrayList;
-
 import java.util.function.DoubleSupplier;
 
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
-import org.lasarobotics.vision.AprilTagCamera;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -27,12 +23,10 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import frc.robot.Constants;
 import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.VisionSubsystem.VisionSubsystem;
 
 public class DriveSubsystem extends StateMachine implements AutoCloseable {
-    public static record Hardware(
-            AprilTagCamera frontLeftCamera,
-            AprilTagCamera frontRightCamera,
-            AprilTagCamera rearCamera) {
+    public static record Hardware() {
     }
 
     public enum State implements SystemState {
@@ -170,20 +164,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     private static TrapezoidProfile.State s_autoAlignTargetDriveY;
     private static TrapezoidProfile.State s_autoAlignTargetTurn;
 
-    private static ArrayList<AprilTagCamera> m_cameras;
-
     private static TrapezoidProfile s_turnProfile;
     private static TrapezoidProfile s_driveProfile;
 
-    private static SystemState s_lastState;
-
     public DriveSubsystem(Hardware driveHardware, Telemetry logger) {
         super(State.DRIVER_CONTROL);
-
-        m_cameras = new ArrayList<AprilTagCamera>();
-        m_cameras.add(driveHardware.frontLeftCamera);
-        m_cameras.add(driveHardware.frontRightCamera);
-        m_cameras.add(driveHardware.rearCamera);
 
         s_drivetrain = TunerConstants.createDrivetrain();
 
@@ -247,55 +232,19 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         // return Constants.Drive.AUTO_ALIGN_LOCATIONS.get(0);
     }
 
-
     /**
      * Initialize hardware devices for drive subsystem
      *
      * @return Hardware object containing all necessary devices for this subsystem
      */
     public static Hardware initializeHardware() {
-        AprilTagCamera frontLeftCamera = new AprilTagCamera(
-                Constants.VisionHardware.CAMERA_A_NAME,
-                Constants.VisionHardware.CAMERA_A_LOCATION,
-                Constants.VisionHardware.CAMERA_A_RESOLUTION,
-                Constants.VisionHardware.CAMERA_A_FOV,
-                Constants.Field.FIELD_LAYOUT);
-
-        AprilTagCamera frontRightCamera = new AprilTagCamera(
-                Constants.VisionHardware.CAMERA_B_NAME,
-                Constants.VisionHardware.CAMERA_B_LOCATION,
-                Constants.VisionHardware.CAMERA_B_RESOLUTION,
-                Constants.VisionHardware.CAMERA_B_FOV,
-                Constants.Field.FIELD_LAYOUT);
-
-        AprilTagCamera rearCamera = new AprilTagCamera(
-                Constants.VisionHardware.CAMERA_C_NAME,
-                Constants.VisionHardware.CAMERA_C_LOCATION,
-                Constants.VisionHardware.CAMERA_C_RESOLUTION,
-                Constants.VisionHardware.CAMERA_C_FOV,
-                Constants.Field.FIELD_LAYOUT);
-
-    Hardware driveHardware = new Hardware(
-      frontLeftCamera,
-      frontRightCamera,
-      rearCamera
-    );
-    return driveHardware;
-  }
-
-  /**
-   * Get's the robot current pose
-   * @return Robot's current pose
-   */
-  public Pose2d getPose(){
-    return s_drivetrain.getState().Pose;
-  }
-
+        return new Hardware();
+    }
 
     @Override
     public void periodic() {
         // Add AprilTag pose estimates if available
-        for (var camera : m_cameras) {
+        for (var camera : VisionSubsystem.getAprilTagCameras()) {
             var result = camera.getLatestEstimatedPose();
 
             // If no updated vision pose estimate, continue

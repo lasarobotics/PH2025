@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.VisionSubsystem.VisionSubsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.drivetrain.DriveSubsystem;
 import frc.robot.subsystems.lift.LiftSubsystem;
@@ -22,6 +23,8 @@ public class RobotContainer {
 
   private final DriveSubsystem DRIVE_SUBSYSTEM = new DriveSubsystem(DriveSubsystem.initializeHardware(), logger);
   private final LiftSubsystem LIFT_SUBSYSTEM = LiftSubsystem.getInstance(LiftSubsystem.initializeHardware());
+
+    private final VisionSubsystem VISION_SUBSYSTEM = new VisionSubsystem(VisionSubsystem.initializeHardware());
 
     public RobotContainer() {
         configureBindings();
