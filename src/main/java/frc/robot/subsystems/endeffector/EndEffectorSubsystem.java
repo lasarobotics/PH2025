@@ -147,33 +147,12 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
       return endEffectorHardware;
   }
-
   /**
-   * Runs motor at power required for intaking
+   * Sets motor 
+   * @param dutyCycle -1.0 to 1.0
    */
-  private void intake() {
-    m_endEffectorMotor.set(Constants.EndEffector.INTAKE_MOTOR_SPEED);
-  }
-
-  /**
-   * Runs motor at power required for scoring
-   */
-  private void score() {
-    m_endEffectorMotor.set(Constants.EndEffector.SCORE_MOTOR_SPEED);
-  }
-
-  /**
-   * Runs motor at power required for scoring at L4
-   */
-  private void scoreL4() {
-    m_endEffectorMotor.set(-Constants.EndEffector.SCORE_MOTOR_SPEED);
-  }
-
-  /**
-   * Regurgitates Coral back into lift
-   */
-  private void regurgitate() {
-    m_endEffectorMotor.set(Constants.EndEffector.REGURGITATE_MOTOR_SPEED);
+  private void setMotorPower(double dutyCycle){
+    m_endEffectorMotor.set(dutyCycle);
   }
 
   /**
@@ -256,10 +235,6 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     this.nextState = nextState;
   }
 
-  /**
-   * Check if end effector is empty
-   * @return Boolean indicating whether there is a coral in end effector
-   */
   public boolean isEmpty() {
     return !forwardBeamBreakStatus() && !reverseBeamBreakStatus();
   }
@@ -291,7 +266,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   public void regurgitate() {
     m_endEffectorMotor.set(Constants.EndEffector.REGURGITATE_MOTOR_SPEED);
   }
-
+  
 
 
   @Override
