@@ -228,7 +228,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   }
 
   /**
-   * Centers Coral in end effector
+   * Centers coral in end effector
    */
   private void centerCoral() {
     if(forwardBeamBreakStatus()) {
@@ -256,6 +256,10 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     this.nextState = nextState;
   }
 
+  /**
+   * Checks status of coral in the end effector
+   * @return True if end effector is empty
+   */
   public boolean isEmpty() {
     return !forwardBeamBreakStatus() && !reverseBeamBreakStatus();
   }
@@ -287,8 +291,6 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   public void regurgitate() {
     m_endEffectorMotor.set(Constants.EndEffector.REGURGITATE_MOTOR_SPEED);
   }
-
-
 
   @Override
   public void periodic() {
