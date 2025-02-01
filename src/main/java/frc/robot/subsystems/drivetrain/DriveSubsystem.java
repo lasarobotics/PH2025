@@ -44,6 +44,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                     .withVelocityY(Constants.Drive.MAX_SPEED.times(-s_strafeRequest.getAsDouble()))
                     .withRotationalRate(Constants.Drive.MAX_ANGULAR_RATE.times(-s_rotateRequest.getAsDouble()))
                 );
+
+                double angle = Math.atan2(s_drivetrain.getState().Pose.getX() - Constants.Field.REEF_LOCATION.getX(), s_drivetrain.getState().Pose.getY() - Constants.Field.REEF_LOCATION.getY());
+                Logger.recordOutput("Drive/angle", angle);
             }
 
             @Override
@@ -223,6 +226,21 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     public void cancelAutoAlign() {
         s_shouldAutoAlign = false;
+    }
+
+    public Pose2d getPose() {
+        return s_drivetrain.getState().Pose;
+    }
+
+    /**
+     * Returns the location the robot should go to in order to align to the nearest reef pole
+     */
+    private Pose2d findAutoAlignTarget() {
+        double angle = Math.toDegrees(Math.atan2(s_drivetrain.getState().Pose.getX() - Constants.Field.REEF_LOCATION.getX(), s_drivetrain.getState().Pose.getY() - Constants.Field.REEF_LOCATION.getY())) + 360;
+        angle = (((angle / 30)) + 10) % 12;
+        Logger.recordOutput("Drive/snappedAngle", angle);
+        return Constants.Drive.AUTO_ALIGN_LOCATIONS.get((int) angle);
+        // return Constants.Drive.AUTO_ALIGN_LOCATIONS.get(0);
     }
 
     /**
