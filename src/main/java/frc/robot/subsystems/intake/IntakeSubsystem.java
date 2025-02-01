@@ -1,5 +1,8 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Percent;
+import static edu.wpi.first.units.Units.Value;
+
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
 import org.lasarobotics.hardware.generic.LimitSwitch;
@@ -7,8 +10,10 @@ import org.lasarobotics.hardware.generic.LimitSwitch.SwitchPolarity;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.units.measure.Dimensionless;
 import frc.robot.Constants;
 import frc.robot.Constants.Drive;
 import frc.robot.subsystems.drivetrain.DriveSubsystem;
@@ -21,6 +26,9 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     LimitSwitch secondBeamBreak
   ) {}
 
+  static final Dimensionless FLAPPER_INTAKE_SPEED = Percent.of(100);
+  static final Dimensionless FUNNEL_INTAKE_SPEED = Percent.of(100);
+
   public enum IntakeStates implements SystemState {
     IDLE {
       @Override
@@ -30,6 +38,22 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public IntakeStates nextState() {
         return this;
+      }
+    },
+    INTAKE {
+      @Override
+      public void initialize() {
+        s_intakeInstance.flapperMotorIntake();
+      }
+
+      @Override
+      public void execute() {
+        if (s_intakeInstance.firstBeamBreakStatus())
+          s_intakeInstance.stop();
+      }
+
+      @Override
+      public IntakeStates nextState() {
       }
     };
   }
@@ -89,16 +113,16 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
    * Intake coral using only flapper intake motor
    * @param dutyCycleOutput Duty cycle to set motor to
    */
-  private void flapperMotorIntake(double dutyCycleOutput) {
-    m_flapperMotor.set(dutyCycleOutput);
+  private void flapperMotorIntake() {
+    m_flapperMotor.set(FLAPPER_INTAKE_SPEED.in(Value));
   }
 
   /**
    *	Intakes the coral using the funnel motor into the end effector
    *	@param dutyCycleOutput Duty cycle to set motor to
    */
-  private void funnelMotorIntake(double dutyCycleOutput) {
-    m_funnelMotor.set(dutyCycleOutput);
+  private void funnelMotorIntake() {
+    m_funnelMotor.set(FUNNEL_INTAKE_SPEED.in(Value));
   }
 
   /**
@@ -123,6 +147,13 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
    */
   public boolean secondBeamBreakStatus() {
     return ((m_secondBeamBreak.getInputs().value));
+  }
+
+  /**
+   *
+   */
+  public void autoIntake() {
+
   }
 
   /**
