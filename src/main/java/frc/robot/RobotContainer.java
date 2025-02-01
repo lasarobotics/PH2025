@@ -42,6 +42,10 @@ public class RobotContainer {
             DRIVE_SUBSYSTEM.requestAutoAlign(null);
         }));
 
+        joystick.x().onTrue(Commands.runOnce(() -> {
+            DRIVE_SUBSYSTEM.requestAutoAlign();
+        }));
+
         // joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // joystick.b().whileTrue(drivetrain.applyRequest(() ->
         // point.withModuleDirection(new Rotation2d(-joystick.getLeftY(),
