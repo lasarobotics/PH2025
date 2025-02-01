@@ -769,7 +769,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     elevatorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     elevatorConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
     elevatorConfig.CurrentLimits.SupplyCurrentLowerTime = 1.0;
-    elevatorConfig.Feedback.SensorToMechanismRatio = 1.0;
+    elevatorConfig.Feedback.SensorToMechanismRatio = 5.0;
     elevatorConfig.Feedback.RotorToSensorRatio = 1.0;
     elevatorConfig.Audio.AllowMusicDurDisable = true;
     elevatorConfig.MotionMagic.MotionMagicAcceleration = 0;
@@ -801,7 +801,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     pivotConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
     pivotConfig.CurrentLimits.SupplyCurrentLowerTime = 1.0;
     pivotConfig.Feedback.SensorToMechanismRatio = 1.0;
-    pivotConfig.Feedback.RotorToSensorRatio = 1.0;
+    pivotConfig.Feedback.RotorToSensorRatio = 52.36363636363636;
     pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     pivotConfig.Audio.AllowMusicDurDisable = true;
     pivotConfig.MotionMagic.MotionMagicAcceleration = 0;
@@ -954,7 +954,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
 
   /**
-   * 
+   *
    * @return
    */
   public SysIdRoutine getPivotSysIDRoutine() {
