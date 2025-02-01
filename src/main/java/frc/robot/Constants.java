@@ -2,9 +2,6 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -13,6 +10,12 @@ import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.lasarobotics.hardware.ctre.PhoenixCANBus;
+import org.lasarobotics.hardware.ctre.TalonFX;
+import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.vision.AprilTagCamera.Resolution;
 
@@ -38,51 +41,49 @@ public final class Constants {
   public static class Field {
     public static final AprilTagFieldLayout FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
     public static final Pose2d SOURCE_INTAKE_POINT = new Pose2d(
-      new Translation2d(Meters.of(1.209), Meters.of(1.1)),
-      Rotation2d.fromDegrees(-145.305)
-    );
+        new Translation2d(Meters.of(1.209), Meters.of(1.1)),
+        Rotation2d.fromDegrees(-145.305));
+
+    public static final Translation2d REEF_LOCATION = new Translation2d(4.46, 4.02);
+
   }
 
   public static class Frequencies {
     public static final Frequency TALON_UPDATE_RATE = Hertz.of(50);
     public static final Frequency BEAM_BREAK_UPDATE_RATE = Hertz.of(50);
-    
-    public static final Translation2d REEF_LOCATION = new Translation2d(4.46, 4.02);
   }
 
   public static class Drive {
     public static final LinearVelocity MAX_SPEED = TunerConstants.kSpeedAt12Volts;
     public static final LinearAcceleration MAX_ACCELERATION = MetersPerSecondPerSecond.of(5); // TODO measure
     public static final AngularVelocity MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75); // TODO measure
-    public static final AngularAcceleration MAX_ANGULAR_ACCELERATION = RotationsPerSecondPerSecond.of(1); // TODO measure
+    public static final AngularAcceleration MAX_ANGULAR_ACCELERATION = RotationsPerSecondPerSecond.of(1); // TODO
+                                                                                                          // measure
 
     public static final TrapezoidProfile.Constraints TURN_CONSTRAINTS = new TrapezoidProfile.Constraints(
-      MAX_ANGULAR_RATE.in(RadiansPerSecond),
-      MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond)
-    );
+        MAX_ANGULAR_RATE.in(RadiansPerSecond),
+        MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond));
     public static final TrapezoidProfile.Constraints DRIVE_CONSTRAINTS = new TrapezoidProfile.Constraints(
-      MAX_SPEED.in(MetersPerSecond),
-      MAX_ACCELERATION.in(MetersPerSecondPerSecond)
-    );
+        MAX_SPEED.in(MetersPerSecond),
+        MAX_ACCELERATION.in(MetersPerSecondPerSecond));
 
     public static final double TURN_P = 0.01;
     public static final double TURN_I = 0;
     public static final double TURN_D = 0;
 
     public static List<Pose2d> AUTO_ALIGN_LOCATIONS = Arrays.asList(
-      new Pose2d(new Translation2d(5.79, 4.21), new Rotation2d(0)),
-      new Pose2d(new Translation2d(5.79, 3.87), new Rotation2d(0)),
-      new Pose2d(new Translation2d(5.28, 2.95), new Rotation2d(Units.degreesToRadians(-60))),
-      new Pose2d(new Translation2d(4.95, 2.82), new Rotation2d(Units.degreesToRadians(-60))),
-      new Pose2d(new Translation2d(4.02, 2.87), new Rotation2d(Units.degreesToRadians(-120))),
-      new Pose2d(new Translation2d(3.70, 2.98), new Rotation2d(Units.degreesToRadians(-120))),
-      new Pose2d(new Translation2d(3.18, 3.84), new Rotation2d(Units.degreesToRadians(-180))),
-      new Pose2d(new Translation2d(3.18, 4.16), new Rotation2d(Units.degreesToRadians(-180))),
-      new Pose2d(new Translation2d(3.64, 5.06), new Rotation2d(Units.degreesToRadians(120))),
-      new Pose2d(new Translation2d(3.99, 5.22), new Rotation2d(Units.degreesToRadians(120))),
-      new Pose2d(new Translation2d(5.02, 5.24), new Rotation2d(Units.degreesToRadians(60))),
-      new Pose2d(new Translation2d(5.31, 5.03), new Rotation2d(Units.degreesToRadians(60)))
-    );
+        new Pose2d(new Translation2d(5.79, 4.21), new Rotation2d(0)),
+        new Pose2d(new Translation2d(5.79, 3.87), new Rotation2d(0)),
+        new Pose2d(new Translation2d(5.28, 2.95), new Rotation2d(Units.degreesToRadians(-60))),
+        new Pose2d(new Translation2d(4.95, 2.82), new Rotation2d(Units.degreesToRadians(-60))),
+        new Pose2d(new Translation2d(4.02, 2.87), new Rotation2d(Units.degreesToRadians(-120))),
+        new Pose2d(new Translation2d(3.70, 2.98), new Rotation2d(Units.degreesToRadians(-120))),
+        new Pose2d(new Translation2d(3.18, 3.84), new Rotation2d(Units.degreesToRadians(-180))),
+        new Pose2d(new Translation2d(3.18, 4.16), new Rotation2d(Units.degreesToRadians(-180))),
+        new Pose2d(new Translation2d(3.64, 5.06), new Rotation2d(Units.degreesToRadians(120))),
+        new Pose2d(new Translation2d(3.99, 5.22), new Rotation2d(Units.degreesToRadians(120))),
+        new Pose2d(new Translation2d(5.02, 5.24), new Rotation2d(Units.degreesToRadians(60))),
+        new Pose2d(new Translation2d(5.31, 5.03), new Rotation2d(Units.degreesToRadians(60))));
   }
 
   public static class EndEffector {
@@ -93,24 +94,27 @@ public final class Constants {
   }
 
   public static class LiftHardware {
-    public static final int ELEVATOR_MOTOR_ID = 4;
-    public static final int PIVOT_MOTOR_ID = 5;
+    public static final TalonFX.ID ELEVATOR_MOTOR_ID = new TalonFX.ID("LiftHardware/Elevator", PhoenixCANBus.RIO, 4);
+    public static final TalonFX.ID PIVOT_MOTOR_ID = new TalonFX.ID("LiftHardware/Pivot", PhoenixCANBus.RIO, 5);
     public static final Spark.ID OUTTAKE_MOTOR_ID = new Spark.ID("LiftHardware/Outtake", 6);
     public static final Distance SPROCKET_PITCH_RADIUS = Inches.of((1.751) / (2.0));
     public static final int INSIDE_END_EFFECTOR_BEAM_BREAK_PORT = 0;
     public static final int OUTSIDE_END_EFFECTOR_BEAM_BREAK_PORT = 1;
-    public static final int ELEVATOR_HOMING_BEAM_BREAK_PORT = 2;
+    public static final LimitSwitch.ID ELEVATOR_HOMING_BEAM_BREAK_PORT = new LimitSwitch.ID("LiftHardware/HomingSwitch",
+        0);
   }
 
   public static class IntakeHardware {
     public static final Spark.ID FLAPPER_MOTOR_ID = new Spark.ID("IntakeHardware/FlapperIntakeMotor", 7);
     public static final Spark.ID FUNNEL_MOTOR_ID = new Spark.ID("IntakeHardware/FrontIntakeMotor", 8);
-    public static final LimitSwitch.ID FIRST_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/FirstIntakeBeamBreak", 1);
-    public static final LimitSwitch.ID SECOND_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/SecondIntakeBeamBreak", 2);
+    public static final LimitSwitch.ID FIRST_INTAKE_BEAM_BREAK = new LimitSwitch.ID(
+        "IntakeHardware/FirstIntakeBeamBreak", 1);
+    public static final LimitSwitch.ID SECOND_INTAKE_BEAM_BREAK = new LimitSwitch.ID(
+        "IntakeHardware/SecondIntakeBeamBreak", 2);
   }
 
   public static class EndEffectorHardware {
-    public static final Spark.ID OUTTAKE_MOTOR_ID =  new Spark.ID("endEffecterMotor", 7);
+    public static final Spark.ID OUTTAKE_MOTOR_ID = new Spark.ID("endEffecterMotor", 7);
   }
 
   public static class VisionHardware {
