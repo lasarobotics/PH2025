@@ -154,7 +154,6 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     m_funnelMotor.stopMotor();
   }
 
-
   /**
    * Closes all the motors, makes intake instance null
    */
