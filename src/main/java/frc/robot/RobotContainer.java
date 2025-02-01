@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.VisionSubsystem.VisionSubsystem;
 import frc.robot.subsystems.drivetrain.DriveSubsystem;
 
 public class RobotContainer {
@@ -19,6 +20,8 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(Constants.Drive.MAX_SPEED.in(MetersPerSecond));
 
     private final DriveSubsystem DRIVE_SUBSYSTEM = new DriveSubsystem(DriveSubsystem.initializeHardware(), logger);
+
+    private final VisionSubsystem VISION_SUBSYSTEM = new VisionSubsystem(VisionSubsystem.initializeHardware());
 
     public RobotContainer() {
         configureBindings();
