@@ -259,6 +259,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
   /**
 <<<<<<< HEAD
+<<<<<<< HEAD
    * Checks status of coral in the end effector
    * @return True if end effector is empty
    */
@@ -277,6 +278,8 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   }
 
   /**
+=======
+>>>>>>> 6685ea7 (Code cleanup)
    * Checks status of coral in the end effector
    * @return True if end effector is empty
    */
@@ -285,31 +288,11 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   }
 
   /**
-   * Runs motor at power required for intaking
+   * Sets next state instance variable used in state machines
+   * @param nextState next state to transition to
    */
-  public void intake() {
-    m_endEffectorMotor.set(Constants.EndEffector.INTAKE_MOTOR_SPEED);
-  }
-
-  /**
-   * Runs motor at power required for scoring
-   */
-  public void score() {
-    m_endEffectorMotor.set(Constants.EndEffector.SCORE_MOTOR_SPEED);
-  }
-
-  /**
-   * Runs motor at power required for scoring at L4
-   */
-  public void scoreL4() {
-    m_endEffectorMotor.set(-Constants.EndEffector.SCORE_MOTOR_SPEED);
-  }
-
-  /**
-   * Regurgitates Coral back into lift
-   */
-  public void regurgitate() {
-    m_endEffectorMotor.set(Constants.EndEffector.REGURGITATE_MOTOR_SPEED);
+  public void setState(EndEffectorStates nextState) {
+    this.nextState = nextState;
   }
 
   @Override
