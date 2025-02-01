@@ -44,13 +44,6 @@ public final class Constants {
     public static final AngularVelocity MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75); // TODO measure this value
   }
 
-  public static class EndEffector {
-    public static final double INTAKE_MOTOR_SPEED = 0.5;
-    public static final double REGURGITATE_MOTOR_SPEED = -0.5;
-    public static final double SCORE_MOTOR_SPEED = 1.0;
-    public static final double CENTER_CORAL_MOTOR_SPEED = -0.4;
-  }
-
   public static class LiftHardware {
    public static final TalonFX.ID ELEVATOR_MOTOR_ID = new TalonFX.ID("LiftHardware/Elevator", PhoenixCANBus.RIO, 4);
    public static final TalonFX.ID PIVOT_MOTOR_ID = new TalonFX.ID("LiftHardware/Pivot", PhoenixCANBus.RIO, 5);
