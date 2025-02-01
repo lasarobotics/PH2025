@@ -69,6 +69,17 @@ public final class Constants {
     public static final Spark.ID OUTTAKE_MOTOR_ID =  new Spark.ID("endEffecterMotor", 7);
   }
 
+  public static class IntakeHardware {
+    public static final Spark.ID FLAPPER_MOTOR_ID = new Spark.ID("IntakeHardware/FlapperIntakeMotor", 7);
+    public static final Spark.ID FUNNEL_MOTOR_ID = new Spark.ID("IntakeHardware/FrontIntakeMotor", 8);
+    public static final LimitSwitch.ID FIRST_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/FirstIntakeBeamBreak", 1);
+    public static final LimitSwitch.ID SECOND_INTAKE_BEAM_BREAK = new LimitSwitch.ID("IntakeHardware/SecondIntakeBeamBreak", 2);
+  }
+
+  public static class EndEffectorHardware {
+    public static final Spark.ID OUTTAKE_MOTOR_ID =  new Spark.ID("endEffecterMotor", 7);
+  }
+
   public static class VisionHardware {
     public static final String CAMERA_A_NAME = "Arducam_OV9782_USB_Camera_A";
     public static final Transform3d CAMERA_A_LOCATION = new Transform3d(
