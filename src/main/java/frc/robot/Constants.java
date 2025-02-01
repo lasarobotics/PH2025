@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
@@ -58,6 +59,10 @@ public final class Constants {
     public static final TrapezoidProfile.Constraints TURN_CONSTRAINTS = new TrapezoidProfile.Constraints(
       MAX_ANGULAR_RATE.in(RadiansPerSecond),
       MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond)
+    );
+    public static final TrapezoidProfile.Constraints DRIVE_CONSTRAINTS = new TrapezoidProfile.Constraints(
+      MAX_SPEED.in(MetersPerSecond),
+      MAX_ACCELERATION.in(MetersPerSecondPerSecond)
     );
 
     public static final double TURN_P = 0.01;

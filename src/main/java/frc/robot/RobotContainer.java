@@ -6,7 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -32,10 +33,10 @@ public class RobotContainer {
 
 
         joystick.a().onTrue(Commands.runOnce(() -> {
-            DRIVE_SUBSYSTEM.requestAutoAlign(new TrapezoidProfile.State(3.14159/2, 0));
+            DRIVE_SUBSYSTEM.requestAutoAlign(new Pose2d(10.0, 10.0, new Rotation2d(3.1415/2)));
         }));
         joystick.b().onTrue(Commands.runOnce(() -> {
-            DRIVE_SUBSYSTEM.requestAutoAlign(null);
+            DRIVE_SUBSYSTEM.cancelAutoAlign();;
         }));
         joystick.b().onTrue(Commands.runOnce(() -> {
             DRIVE_SUBSYSTEM.requestAutoAlign(null);
