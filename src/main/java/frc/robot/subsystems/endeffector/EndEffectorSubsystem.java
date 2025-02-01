@@ -159,34 +159,6 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   }
 
   /**
-   * Runs motor at power required for intaking
-   */
-  private void intake() {
-    m_endEffectorMotor.set(Constants.EndEffector.INTAKE_MOTOR_SPEED);
-  }
-
-  /**
-   * Runs motor at power required for scoring
-   */
-  private void score() {
-    m_endEffectorMotor.set(Constants.EndEffector.SCORE_MOTOR_SPEED);
-  }
-
-  /**
-   * Runs motor at power required for scoring at L4
-   */
-  private void scoreL4() {
-    m_endEffectorMotor.set(-Constants.EndEffector.SCORE_MOTOR_SPEED);
-  }
-
-  /**
-   * Regurgitates Coral back into lift
-   */
-  private void regurgitate() {
-    m_endEffectorMotor.set(Constants.EndEffector.REGURGITATE_MOTOR_SPEED);
-  }
-
-  /**
    * Stops motor
    */
   private void stopMotor() {
@@ -266,6 +238,38 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     this.nextState = nextState;
   }
 
+  public boolean isEmpty() {
+    return !forwardBeamBreakStatus() && !reverseBeamBreakStatus();
+  }
+
+    /**
+   * Runs motor at power required for intaking
+   */
+  public void intake() {
+    m_endEffectorMotor.set(Constants.EndEffector.INTAKE_MOTOR_SPEED);
+  }
+
+  /**
+   * Runs motor at power required for scoring
+   */
+  public void score() {
+    m_endEffectorMotor.set(Constants.EndEffector.SCORE_MOTOR_SPEED);
+  }
+
+  /**
+   * Runs motor at power required for scoring at L4
+   */
+  public void scoreL4() {
+    m_endEffectorMotor.set(-Constants.EndEffector.SCORE_MOTOR_SPEED);
+  }
+
+  /**
+   * Regurgitates Coral back into lift
+   */
+  public void regurgitate() {
+    m_endEffectorMotor.set(Constants.EndEffector.REGURGITATE_MOTOR_SPEED);
+  }
+  
 
 
   @Override
