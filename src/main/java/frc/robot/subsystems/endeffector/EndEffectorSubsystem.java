@@ -258,6 +258,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   }
 
   /**
+<<<<<<< HEAD
    * Checks status of coral in the end effector
    * @return True if end effector is empty
    */
@@ -266,6 +267,8 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   }
 
   /**
+=======
+>>>>>>> 865594b (api stuff)
    * Sets next state instance variable used in state machines
    * @param nextState next state to transition to
    */
