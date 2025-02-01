@@ -2,6 +2,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import org.lasarobotics.hardware.generic.LimitSwitch;
@@ -10,9 +11,11 @@ import org.lasarobotics.vision.AprilTagCamera.Resolution;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -23,6 +26,9 @@ import frc.robot.generated.TunerConstants;
 public final class Constants {
   public static class Field {
     public static final AprilTagFieldLayout FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    public static final Pose2d SOURCE_INTAKE_POINT = new Pose2d(
+      new Translation2d(Meters.of(1.209), Meters.of(1.1)),
+      Rotation2d.fromDegrees(-145.305));
   }
 
   public static class Frequencies {

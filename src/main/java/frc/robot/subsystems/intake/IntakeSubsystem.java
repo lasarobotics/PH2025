@@ -10,6 +10,8 @@ import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import frc.robot.Constants;
+import frc.robot.Constants.Drive;
+import frc.robot.subsystems.drivetrain.DriveSubsystem;
 
 public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   public static record Hardware (
@@ -108,11 +110,19 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * Checks if the first beam break is broken or not
+   * Checks if the first intake beam break is broken or not
    * @return A boolean to check if the first beam break is broken or not
    */
   public boolean firstBeamBreakStatus() {
     return ((m_firstBeamBreak.getInputs().value));
+  }
+
+  /**
+   * Checks if the second intake beam break is broken or not
+   * @return A boolean to check if the second intake beam break is broken or not
+   */
+  public boolean secondBeamBreakStatus() {
+    return ((m_secondBeamBreak.getInputs().value));
   }
 
   /**
@@ -122,6 +132,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     m_flapperMotor.stopMotor();
     m_funnelMotor.stopMotor();
   }
+
 
   /**
    * Closes all the motors, makes intake instance null
