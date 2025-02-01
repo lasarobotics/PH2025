@@ -142,7 +142,6 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     enableForwardLimitSwitch();
     enableReverseLimitSwitch();
   }
-
   /**
    * Initalizes hardware devices used by subsystem
    * @return Hardware object containing all necessary devices for subsytem
