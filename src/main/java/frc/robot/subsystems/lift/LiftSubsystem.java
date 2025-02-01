@@ -96,16 +96,14 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       }
 
       @Override
-      public void execute() {
-        if (s_liftinstance.elevatorAtHome()) {
-          s_liftinstance.resetElevatorEncoder();
-          s_liftinstance.stopElevator();
-        }
+      public void end(boolean interrupted) {
+        s_liftinstance.resetElevatorEncoder();
+        s_liftinstance.stopElevator();
       }
 
       @Override
       public LiftStates nextState() {
-        if (s_liftinstance.elevatorAtHome() && s_liftinstance.getElevatorHeight().isNear(Meters.zero(), HOMING_EPSILON))
+        if (s_liftinstance.elevatorAtHome())
           return IDLE;
         return this;
       }
@@ -833,7 +831,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     m_elevatorPositionSetter = new MotionMagicVoltage(Radians.zero());
     m_elevatorHomingBeamBreak = liftHardware.elevatorHomingBeamBreak;
 
-    //TODO: Figure out motor configuration values (gear ratios, sensors, etc)
+    // TODO: Figure out motor configuration values (gear ratios, sensors, etc)
 
     // Create configurations for elevator motor
     TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
