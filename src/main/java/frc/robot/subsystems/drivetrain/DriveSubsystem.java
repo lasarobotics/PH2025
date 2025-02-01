@@ -101,7 +101,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                     m_currentDriveYState = new TrapezoidProfile.State(s_drivetrain.getState().Pose.getY(), s_drivetrain.getState().Speeds.vyMetersPerSecond);
                     m_currentTurnState = new TrapezoidProfile.State(s_drivetrain.getState().Pose.getRotation().getRadians(), s_drivetrain.getState().Speeds.omegaRadiansPerSecond);
                 } */
-                
+
                 // Get error which is the smallest distance between goal and measurement
                 double errorBound = Math.PI;
                 double measurement = s_drivetrain.getState().Pose.getRotation().getRadians();
@@ -120,7 +120,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 m_currentDriveXState = s_driveProfile.calculate(dt, m_currentDriveXState, s_autoAlignTargetDriveX);
                 m_currentDriveYState = s_driveProfile.calculate(dt, m_currentDriveYState, s_autoAlignTargetDriveY);
                 m_currentTurnState = s_turnProfile.calculate(dt, m_currentTurnState, s_autoAlignTargetTurn);
-                
+
                 s_drivetrain.setControl(
                     s_autoDrive
                     .withTargetDirection(new Rotation2d(m_currentTurnState.position))
@@ -159,7 +159,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     private static CommandSwerveDrivetrain s_drivetrain;
     private static SwerveRequest.FieldCentric s_drive;
     private static FieldCentricWithPose s_autoDrive;
-    
+
     private static DoubleSupplier s_driveRequest = () -> 0;
     private static DoubleSupplier s_strafeRequest = () -> 0;
     private static DoubleSupplier s_rotateRequest = () -> 0;
@@ -230,6 +230,14 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     public Pose2d getPose() {
         return s_drivetrain.getState().Pose;
+    }
+
+    /**
+     * Checks if the robot is near the sourc
+     * @return The boolean value to check if the robot is near the source
+     */
+    public boolean isNearSource() {
+			return ((getPose().getX() < 2.0) && ((getPose().getY() < 1.5) || getPose().getY() > 6.0));
     }
 
     /**
