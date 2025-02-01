@@ -256,15 +256,11 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     this.nextState = nextState;
   }
 
-  /**
-   * Check if end effector is empty
-   * @return Boolean indicating whether there is a coral in end effector
-   */
   public boolean isEmpty() {
     return !forwardBeamBreakStatus() && !reverseBeamBreakStatus();
   }
 
-    /**
+  /**
    * Runs motor at power required for intaking
    */
   public void intake() {
