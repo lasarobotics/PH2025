@@ -6,7 +6,6 @@ package frc.robot.subsystems.endeffector;
 
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
-import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 
@@ -147,13 +146,6 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
       new Spark(Constants.EndEffectorHardware.OUTTAKE_MOTOR_ID, MotorKind.NEO_VORTEX));
 
       return endEffectorHardware;
-  }
-  /**
-   * Sets motor
-   * @param dutyCycle -1.0 to 1.0
-   */
-  private void setMotorPower(double dutyCycle){
-    m_endEffectorMotor.set(dutyCycle);
   }
 
   /**
