@@ -9,7 +9,7 @@ import org.lasarobotics.fsm.SystemState;
 import frc.robot.subsystems.drivetrain.DriveSubsystem;
 import frc.robot.subsystems.lift.LiftSubsystem;
 
-public class RobotState extends StateMachine implements AutoCloseable{
+public class HeadHoncho extends StateMachine implements AutoCloseable{
     public static record Hardware() {}
 
     public enum State implements SystemState {
@@ -241,7 +241,7 @@ public class RobotState extends StateMachine implements AutoCloseable{
 
     private static BooleanSupplier score_button; // force robot to score, regardless of alignment
 
-    public RobotState(
+    public HeadHoncho(
         Hardware hardware,
         DriveSubsystem drive_subsystem,
         IntakeSubsystem intake_subsystem,
@@ -270,18 +270,18 @@ public class RobotState extends StateMachine implements AutoCloseable{
         BooleanSupplier l4_button,
         BooleanSupplier score_button
     ) {
-        RobotState.drive_x_request = drive_x_reqeust;
-        RobotState.drive_y_request = drive_y_request;
-        RobotState.drive_rotate_request = drive_rotate_request;
+        HeadHoncho.drive_x_request = drive_x_reqeust;
+        HeadHoncho.drive_y_request = drive_y_request;
+        HeadHoncho.drive_rotate_request = drive_rotate_request;
 
-        RobotState.intake_button = intake_button;
-        RobotState.regurgitate_button = regurgitate_button;
-        RobotState.l1_button = l1_button;
-        RobotState.l2_button = l2_button;
-        RobotState.l3_button = l3_button;
-        RobotState.l4_button = l4_button;
+        HeadHoncho.intake_button = intake_button;
+        HeadHoncho.regurgitate_button = regurgitate_button;
+        HeadHoncho.l1_button = l1_button;
+        HeadHoncho.l2_button = l2_button;
+        HeadHoncho.l3_button = l3_button;
+        HeadHoncho.l4_button = l4_button;
 
-        RobotState.score_button = score_button;
+        HeadHoncho.score_button = score_button;
 
         DRIVE_SUBSYSTEM.bindControls(drive_x_reqeust, drive_y_request, drive_rotate_request);
     }
