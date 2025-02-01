@@ -208,6 +208,8 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    */
   private void scoreReverse() {
     m_endEffectorMotor.set(-SCORE_MOTOR_SPEED.in(Value));
+  private void setMotorPower(double dutyCycle){
+    m_endEffectorMotor.set(dutyCycle);
   }
 
   /**
