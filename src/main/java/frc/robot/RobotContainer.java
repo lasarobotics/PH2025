@@ -50,7 +50,7 @@ public class RobotContainer {
             DRIVE_SUBSYSTEM.requestAutoAlign();
         }));
         joystick.b().onTrue(Commands.runOnce(() -> {
-            DRIVE_SUBSYSTEM.requestAutoAlign(null);
+            DRIVE_SUBSYSTEM.cancelAutoAlign();;
         }));
 
         // joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
