@@ -4,17 +4,26 @@
 
 package frc.robot.subsystems.endeffector;
 
+import static edu.wpi.first.units.Units.Percent;
+import static edu.wpi.first.units.Units.Value;
+
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 
+import edu.wpi.first.units.measure.Dimensionless;
 import frc.robot.Constants;
 
 public class EndEffectorSubsystem extends StateMachine implements AutoCloseable {
   public static record Hardware (
     Spark endEffectorMotor
   ) {}
+
+  static final Dimensionless INTAKE_MOTOR_SPEED = Percent.of(50);;
+  static final Dimensionless REGURGITATE_MOTOR_SPEED = Percent.of(-50);
+  static final Dimensionless SCORE_MOTOR_SPEED = Percent.of(100);
+  static final Dimensionless CENTER_CORAL_MOTOR_SPEED = Percent.of(-40);
 
   public enum EndEffectorStates implements SystemState {
     IDLE {
@@ -81,7 +90,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
       public void initialize() {
         s_endEffectorInstance.disableForwardLimitSwitch();
         s_endEffectorInstance.disableReverseLimitSwitch();
-        s_endEffectorInstance.scoreL4();
+        s_endEffectorInstance.outtake_reverse();
       }
 
       @Override
@@ -98,7 +107,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     REGURGITATE {
       @Override
       public void initialize() {
-        s_endEffectorInstance.regurgitate();
+        s_endEffectorInstance.outtake_reverse();
       }
 
       @Override
@@ -152,29 +161,23 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * Runs motor at power required for intaking
    */
   private void intake() {
-    m_endEffectorMotor.set(Constants.EndEffector.INTAKE_MOTOR_SPEED);
+    m_endEffectorMotor.set(INTAKE_MOTOR_SPEED.in(Value));
   }
 
   /**
    * Runs motor at power required for scoring
    */
   private void score() {
-    m_endEffectorMotor.set(Constants.EndEffector.SCORE_MOTOR_SPEED);
+    m_endEffectorMotor.set(CENTER_CORAL_MOTOR_SPEED.in(Value));
   }
 
   /**
-   * Runs motor at power required for scoring at L4
+   * Runs motor at power required for scoring at L4 / for reguritating
    */
-  private void scoreL4() {
-    m_endEffectorMotor.set(-Constants.EndEffector.SCORE_MOTOR_SPEED);
+  private void outtake_reverse() {
+    m_endEffectorMotor.set(SCORE_MOTOR_SPEED.in(Value));
   }
 
-  /**
-   * Regurgitates Coral back into lift
-   */
-  private void regurgitate() {
-    m_endEffectorMotor.set(Constants.EndEffector.REGURGITATE_MOTOR_SPEED);
-  }
 
   /**
    * Stops motor
@@ -228,12 +231,12 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   }
 
   /**
-   * Centers Coral in end effector
+   * Centers coral in end effector
    */
   private void centerCoral() {
     if(forwardBeamBreakStatus()) {
       m_endEffectorMotor.enableReverseLimitSwitch();
-      m_endEffectorMotor.set(Constants.EndEffector.CENTER_CORAL_MOTOR_SPEED);
+      m_endEffectorMotor.set(CENTER_CORAL_MOTOR_SPEED.in(Value));
     }
     if(reverseBeamBreakStatus()) {
       s_endEffectorInstance.stopMotor();
@@ -246,6 +249,14 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    */
   public boolean isCoralCentered() {
     return forwardBeamBreakStatus() && reverseBeamBreakStatus();
+  }
+
+  /**
+   * Checks status of coral in the end effector
+   * @return True if end effector is empty
+   */
+  public boolean isEmpty() {
+    return !forwardBeamBreakStatus() && !reverseBeamBreakStatus();
   }
 
   /**
