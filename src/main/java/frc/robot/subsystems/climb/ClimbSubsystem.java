@@ -105,7 +105,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
    */
   public static Hardware initializeHardware() {
     Hardware climbHardware = new Hardware(
-      new Spark(Constants.ClimbHardware.CLIMB_MOTOR_ID, MotorKind.NEO_VORTEX)
+      new Spark(Constants.ClimbHardware.CLIMB_MOTOR_ID, MotorKind.NEO)
     );
 
     return climbHardware;
