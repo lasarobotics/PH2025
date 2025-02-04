@@ -25,6 +25,8 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
 
   static final Dimensionless FLAPPER_INTAKE_SPEED = Percent.of(100);
   static final Dimensionless FUNNEL_INTAKE_SPEED = Percent.of(100);
+  static final Dimensionless REVERSE_FLAPPER_INTAKE_SPEED = Percent.of(-50);
+  static final Dimensionless REVERSE_FUNNEL_INTAKE_SPEED = Percent.of(-50);
 
   public enum IntakeStates implements SystemState {
     IDLE {
@@ -36,10 +38,20 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public IntakeStates nextState() {
+        if (s_requestedState == IDLE) {
+          return IDLE;
+        }
+        else if (s_requestedState == INTAKE) {
+          return INTAKE;
+        }
+        else if (s_requestedState == REGURGITATE) {
+          return REGURGITATE;
+        }
         return this;
       }
     },
-    INTAKE {
+   INTAKE
+     {
       @Override
       public void initialize() {
         s_intakeInstance.startFlapperIntake();
@@ -48,25 +60,42 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public IntakeStates nextState() {
+        if (s_requestedState == IDLE) {
+          return IDLE;
+        }
+        else if (s_requestedState == INTAKE) {
+          return INTAKE;
+        }
+        else if (s_requestedState == REGURGITATE) {
+          return REGURGITATE;
+        }
         return this;
       }
     },
     REGURGITATE {
       @Override
       public void initialize() {
-        s_intakeInstance.startFunnelIntake();
-        s_intakeInstance.stopFlapperIntake();
+        s_intakeInstance.startReverseFlapperIntake();
+        s_intakeInstance.startReverseFunnelIntake();
       }
 
       @Override
       public IntakeStates nextState() {
-        if (s_intakeInstance.coralFullyInIntake())
-          return IntakeStates.IDLE;
+        if (s_requestedState == IDLE) {
+          return IDLE;
+        }
+        else if (s_requestedState == INTAKE) {
+          return INTAKE;
+        }
+        else if (s_requestedState == REGURGITATE) {
+          return REGURGITATE;
+        }
         return this;
       }
     }
   }
 
+  private static IntakeStates s_requestedState;
   private static IntakeSubsystem s_intakeInstance;
   private final Spark m_flapperMotor;
   private final Spark m_funnelMotor;
@@ -80,6 +109,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     this.m_funnelMotor = intakeHardware.funnelMotor;
     this.m_firstBeamBreak = intakeHardware.firstBeamBreak;
     this.m_secondBeamBreak = intakeHardware.secondBeamBreak;
+    s_requestedState = IntakeStates.IDLE;
 
     // Restore to factory defaults
     m_flapperMotor.restoreFactoryDefaults();
@@ -119,6 +149,27 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
+   * Calls the idle state in the state machine for API purposes
+   */
+  public void idle() {
+    s_requestedState = IntakeStates.IDLE;
+  }
+
+  /**
+   *Calls the intake state in the state machine for API purpose
+   */
+  public void intake() {
+    s_requestedState = IntakeStates.INTAKE;
+  }
+
+  /**
+   * Calls the regurgitate state in the state machine for APi purposes
+   */
+  public void regurgitate() {
+    s_requestedState = IntakeStates.REGURGITATE;
+  }
+
+  /**
    * Intake coral using only flapper intake motor
    */
   private void startFlapperIntake() {
@@ -131,6 +182,21 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   private void startFunnelIntake() {
     m_funnelMotor.set(FUNNEL_INTAKE_SPEED.in(Value));
   }
+
+  /**
+   * Outtakes the coral using the flapper motor
+   */
+  private void startReverseFlapperIntake() {
+    m_flapperMotor.set(REVERSE_FLAPPER_INTAKE_SPEED.in(Value));
+  }
+
+  /**
+   * Outtakes the coral using the funnel motor
+   */
+  private void startReverseFunnelIntake() {
+    m_funnelMotor.set(REVERSE_FUNNEL_INTAKE_SPEED.in(Value));
+  }
+
 
   /**
    * Checks if coral is fully in the intake using the beam breaks
