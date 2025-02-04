@@ -1042,7 +1042,6 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     );
   }
 
-
   /**
    *
    * @return
@@ -1060,7 +1059,6 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null, s_liftinstance)
     );
   }
-
 
   /**
    * Stop the elevator motor
