@@ -1054,15 +1054,6 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * Close the motors of the lift subsystem, make the instance null
-   */
-  public void close() {
-    m_elevatorMotor.close();
-    m_pivotMotor.close();
-    s_liftinstance = null;
-  }
-
-  /**
    * Set state of lift state machine
    * @param state The target TargetLiftStates state to go to
    */
@@ -1076,5 +1067,14 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   public boolean isAtState(TargetLiftStates state) {
     return curState == state;
+  }
+
+  /**
+   * Close the motors of the lift subsystem, make the instance null
+   */
+  public void close() {
+    m_elevatorMotor.close();
+    m_pivotMotor.close();
+    s_liftinstance = null;
   }
 }
