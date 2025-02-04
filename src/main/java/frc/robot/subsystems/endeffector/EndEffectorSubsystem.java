@@ -250,45 +250,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   public boolean isCoralCentered() {
     return forwardBeamBreakStatus() && reverseBeamBreakStatus();
   }
-
-  /**
-<<<<<<< HEAD
-<<<<<<< HEAD
-   * Checks status of coral in the end effector
-   * @return True if end effector is empty
-   */
-  public boolean isEmpty() {
-    return !forwardBeamBreakStatus() && !reverseBeamBreakStatus();
-  }
-
-  /**
-=======
->>>>>>> 865594b (api stuff)
-   * Sets next state instance variable used in state machines
-   * @param nextState next state to transition to
-   */
-  public void setState(EndEffectorStates nextState) {
-    this.nextState = nextState;
-  }
-
-  /**
-=======
->>>>>>> 6685ea7 (Code cleanup)
-   * Checks status of coral in the end effector
-   * @return True if end effector is empty
-   */
-  public boolean isEmpty() {
-    return !forwardBeamBreakStatus() && !reverseBeamBreakStatus();
-  }
-
-  /**
-   * Sets next state instance variable used in state machines
-   * @param nextState next state to transition to
-   */
-  public void setState(EndEffectorStates nextState) {
-    this.nextState = nextState;
-  }
-
+ 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
