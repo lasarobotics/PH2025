@@ -259,6 +259,22 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     return !forwardBeamBreakStatus() && !reverseBeamBreakStatus();
   }
 
+  public void requestScore() {
+    setState(EndEffectorStates.SCORE);
+  }
+
+  public void requestScoreReverse() {
+    setState(EndEffectorStates.SCORE_L4);
+  }
+
+  public void requestStop() {
+    setState(EndEffectorStates.IDLE);
+  }
+
+  public void requestIntake() {
+    setState(EndEffectorStates.INTAKE);
+  }
+
   /**
    * Sets next state instance variable used in state machines
    * @param nextState next state to transition to

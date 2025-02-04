@@ -71,6 +71,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 m_currentDriveYState = new TrapezoidProfile.State(
                         s_drivetrain.getState().Pose.getY(),
                         s_drivetrain.getState().Speeds.vyMetersPerSecond);
+
+                s_isAligned = false;
             }
 
             @Override
@@ -140,6 +142,13 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                         m_currentDriveYState.position, new Rotation2d(m_currentTurnState.position)));
                 Logger.recordOutput("Drive/autoAlign/finalPose", new Pose2d(s_autoAlignTargetDriveX.position,
                         s_autoAlignTargetDriveY.position, new Rotation2d(s_autoAlignTargetTurn.position)));
+
+                if (Math.abs(
+                        s_drivetrain.getState().Pose.getRotation().getRadians() - s_autoAlignTargetTurn.position) < 0.05
+                        && Math.abs(s_drivetrain.getState().Pose.getX() - s_autoAlignTargetDriveX.position) < 0.05
+                        && Math.abs(s_drivetrain.getState().Pose.getY() - s_autoAlignTargetDriveY.position) < 0.05) {
+                    s_isAligned = true;
+                }
             }
 
             @Override
@@ -148,18 +157,13 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                     return DRIVER_CONTROL;
                 }
 
-                if (Math.abs(
-                        s_drivetrain.getState().Pose.getRotation().getRadians() - s_autoAlignTargetTurn.position) < 0.05
-                        && Math.abs(s_drivetrain.getState().Pose.getX() - s_autoAlignTargetDriveX.position) < 0.05
-                        && Math.abs(s_drivetrain.getState().Pose.getY() - s_autoAlignTargetDriveY.position) < 0.05) {
-                    return DRIVER_CONTROL;
-                }
                 return this;
             }
 
             @Override
             public void end(boolean interrupted) {
                 s_shouldAutoAlign = false;
+                s_isAligned =  false;
             }
         }
     }
@@ -179,6 +183,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     private static TrapezoidProfile s_turnProfile;
     private static TrapezoidProfile s_driveProfile;
+
+    private static boolean s_isAligned;
 
     public DriveSubsystem(Hardware driveHardware, Telemetry logger) {
         super(State.DRIVER_CONTROL);
@@ -247,6 +253,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
      */
     public boolean isNearSource() {
         return ((getPose().getX() < 2.0) && ((getPose().getY() < 1.5) || getPose().getY() > 6.0));
+    }
+
+    public boolean isAligned() {
+        return s_isAligned;
     }
 
     /**

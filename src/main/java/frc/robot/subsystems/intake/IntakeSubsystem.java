@@ -206,6 +206,10 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     return ((m_firstBeamBreak.getInputs().value) && !(m_secondBeamBreak.getInputs().value));
   }
 
+  public boolean isEmpty() {
+    return !m_firstBeamBreak.getInputs().value && !m_secondBeamBreak.getInputs().value;
+  }
+
   /**
    *  Stop all the flapper motor
    */
