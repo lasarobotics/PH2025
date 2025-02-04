@@ -9,11 +9,7 @@ import org.lasarobotics.fsm.SystemState;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.ClimbHardware;
-import frc.robot.subsystems.endeffector.EndEffectorSubsystem;
-import frc.robot.subsystems.endeffector.EndEffectorSubsystem.EndEffectorStates;
 
 public class ClimbSubsystem extends StateMachine implements AutoCloseable {
 
@@ -83,6 +79,27 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
+   * Stops motor
+   */
+  private void stopMotor() {
+    m_climbMotor.stopMotor();
+  }
+
+  /**
+   * Sets the motor output for climbing
+   */
+  private void climb() {
+    m_climbMotor.set(CLIMB_SPEED);
+  }
+
+  /**
+   * Sets the motor output for releasing
+   */
+  private void release() {
+    m_climbMotor.set(-CLIMB_SPEED);
+  }
+
+  /**
    * Initalizes hardware contained in Climb Subsystem
    * @return Hardware object with required hardware for Climb Subsystem
    */
@@ -121,24 +138,10 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * Stops motor
+   * Sets next state instance variable to IDLE state
    */
-  private void stopMotor() {
-    m_climbMotor.stopMotor();
-  }
-
-  /**
-   * Sets the motor output for climbing
-   */
-  private void climb() {
-    m_climbMotor.set(CLIMB_SPEED);
-  }
-
-  /**
-   * Sets the motor output for releasing
-   */
-  private void release() {
-    m_climbMotor.set(-CLIMB_SPEED);
+  public void idleState() {
+    this.nextState = ClimbStates.IDLE;
   }
 
   @Override

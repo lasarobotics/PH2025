@@ -86,6 +86,14 @@ public final class Constants {
         new Pose2d(new Translation2d(5.31, 5.03), new Rotation2d(Units.degreesToRadians(60))));
   }
 
+  public static class EndEffector {
+    public static final double INTAKE_MOTOR_SPEED = 0.5;
+    public static final double REGURGITATE_MOTOR_SPEED = -0.5;
+    public static final double SCORE_MOTOR_SPEED = 1.0;
+    public static final double CENTER_CORAL_MOTOR_SPEED = -0.4;
+  }
+
+
   public static class LiftHardware {
     public static final TalonFX.ID ELEVATOR_MOTOR_ID = new TalonFX.ID("LiftHardware/Elevator", PhoenixCANBus.RIO, 4);
     public static final TalonFX.ID PIVOT_MOTOR_ID = new TalonFX.ID("LiftHardware/Pivot", PhoenixCANBus.RIO, 5);
@@ -108,6 +116,10 @@ public final class Constants {
 
   public static class EndEffectorHardware {
     public static final Spark.ID OUTTAKE_MOTOR_ID = new Spark.ID("endEffecterMotor", 7);
+  }
+
+  public static class ClimbHardware {
+    public static final Spark.ID CLIMB_MOTOR_ID = new Spark.ID("endEffecterMotor", 9);
   }
 
   public static class VisionHardware {
