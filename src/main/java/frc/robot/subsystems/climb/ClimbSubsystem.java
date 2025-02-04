@@ -54,7 +54,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
         return this;
       }
     },
-    RETRACT {
+    RELEASE {
       @Override
       public void initialize() {
         s_climbInstance.release();
@@ -74,7 +74,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   private static ClimbSubsystem s_climbInstance;
   private final Spark m_climbMotor;
   private ClimbStates nextState;
-  
+
   /** Creates a new ClimbSubsystem. */
   private ClimbSubsystem(Hardware ClimbHardware) {
     super(ClimbStates.IDLE);
@@ -107,11 +107,17 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * Sets next state instance variable used in state machines
-   * @param nextState next state to transition to
+   * Sets next state instance variable to CLIMB state
    */
-  public void setState(ClimbStates nextState) {
-    this.nextState = nextState;
+  public void climbState() {
+    this.nextState = ClimbStates.CLIMB;
+  }
+
+  /**
+   * Sets next state instance variable to RELEASE state
+   */
+  public void releaseState() {
+    this.nextState = ClimbStates.RELEASE;
   }
 
   /**
