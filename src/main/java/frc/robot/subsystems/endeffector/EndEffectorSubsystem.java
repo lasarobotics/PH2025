@@ -90,7 +90,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
       public void initialize() {
         s_endEffectorInstance.disableForwardLimitSwitch();
         s_endEffectorInstance.disableReverseLimitSwitch();
-        s_endEffectorInstance.scoreL4();
+        s_endEffectorInstance.outtake_reverse();
       }
 
       @Override
@@ -107,7 +107,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     REGURGITATE {
       @Override
       public void initialize() {
-        s_endEffectorInstance.regurgitate();
+        s_endEffectorInstance.outtake_reverse();
       }
 
       @Override
@@ -172,18 +172,12 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   }
 
   /**
-   * Runs motor at power required for scoring at L4
+   * Runs motor at power required for scoring at L4 / for reguritating
    */
-  private void scoreL4() {
+  private void outtake_reverse() {
     m_endEffectorMotor.set(SCORE_MOTOR_SPEED.in(Value));
   }
 
-  /**
-   * Regurgitates Coral back into lift
-   */
-  private void regurgitate() {
-    m_endEffectorMotor.set(REGURGITATE_MOTOR_SPEED.in(Value));
-  }
 
   /**
    * Stops motor
