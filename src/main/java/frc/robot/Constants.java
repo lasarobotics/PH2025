@@ -13,6 +13,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import java.util.Arrays;
 import java.util.List;
 
+import org.lasarobotics.hardware.ctre.CANcoder;
 import org.lasarobotics.hardware.ctre.PhoenixCANBus;
 import org.lasarobotics.hardware.ctre.TalonFX;
 import org.lasarobotics.hardware.generic.LimitSwitch;
@@ -87,14 +88,11 @@ public final class Constants {
   }
 
   public static class LiftHardware {
-    public static final TalonFX.ID ELEVATOR_MOTOR_ID = new TalonFX.ID("LiftHardware/Elevator", PhoenixCANBus.RIO, 4);
-    public static final TalonFX.ID PIVOT_MOTOR_ID = new TalonFX.ID("LiftHardware/Pivot", PhoenixCANBus.RIO, 5);
-    public static final Spark.ID OUTTAKE_MOTOR_ID = new Spark.ID("LiftHardware/Outtake", 6);
-    public static final Distance SPROCKET_PITCH_RADIUS = Inches.of((1.751) / (2.0));
-    public static final int INSIDE_END_EFFECTOR_BEAM_BREAK_PORT = 0;
-    public static final int OUTSIDE_END_EFFECTOR_BEAM_BREAK_PORT = 1;
-    public static final LimitSwitch.ID ELEVATOR_HOMING_BEAM_BREAK_PORT = new LimitSwitch.ID("LiftHardware/HomingSwitch",
-        0);
+   public static final TalonFX.ID ELEVATOR_MOTOR_ID = new TalonFX.ID("LiftHardware/Elevator", PhoenixCANBus.RIO, 4);
+   public static final TalonFX.ID PIVOT_MOTOR_ID = new TalonFX.ID("LiftHardware/Pivot", PhoenixCANBus.RIO, 5);
+   public static final Distance SPROCKET_PITCH_RADIUS = Inches.of((1.751)/(2.0));
+   public static final LimitSwitch.ID ELEVATOR_HOMING_BEAM_BREAK_PORT = new LimitSwitch.ID("LiftHardware/HomingSwitch", 0);
+   public static final CANcoder.ID ARM_CANCODER_ID = new CANcoder.ID("LiftHardware/CANcoder", PhoenixCANBus.RIO, 8);
   }
 
   public static class IntakeHardware {
