@@ -152,7 +152,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    */
   public static Hardware initializeHardware(){
     Hardware endEffectorHardware = new Hardware(
-      new Spark(Constants.EndEffectorHardware.OUTTAKE_MOTOR_ID, MotorKind.NEO_VORTEX));
+      new Spark(Constants.EndEffectorHardware.OUTTAKE_MOTOR_ID, MotorKind.NEO));
 
       return endEffectorHardware;
   }
