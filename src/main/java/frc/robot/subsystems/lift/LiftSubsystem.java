@@ -16,6 +16,7 @@ import org.lasarobotics.fsm.SystemState;
 import org.lasarobotics.hardware.ctre.TalonFX;
 import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.lasarobotics.hardware.generic.LimitSwitch.SwitchPolarity;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -34,11 +35,11 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 
 public class LiftSubsystem extends StateMachine implements AutoCloseable {
-  public static record Hardware (
-    TalonFX elevatorMotor,
-    TalonFX pivotMotor,
-    LimitSwitch elevatorHomingBeamBreak
-  ) {}
+  public static record Hardware(
+      TalonFX elevatorMotor,
+      TalonFX pivotMotor,
+      LimitSwitch elevatorHomingBeamBreak) {
+  }
 
   public static enum TargetLiftStates {
     STOW,
@@ -821,7 +822,6 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   private static final String ELEVATOR_MOTOR_SYSID_STATE_LOG_ENTRY = "/ElevatorMotorSysIDTestState";
   private static final String PIVOT_MOTOR_SYSID_STATE_LOG_ENTRY = "/PivotMotorSysIDTestState";
 
-
   /** Creates a new LiftSubsystem */
   private LiftSubsystem(Hardware liftHardware) {
     super(LiftStates.IDLE);
@@ -896,8 +896,10 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     pivotConfig.Slot0.kS = 0;
     pivotConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-    m_elevatorSysIDLogConsumer = state -> SignalLogger.writeString(getName() + ELEVATOR_MOTOR_SYSID_STATE_LOG_ENTRY, state.toString());
-    m_pivotSysIDLogConsumer = state -> SignalLogger.writeString(getName() + PIVOT_MOTOR_SYSID_STATE_LOG_ENTRY, state.toString());
+    m_elevatorSysIDLogConsumer = state -> SignalLogger.writeString(getName() + ELEVATOR_MOTOR_SYSID_STATE_LOG_ENTRY,
+        state.toString());
+    m_pivotSysIDLogConsumer = state -> SignalLogger.writeString(getName() + PIVOT_MOTOR_SYSID_STATE_LOG_ENTRY,
+        state.toString());
 
     // Apply configs for TalonFX motors
     m_elevatorMotor.applyConfigs(elevatorConfig);
@@ -908,6 +910,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    * Get an instance of LiftSubsystem
    * <p>
    * Will only return an instance once, subsequent calls will return null.
+   * 
    * @param LiftHardware Necessary hardware for this subsystem
    * @return Subsystem instance
    */
@@ -915,25 +918,28 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     if (s_liftinstance == null) {
       s_liftinstance = new LiftSubsystem(liftHardware);
       return s_liftinstance;
-    } else return null;
+    } else
+      return null;
   }
 
   /**
    * Initialize hardware devices for lift subsystem
+   * 
    * @return Hardware object containing all necessary devices for this subsystem
    */
   public static Hardware initializeHardware() {
     Hardware liftHardware = new Hardware(
-      new TalonFX(Constants.LiftHardware.ELEVATOR_MOTOR_ID, Constants.Frequencies.TALON_UPDATE_RATE),
-      new TalonFX(Constants.LiftHardware.PIVOT_MOTOR_ID, Constants.Frequencies.TALON_UPDATE_RATE),
-      new LimitSwitch(Constants.LiftHardware.ELEVATOR_HOMING_BEAM_BREAK_PORT, SwitchPolarity.NORMALLY_OPEN, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE)
-    );
+        new TalonFX(Constants.LiftHardware.ELEVATOR_MOTOR_ID, Constants.Frequencies.TALON_UPDATE_RATE),
+        new TalonFX(Constants.LiftHardware.PIVOT_MOTOR_ID, Constants.Frequencies.TALON_UPDATE_RATE),
+        new LimitSwitch(Constants.LiftHardware.ELEVATOR_HOMING_BEAM_BREAK_PORT, SwitchPolarity.NORMALLY_OPEN,
+            Constants.Frequencies.BEAM_BREAK_UPDATE_RATE));
 
     return liftHardware;
   }
 
   /**
    * Set arm pivot to a certain angle
+   * 
    * @param angle The angle you want to move the pivot
    */
   public void setArmAngle(Angle angle) {
@@ -942,6 +948,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Set elevator to a certain height
+   * 
    * @param height The height you want to move the elevator to
    */
   public void setElevatorHeight(Distance height) {
@@ -985,6 +992,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Check if elevator is at home
+   * 
    * @return True if elevator is home
    */
   public boolean elevatorAtHome() {
@@ -993,6 +1001,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Return whether the elevator is at a target height or not
+   * 
    * @return Boolean of if elevator is at target height
    */
   public boolean elevatorAt(Distance targetHeight) {
@@ -1002,6 +1011,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Return whether the arm is at a target angle or not
+   * 
    * @return Boolean of if arm is at target angle
    */
   public boolean armAt(Angle targetAngle) {
@@ -1014,18 +1024,15 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   public SysIdRoutine getElevatorSysIDRoutine() {
     return new SysIdRoutine(
-      new SysIdRoutine.Config(
-        null,
-        Volts.of(4),
-        null,
-        m_elevatorSysIDLogConsumer
-      ),
-      new SysIdRoutine.Mechanism(
-      voltage -> m_elevatorMotor.setControl(new VoltageOut(voltage)),
-      null, s_liftinstance)
-    );
+        new SysIdRoutine.Config(
+            null,
+            Volts.of(4),
+            null,
+            m_elevatorSysIDLogConsumer),
+        new SysIdRoutine.Mechanism(
+            voltage -> m_elevatorMotor.setControl(new VoltageOut(voltage)),
+            null, s_liftinstance));
   }
-
 
   /**
    *
@@ -1033,18 +1040,15 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   public SysIdRoutine getPivotSysIDRoutine() {
     return new SysIdRoutine(
-      new SysIdRoutine.Config(
-        null,
-        Volts.of(4),
-        null,
-        m_pivotSysIDLogConsumer
-      ),
-      new SysIdRoutine.Mechanism(
-      voltage -> m_pivotMotor.setControl(new VoltageOut(voltage)),
-      null, s_liftinstance)
-    );
+        new SysIdRoutine.Config(
+            null,
+            Volts.of(4),
+            null,
+            m_pivotSysIDLogConsumer),
+        new SysIdRoutine.Mechanism(
+            voltage -> m_pivotMotor.setControl(new VoltageOut(voltage)),
+            null, s_liftinstance));
   }
-
 
   /**
    * Stop the elevator motor
@@ -1055,6 +1059,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Set state of lift state machine
+   * 
    * @param state The target TargetLiftStates state to go to
    */
   public void setState(TargetLiftStates state) {
@@ -1063,10 +1068,18 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * See if the current nextState is at a given state
+   * 
    * @param state The LiftStates state to check against
    */
   public boolean isAtState(TargetLiftStates state) {
     return curState == state;
+  }
+
+  @Override
+  public void periodic() {
+    super.periodic();
+
+    Logger.recordOutput(getName() + "/state", getState().toString());
   }
 
   /**
