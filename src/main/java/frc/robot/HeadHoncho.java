@@ -5,6 +5,7 @@ import java.util.function.DoubleSupplier;
 
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
+import org.littletonrobotics.junction.Logger;
 
 import frc.robot.subsystems.drivetrain.DriveSubsystem;
 import frc.robot.subsystems.endeffector.EndEffectorSubsystem;

@@ -9,6 +9,7 @@ import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.lasarobotics.hardware.generic.LimitSwitch.SwitchPolarity;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
+import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -16,12 +17,12 @@ import edu.wpi.first.units.measure.Dimensionless;
 import frc.robot.Constants;
 
 public class IntakeSubsystem extends StateMachine implements AutoCloseable {
-  public static record Hardware (
-    Spark flapperMotor,
-    Spark funnelMotor,
-    LimitSwitch firstBeamBreak,
-    LimitSwitch secondBeamBreak
-  ) {}
+  public static record Hardware(
+      Spark flapperMotor,
+      Spark funnelMotor,
+      LimitSwitch firstBeamBreak,
+      LimitSwitch secondBeamBreak) {
+  }
 
   static final Dimensionless FLAPPER_INTAKE_SPEED = Percent.of(100);
   static final Dimensionless FUNNEL_INTAKE_SPEED = Percent.of(100);
@@ -40,18 +41,15 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
       public IntakeStates nextState() {
         if (s_requestedState == IDLE) {
           return IDLE;
-        }
-        else if (s_requestedState == INTAKE) {
+        } else if (s_requestedState == INTAKE) {
           return INTAKE;
-        }
-        else if (s_requestedState == REGURGITATE) {
+        } else if (s_requestedState == REGURGITATE) {
           return REGURGITATE;
         }
         return this;
       }
     },
-   INTAKE
-     {
+    INTAKE {
       @Override
       public void initialize() {
         s_intakeInstance.startFlapperIntake();
@@ -62,11 +60,9 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
       public IntakeStates nextState() {
         if (s_requestedState == IDLE) {
           return IDLE;
-        }
-        else if (s_requestedState == INTAKE) {
+        } else if (s_requestedState == INTAKE) {
           return INTAKE;
-        }
-        else if (s_requestedState == REGURGITATE) {
+        } else if (s_requestedState == REGURGITATE) {
           return REGURGITATE;
         }
         return this;
@@ -83,11 +79,9 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
       public IntakeStates nextState() {
         if (s_requestedState == IDLE) {
           return IDLE;
-        }
-        else if (s_requestedState == INTAKE) {
+        } else if (s_requestedState == INTAKE) {
           return INTAKE;
-        }
-        else if (s_requestedState == REGURGITATE) {
+        } else if (s_requestedState == REGURGITATE) {
           return REGURGITATE;
         }
         return this;
@@ -124,6 +118,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
    * Get an instance of IntakeSubsystem
    * <p>
    * Will only return an instance once, subsequent calls will return null.
+   * 
    * @param intakeHardware Necessary hardware for this subsystem
    * @return Subsystem instance
    */
@@ -131,20 +126,23 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     if (s_intakeInstance == null) {
       s_intakeInstance = new IntakeSubsystem(intakeHardware);
       return s_intakeInstance;
-    } else return null;
+    } else
+      return null;
   }
 
   /**
    * Initialize hardware devices for intake subsystem
+   * 
    * @return Hardware object containing all necessary devices for this subsystem
    */
   public static Hardware initializeHardware() {
     Hardware intakeHardware = new Hardware(
-      new Spark(Constants.IntakeHardware.FLAPPER_MOTOR_ID, MotorKind.NEO_VORTEX),
-      new Spark(Constants.IntakeHardware.FUNNEL_MOTOR_ID, MotorKind.NEO_VORTEX),
-      new LimitSwitch(Constants.IntakeHardware.FIRST_INTAKE_BEAM_BREAK, SwitchPolarity.NORMALLY_OPEN, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE),
-      new LimitSwitch(Constants.IntakeHardware.SECOND_INTAKE_BEAM_BREAK, SwitchPolarity.NORMALLY_OPEN, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE)
-    );
+        new Spark(Constants.IntakeHardware.FLAPPER_MOTOR_ID, MotorKind.NEO_VORTEX),
+        new Spark(Constants.IntakeHardware.FUNNEL_MOTOR_ID, MotorKind.NEO_VORTEX),
+        new LimitSwitch(Constants.IntakeHardware.FIRST_INTAKE_BEAM_BREAK, SwitchPolarity.NORMALLY_OPEN,
+            Constants.Frequencies.BEAM_BREAK_UPDATE_RATE),
+        new LimitSwitch(Constants.IntakeHardware.SECOND_INTAKE_BEAM_BREAK, SwitchPolarity.NORMALLY_OPEN,
+            Constants.Frequencies.BEAM_BREAK_UPDATE_RATE));
     return intakeHardware;
   }
 
@@ -156,7 +154,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   *Calls the intake state in the state machine for API purpose
+   * Calls the intake state in the state machine for API purpose
    */
   public void intake() {
     s_requestedState = IntakeStates.INTAKE;
@@ -177,7 +175,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   *	Intakes the coral using the funnel motor into the end effector
+   * Intakes the coral using the funnel motor into the end effector
    */
   private void startFunnelIntake() {
     m_funnelMotor.set(FUNNEL_INTAKE_SPEED.in(Value));
@@ -197,9 +195,9 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     m_funnelMotor.set(REVERSE_FUNNEL_INTAKE_SPEED.in(Value));
   }
 
-
   /**
    * Checks if coral is fully in the intake using the beam breaks
+   * 
    * @return Boolean value whether coral is fully in intake or not
    */
   public boolean coralFullyInIntake() {
@@ -211,17 +209,24 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   *  Stop all the flapper motor
+   * Stop all the flapper motor
    */
   private void stopFlapperIntake() {
     m_flapperMotor.stopMotor();
   }
 
   /**
-   *  Stop all the funnel motor
+   * Stop all the funnel motor
    */
   private void stopFunnelIntake() {
     m_funnelMotor.stopMotor();
+  }
+
+  @Override
+  public void periodic() {
+    super.periodic();
+
+    Logger.recordOutput(getName() + "/state", getState().toString());
   }
 
   /**
