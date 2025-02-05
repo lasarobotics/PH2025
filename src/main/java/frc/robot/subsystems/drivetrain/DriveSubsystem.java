@@ -269,7 +269,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                         s_drivetrain.getState().Pose.getY() - Constants.Field.REEF_LOCATION.getY()))
                 + 360;
         angle = (((angle / 30)) + 10) % 12;
-        Logger.recordOutput("Drive/snappedAngle", angle);
         return Constants.Drive.AUTO_ALIGN_LOCATIONS.get((int) angle);
         // return Constants.Drive.AUTO_ALIGN_LOCATIONS.get(0);
     }
