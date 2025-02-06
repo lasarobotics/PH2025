@@ -6,14 +6,13 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.VisionSubsystem.VisionSubsystem;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.drivetrain.DriveSubsystem;
+import frc.robot.subsystems.endeffector.EndEffectorSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lift.LiftSubsystem;
 
 public class RobotContainer {
@@ -23,49 +22,31 @@ public class RobotContainer {
 
     private final DriveSubsystem DRIVE_SUBSYSTEM = new DriveSubsystem(DriveSubsystem.initializeHardware(), logger);
     private final LiftSubsystem LIFT_SUBSYSTEM = LiftSubsystem.getInstance(LiftSubsystem.initializeHardware());
+    private final IntakeSubsystem INTAKE_SUBSYSTEM = IntakeSubsystem.getInstance(IntakeSubsystem.initializeHardware());
+    private final EndEffectorSubsystem END_EFFECTOR_SUBSYSTEM = EndEffectorSubsystem.getInstance(EndEffectorSubsystem.initializeHardware());
 
     private final VisionSubsystem VISION_SUBSYSTEM = new VisionSubsystem(VisionSubsystem.initializeHardware());
+
+    private final HeadHoncho HEAD_HONCHO = new HeadHoncho(HeadHoncho.initializeHardware(),
+    DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM);
 
     public RobotContainer() {
         configureBindings();
     }
 
     private void configureBindings() {
-        DRIVE_SUBSYSTEM.bindControls(() -> -joystick.getLeftY(), () -> -joystick.getLeftX(),
-                () -> -joystick.getRightX());
-
-        joystick.a().onTrue(Commands.runOnce(() -> {
-            DRIVE_SUBSYSTEM.requestAutoAlign(new Pose2d(10.0, 10.0, new Rotation2d(3.1415 / 2)));
-        }));
-        joystick.b().onTrue(Commands.runOnce(() -> {
-            DRIVE_SUBSYSTEM.cancelAutoAlign();
-            ;
-        }));
-
-        joystick.x().onTrue(Commands.runOnce(() -> {
-            DRIVE_SUBSYSTEM.requestAutoAlign();
-        }));
-
-        // joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        // joystick.b().whileTrue(drivetrain.applyRequest(() ->
-        // point.withModuleDirection(new Rotation2d(-joystick.getLeftY(),
-        // -joystick.getLeftX()))
-        // ));
-
-        // // Run SysId routines when holding back/start and X/Y.
-        // // Note that each routine should be run exactly once in a single log.
-        // joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        // joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        // joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        // joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        // // reset the field-centric heading on left bumper press
-        // joystick.leftBumper().onTrue(drivetrain.runOnce(() ->
-        // drivetrain.seedFieldCentric()));
-        joystick.a().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().dynamic(SysIdRoutine.Direction.kForward));
-        joystick.b().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().dynamic(SysIdRoutine.Direction.kReverse));
-        joystick.x().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().quasistatic(SysIdRoutine.Direction.kForward));
-        joystick.y().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().quasistatic(SysIdRoutine.Direction.kReverse));
+        HEAD_HONCHO.bindControls(
+            () -> joystick.getLeftX(), // drive x
+            () -> joystick.getLeftY(), // drive y
+            () -> joystick.getRightX(), // drive rotate
+            joystick.leftTrigger(), // intake
+            joystick.leftBumper(), // regurgitate
+            joystick.a(), // L1
+            joystick.b(), // L2
+            joystick.x(), // L3
+            joystick.y(), // L4
+            joystick.rightTrigger() // score
+        );
     }
 
     public Command getAutonomousCommand() {
