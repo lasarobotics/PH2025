@@ -5,7 +5,6 @@ import java.util.function.DoubleSupplier;
 
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
-import org.littletonrobotics.junction.Logger;
 
 import frc.robot.subsystems.drivetrain.DriveSubsystem;
 import frc.robot.subsystems.endeffector.EndEffectorSubsystem;
@@ -296,6 +295,10 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         HeadHoncho.score_button = score_button;
 
         DRIVE_SUBSYSTEM.bindControls(drive_x_reqeust, drive_y_request, drive_rotate_request);
+    }
+
+    public static Hardware initializeHardware() {
+        return new Hardware();
     }
 
     @Override
