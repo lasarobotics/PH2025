@@ -58,7 +58,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   private static boolean isLiftReady;
   private static boolean isDisabled;
 
-  static final DutyCycleOut HOMING_SPEED = new DutyCycleOut(-0.05);
+  static final DutyCycleOut HOMING_SPEED = new DutyCycleOut(0.05);
   static final Distance HOMING_EPSILON = Millimeters.of(5);
 
   // Tolerance in cm of top and bottom minimum clearance
@@ -86,6 +86,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Distance L3_HEIGHT = Inches.of(0);
   static final Distance L4_HEIGHT = Inches.of(0);
 
+  static final Distance BEAM_BREAK_HEIGHT = Inches.of(0);
+
   public enum LiftStates implements SystemState {
     DISABLED {
       @Override
@@ -111,12 +113,23 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       }
     },
     HOME {
+
+      private boolean isDoneHoming = false;
+
       @Override
       public void initialize() {
         if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM) && s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM) && s_liftinstance.elevatorAtHome()) {
           s_liftinstance.startHomingElevator();
         } else {
           isDisabled = true;
+        }
+      }
+
+      @Override
+      public void execute() {
+        if (!s_liftinstance.elevatorAtHome()) {
+          s_liftinstance.setElevatorEncoder(BEAM_BREAK_HEIGHT);
+          isDoneHoming = true;
         }
       }
 
@@ -131,7 +144,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         if (isDisabled) {
           return DISABLED;
         }
-        if (s_liftinstance.elevatorAtHome()) {
+        if (isDoneHoming) {
           return IDLE;
         }
         return this;
@@ -1091,6 +1104,16 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   private void resetElevatorEncoder() {
     m_elevatorMotor.setPosition(Degrees.of(0.0));
+  }
+
+  /**
+   * Set the elevator encoder to a given height
+   */
+  private void setElevatorEncoder(Distance height) {
+    Distance SPROCKET_RADIUS = Constants.LiftHardware.SPROCKET_PITCH_RADIUS;
+    double circumference = 2 * Math.PI * SPROCKET_RADIUS.in(Meters);
+    Angle elevatorMoveAngle = Rotations.of(height.in(Meters) / circumference);
+    m_elevatorMotor.setPosition(elevatorMoveAngle);
   }
 
   /**
