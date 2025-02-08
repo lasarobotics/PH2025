@@ -28,19 +28,12 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
             }
 
             @Override
-            public void execute() {
-                if (DRIVE_SUBSYSTEM.isNearSource()) {
-                    INTAKE_SUBSYSTEM.intake();
-                } else {
-                    INTAKE_SUBSYSTEM.idle();
-                }
-            }
-
-            @Override
             public SystemState nextState() {
                 if (intake_button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty() && LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW)) {
                     return INTAKE;
                 }
+
+                if (END_EFFECTOR_SUBSYSTEM.isEmpty()) return INTAKE;
 
                 if (regurgitate_button.getAsBoolean() && LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW)) {
                     return REGURGITATE;
