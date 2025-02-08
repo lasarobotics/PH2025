@@ -45,7 +45,8 @@ public final class Constants {
         new Translation2d(Meters.of(1.209), Meters.of(1.1)),
         Rotation2d.fromDegrees(-145.305));
 
-    public static final Translation2d REEF_LOCATION = new Translation2d(4.46, 4.02);
+    public static final Translation2d REEF_LOCATION_RED = new Translation2d(4.46, 4.02);
+    public static final Translation2d REEF_LOCATION_BLUE = new Translation2d(16-4.46, 4.02);
 
   }
 
@@ -69,13 +70,13 @@ public final class Constants {
         MAX_ACCELERATION.in(MetersPerSecondPerSecond));
 
     public static final double AUTO_ALIGN_TOLERANCE = 0.05;
-    public static final double AUTO_ALIGN_TOLERANCE_TURN = 5;
+    public static final double AUTO_ALIGN_TOLERANCE_TURN = 0.05;
 
     public static final double TURN_P = 0.01;
     public static final double TURN_I = 0;
     public static final double TURN_D = 0;
 
-    public static List<Pose2d> AUTO_ALIGN_LOCATIONS = Arrays.asList(
+    public static List<Pose2d> AUTO_ALIGN_LOCATIONS_RED = Arrays.asList(
         new Pose2d(new Translation2d(5.79, 4.21), new Rotation2d(0)),
         new Pose2d(new Translation2d(5.79, 3.87), new Rotation2d(0)),
         new Pose2d(new Translation2d(5.28, 2.95), new Rotation2d(Units.degreesToRadians(-60))),
@@ -88,6 +89,20 @@ public final class Constants {
         new Pose2d(new Translation2d(3.99, 5.22), new Rotation2d(Units.degreesToRadians(120))),
         new Pose2d(new Translation2d(5.02, 5.24), new Rotation2d(Units.degreesToRadians(60))),
         new Pose2d(new Translation2d(5.31, 5.03), new Rotation2d(Units.degreesToRadians(60))));
+
+    public static List<Pose2d> AUTO_ALIGN_LOCATIONS_BLUE = Arrays.asList(
+        new Pose2d(new Translation2d(16 - 5.79, 4.21), new Rotation2d(0)),
+        new Pose2d(new Translation2d(16 - 5.79, 3.87), new Rotation2d(0)),
+        new Pose2d(new Translation2d(16 - 5.28, 2.95), new Rotation2d(Units.degreesToRadians(-60))),
+        new Pose2d(new Translation2d(16 - 4.95, 2.82), new Rotation2d(Units.degreesToRadians(-60))),
+        new Pose2d(new Translation2d(16 - 4.02, 2.87), new Rotation2d(Units.degreesToRadians(-120))),
+        new Pose2d(new Translation2d(16 - 3.70, 2.98), new Rotation2d(Units.degreesToRadians(-120))),
+        new Pose2d(new Translation2d(16 - 3.18, 3.84), new Rotation2d(Units.degreesToRadians(-180))),
+        new Pose2d(new Translation2d(16 - 3.18, 4.16), new Rotation2d(Units.degreesToRadians(-180))),
+        new Pose2d(new Translation2d(16 - 3.64, 5.06), new Rotation2d(Units.degreesToRadians(120))),
+        new Pose2d(new Translation2d(16 - 3.99, 5.22), new Rotation2d(Units.degreesToRadians(120))),
+        new Pose2d(new Translation2d(16 - 5.02, 5.24), new Rotation2d(Units.degreesToRadians(60))),
+        new Pose2d(new Translation2d(16 - 5.31, 5.03), new Rotation2d(Units.degreesToRadians(60))));
   }
 
   public static class EndEffector {
