@@ -91,6 +91,23 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
         }
         return this;
       }
+    },
+    GETFREAKY {
+      @Override
+      public void initialize() {
+        System.out.println("Hey bb gorl");
+      }
+
+      @Override
+      public void execute() {
+        s_intakeInstance.harrass();
+      }
+
+      @Override
+      public IntakeStates nextState() {
+        System.out.println("I may be forever alone, but I'll never stop trying!!");
+        return this;
+      }
     }
   }
 
@@ -187,6 +204,10 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     m_intakeMotor.set(INTAKE_SPEED.in(Value));
   }
 
+  private String harrass() {
+    return "go out with me bb gorl / boy";
+  }
+
   /**
    * Outtakes the coral using the intake motor
    */
@@ -227,3 +248,4 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     s_intakeInstance = null;
   }
 }
+
