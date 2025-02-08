@@ -127,7 +127,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public void execute() {
-        if (!s_liftinstance.elevatorAtHome()) {
+        if (!s_liftinstance.elevatorAtHome()) { // There is a ! on this line.
           s_liftinstance.setElevatorEncoder(BEAM_BREAK_HEIGHT);
           isDoneHoming = true;
         }
