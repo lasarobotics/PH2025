@@ -5,6 +5,7 @@ import java.util.function.DoubleSupplier;
 
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
+import org.littletonrobotics.junction.Logger;
 
 import frc.robot.subsystems.drivetrain.DriveSubsystem;
 import frc.robot.subsystems.endeffector.EndEffectorSubsystem;
@@ -27,13 +28,18 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
             }
 
             @Override
+            public void execute() {
+                if (DRIVE_SUBSYSTEM.isNearSource()) {
+                    INTAKE_SUBSYSTEM.intake();
+                } else {
+                    INTAKE_SUBSYSTEM.idle();
+                }
+            }
+
+            @Override
             public SystemState nextState() {
                 if (intake_button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty() && LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW)) {
                     return INTAKE;
-                }
-
-                if (DRIVE_SUBSYSTEM.isNearSource() && END_EFFECTOR_SUBSYSTEM.isEmpty() && LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW)) {
-                    return AUTO_INTAKE;
                 }
 
                 if (regurgitate_button.getAsBoolean() && LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW)) {
@@ -66,27 +72,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
             @Override
             public SystemState nextState() {
                 if (END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return REST;
-                if (!intake_button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return REST;
-
-                return this;
-            }
-
-            @Override
-            public void end(boolean interrupted) {
-                INTAKE_SUBSYSTEM.idle();
-                END_EFFECTOR_SUBSYSTEM.requestStop();
-            }
-        },
-        AUTO_INTAKE {
-            @Override
-            public void initialize() {
-                INTAKE_SUBSYSTEM.intake();
-                END_EFFECTOR_SUBSYSTEM.requestIntake();
-            }
-
-            @Override
-            public SystemState nextState() {
-                if (END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return REST;
+                if (cancel_button.getAsBoolean()) return REST;
 
                 return this;
             }
@@ -106,7 +92,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
             @Override
             public SystemState nextState() {
-                if (!regurgitate_button.getAsBoolean() && (INTAKE_SUBSYSTEM.coralFullyInIntake() || INTAKE_SUBSYSTEM.isEmpty())) return REST;
+                if (cancel_button.getAsBoolean() && (INTAKE_SUBSYSTEM.coralFullyInIntake() || INTAKE_SUBSYSTEM.isEmpty())) return REST;
                 // TODO algae
 
                 return this;
@@ -117,6 +103,19 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
                 INTAKE_SUBSYSTEM.idle();
                 END_EFFECTOR_SUBSYSTEM.requestStop();
             }
+        },
+
+        STOW {
+            @Override
+            public void initialize() {
+                LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+            }
+
+            @Override
+            public SystemState nextState() {
+                return REST;
+            }
+
         },
 
         L1 {
@@ -135,6 +134,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
                 if (l2_button.getAsBoolean()) return L2;
                 if (l3_button.getAsBoolean()) return L3;
                 if (l4_button.getAsBoolean()) return L4;
+
+                if (cancel_button.getAsBoolean()) return STOW;
 
                 return this;
             }
@@ -156,6 +157,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
                 if (l3_button.getAsBoolean()) return L3;
                 if (l4_button.getAsBoolean()) return L4;
 
+                if (cancel_button.getAsBoolean()) return STOW;
+
                 return this;
             }
         },
@@ -176,6 +179,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
                 if (l3_button.getAsBoolean()) return L3;
                 if (l4_button.getAsBoolean()) return L4;
 
+                if (cancel_button.getAsBoolean()) return STOW;
+
                 return this;
             }
         },
@@ -195,6 +200,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
                 if (l2_button.getAsBoolean()) return L2;
                 if (l3_button.getAsBoolean()) return L3;
                 if (l4_button.getAsBoolean()) return L4;
+
+                if (cancel_button.getAsBoolean()) return STOW;
 
                 return this;
             }
@@ -258,6 +265,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
     private static BooleanSupplier score_button; // force robot to score, regardless of alignment
 
+    private static BooleanSupplier cancel_button;
+
     public HeadHoncho(
         Hardware hardware,
         DriveSubsystem drive_subsystem,
@@ -283,7 +292,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         BooleanSupplier l2_button,
         BooleanSupplier l3_button,
         BooleanSupplier l4_button,
-        BooleanSupplier score_button
+        BooleanSupplier score_button,
+        BooleanSupplier cancel_button
     ) {
         HeadHoncho.intake_button = intake_button;
         HeadHoncho.regurgitate_button = regurgitate_button;
@@ -294,11 +304,20 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
         HeadHoncho.score_button = score_button;
 
+        HeadHoncho.cancel_button = cancel_button;
+
         DRIVE_SUBSYSTEM.bindControls(drive_x_reqeust, drive_y_request, drive_rotate_request);
     }
 
     public static Hardware initializeHardware() {
         return new Hardware();
+    }
+
+    @Override
+    public void periodic() {
+        super.periodic();
+
+        Logger.recordOutput(getName() + "/state", getState().toString());
     }
 
     @Override

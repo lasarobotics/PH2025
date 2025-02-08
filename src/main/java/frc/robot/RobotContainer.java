@@ -45,7 +45,8 @@ public class RobotContainer {
             joystick.b(), // L2
             joystick.x(), // L3
             joystick.y(), // L4
-            joystick.rightTrigger() // score
+            joystick.rightTrigger(), // score
+            joystick.rightBumper() // cancel
         );
     }
 
