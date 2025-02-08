@@ -170,7 +170,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
    * Checks if coral is fully in the intake using the beam breaks
    * @return Boolean value whether coral is fully in intake or not
    */
-  public boolean coralFullyInIntake() {
+  public boolean coralInIntake() {
     return ((m_firstBeamBreak.getInputs().value) && (m_secondBeamBreak.getInputs().value));
   }
 
