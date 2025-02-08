@@ -17,29 +17,25 @@ import frc.robot.Constants;
 
 public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   public static record Hardware (
-    Spark flapperMotor,
-    Spark funnelMotor,
+    Spark intakeMotor,
     LimitSwitch firstBeamBreak,
     LimitSwitch secondBeamBreak
   ) {}
 
-  static final Dimensionless FLAPPER_INTAKE_SPEED = Percent.of(100);
-  static final Dimensionless FUNNEL_INTAKE_SPEED = Percent.of(100);
-  static final Dimensionless REVERSE_FLAPPER_INTAKE_SPEED = Percent.of(-50);
-  static final Dimensionless REVERSE_FUNNEL_INTAKE_SPEED = Percent.of(-50);
+  static final Dimensionless INTAKE_SPEED = Percent.of(100);
+  static final Dimensionless REVERSE_INTAKE_SPEED = Percent.of(-50);
 
   public enum IntakeStates implements SystemState {
-    IDLE {
+    STOP {
       @Override
       public void initialize() {
-        s_intakeInstance.stopFlapperIntake();
-        s_intakeInstance.stopFunnelIntake();
+        s_intakeInstance.stopIntakeMotor();
       }
 
       @Override
       public IntakeStates nextState() {
-        if (s_requestedState == IDLE) {
-          return IDLE;
+        if (s_requestedState == STOP) {
+          return STOP;
         }
         else if (s_requestedState == INTAKE) {
           return INTAKE;
@@ -54,14 +50,13 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
      {
       @Override
       public void initialize() {
-        s_intakeInstance.startFlapperIntake();
-        s_intakeInstance.startFunnelIntake();
+        s_intakeInstance.intake();
       }
 
       @Override
       public IntakeStates nextState() {
-        if (s_requestedState == IDLE) {
-          return IDLE;
+        if (s_requestedState == STOP) {
+          return STOP;
         }
         else if (s_requestedState == INTAKE) {
           return INTAKE;
@@ -75,14 +70,13 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     REGURGITATE {
       @Override
       public void initialize() {
-        s_intakeInstance.startReverseFlapperIntake();
-        s_intakeInstance.startReverseFunnelIntake();
+        s_intakeInstance.reverseIntake();
       }
 
       @Override
       public IntakeStates nextState() {
-        if (s_requestedState == IDLE) {
-          return IDLE;
+        if (s_requestedState == STOP) {
+          return STOP;
         }
         else if (s_requestedState == INTAKE) {
           return INTAKE;
@@ -97,27 +91,23 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
 
   private static IntakeStates s_requestedState;
   private static IntakeSubsystem s_intakeInstance;
-  private final Spark m_flapperMotor;
-  private final Spark m_funnelMotor;
+  private final Spark m_intakeMotor;
   private final LimitSwitch m_firstBeamBreak;
   private final LimitSwitch m_secondBeamBreak;
 
   /** Creates a new IntakeSubsystem */
   private IntakeSubsystem(Hardware intakeHardware) {
-    super(IntakeStates.IDLE);
-    this.m_flapperMotor = intakeHardware.flapperMotor;
-    this.m_funnelMotor = intakeHardware.funnelMotor;
+    super(IntakeStates.STOP);
+    this.m_intakeMotor = intakeHardware.intakeMotor;
     this.m_firstBeamBreak = intakeHardware.firstBeamBreak;
     this.m_secondBeamBreak = intakeHardware.secondBeamBreak;
-    s_requestedState = IntakeStates.IDLE;
+    s_requestedState = IntakeStates.STOP;
 
     // Restore to factory defaults
-    m_flapperMotor.restoreFactoryDefaults();
-    m_funnelMotor.restoreFactoryDefaults();
+    m_intakeMotor.restoreFactoryDefaults();
 
     // Set idle mode
-    m_flapperMotor.setIdleMode(IdleMode.kBrake);
-    m_funnelMotor.setIdleMode(IdleMode.kBrake);
+    m_intakeMotor.setIdleMode(IdleMode.kBrake);
   }
 
   /**
@@ -141,7 +131,6 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   public static Hardware initializeHardware() {
     Hardware intakeHardware = new Hardware(
       new Spark(Constants.IntakeHardware.FLAPPER_MOTOR_ID, MotorKind.NEO_VORTEX),
-      new Spark(Constants.IntakeHardware.FUNNEL_MOTOR_ID, MotorKind.NEO_VORTEX),
       new LimitSwitch(Constants.IntakeHardware.FIRST_INTAKE_BEAM_BREAK, SwitchPolarity.NORMALLY_OPEN, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE),
       new LimitSwitch(Constants.IntakeHardware.SECOND_INTAKE_BEAM_BREAK, SwitchPolarity.NORMALLY_OPEN, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE)
     );
@@ -149,83 +138,69 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * Calls the idle state in the state machine for API purposes
+   * Calls the stop state in the state machine for API purposes
    */
-  public void idle() {
-    s_requestedState = IntakeStates.IDLE;
+  public void stopIntake() {
+    s_requestedState = IntakeStates.STOP;
   }
 
   /**
    *Calls the intake state in the state machine for API purpose
    */
-  public void intake() {
+  public void startIntake() {
     s_requestedState = IntakeStates.INTAKE;
   }
 
   /**
    * Calls the regurgitate state in the state machine for APi purposes
    */
-  public void regurgitate() {
+  public void startRegurgitate() {
     s_requestedState = IntakeStates.REGURGITATE;
   }
 
   /**
-   * Intake coral using only flapper intake motor
+   * Checks if coral is NOT fully in the intake using the beam breaks
+   * @return Boolean value whether coral in fully in the intake or not
    */
-  private void startFlapperIntake() {
-    m_flapperMotor.set(FLAPPER_INTAKE_SPEED.in(Value));
+  public boolean coralNotInIntake() {
+    return (!(m_firstBeamBreak.getInputs().value) && !(m_secondBeamBreak.getInputs().value));
   }
-
-  /**
-   *	Intakes the coral using the funnel motor into the end effector
-   */
-  private void startFunnelIntake() {
-    m_funnelMotor.set(FUNNEL_INTAKE_SPEED.in(Value));
-  }
-
-  /**
-   * Outtakes the coral using the flapper motor
-   */
-  private void startReverseFlapperIntake() {
-    m_flapperMotor.set(REVERSE_FLAPPER_INTAKE_SPEED.in(Value));
-  }
-
-  /**
-   * Outtakes the coral using the funnel motor
-   */
-  private void startReverseFunnelIntake() {
-    m_funnelMotor.set(REVERSE_FUNNEL_INTAKE_SPEED.in(Value));
-  }
-
 
   /**
    * Checks if coral is fully in the intake using the beam breaks
    * @return Boolean value whether coral is fully in intake or not
    */
   public boolean coralFullyInIntake() {
-    return ((m_firstBeamBreak.getInputs().value) && !(m_secondBeamBreak.getInputs().value));
+    return ((m_firstBeamBreak.getInputs().value) && (m_secondBeamBreak.getInputs().value));
+  }
+
+   /**
+   * Intake coral using intake motor
+   */
+  private void intake() {
+    m_intakeMotor.set(INTAKE_SPEED.in(Value));
   }
 
   /**
-   *  Stop all the flapper motor
+   * Outtakes the coral using the intake motor
    */
-  private void stopFlapperIntake() {
-    m_flapperMotor.stopMotor();
+  private void reverseIntake() {
+    m_intakeMotor.set(INTAKE_SPEED.in(Value));
   }
 
   /**
-   *  Stop all the funnel motor
+   *  Stop the intake motor
    */
-  private void stopFunnelIntake() {
-    m_funnelMotor.stopMotor();
+  private void stopIntakeMotor() {
+    m_intakeMotor.stopMotor();
   }
+
 
   /**
    * Closes all the motors, makes intake instance null
    */
   public void close() {
-    m_flapperMotor.close();
-    m_funnelMotor.close();
+    m_intakeMotor.close();
     s_intakeInstance = null;
   }
 }
