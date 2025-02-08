@@ -67,6 +67,9 @@ public final class Constants {
         MAX_SPEED.in(MetersPerSecond),
         MAX_ACCELERATION.in(MetersPerSecondPerSecond));
 
+    public static final double AUTO_ALIGN_TOLERANCE = 0.05;
+    public static final double AUTO_ALIGN_TOLERANCE_TURN = 5;
+
     public static final double TURN_P = 0.01;
     public static final double TURN_I = 0;
     public static final double TURN_D = 0;
