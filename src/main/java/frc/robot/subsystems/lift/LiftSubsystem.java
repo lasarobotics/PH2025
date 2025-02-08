@@ -98,7 +98,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     HOME {
       @Override
       public void initialize() {
-        s_liftinstance.startHomingElevator();
+        if (s_liftinstance.getArmAngle().gte(SAFE_INTAKE_ANGLE_BOTTOM) && s_liftinstance.elevatorAtHome()) {
+          s_liftinstance.startHomingElevator();
+        } else {
+          s_liftinstance.stopElevator();
+          s_liftinstance.stopArm();
+        }
       }
 
       @Override
@@ -1124,6 +1129,13 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   private void stopElevator() {
     m_elevatorMotor.stopMotor();
+  }
+
+  /**
+   * Stop the arm motor
+   */
+  private void stopArm() {
+    m_pivotMotor.stopMotor();
   }
 
   /**
