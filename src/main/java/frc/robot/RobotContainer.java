@@ -48,6 +48,14 @@ public class RobotContainer {
             joystick.rightTrigger(), // score
             joystick.rightBumper() // cancel
         );
+
+        joystick.povLeft().onTrue(Commands.runOnce(() -> {
+            DRIVE_SUBSYSTEM.requestAutoAlign();
+        }));
+
+        joystick.povRight().onTrue(Commands.runOnce(() -> {
+            DRIVE_SUBSYSTEM.cancelAutoAlign();
+        }));
     }
 
     public Command getAutonomousCommand() {
