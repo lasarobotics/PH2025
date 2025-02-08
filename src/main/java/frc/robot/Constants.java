@@ -107,7 +107,7 @@ public final class Constants {
   }
 
   public static class IntakeHardware {
-    public static final Spark.ID FLAPPER_MOTOR_ID = new Spark.ID("IntakeHardware/IntakeMotor", 7);
+    public static final Spark.ID INTAKE_MOTOR_ID = new Spark.ID("IntakeHardware/IntakeMotor", 7);
     public static final LimitSwitch.ID FIRST_INTAKE_BEAM_BREAK = new LimitSwitch.ID(
         "IntakeHardware/FirstIntakeBeamBreak", 1);
     public static final LimitSwitch.ID SECOND_INTAKE_BEAM_BREAK = new LimitSwitch.ID(
