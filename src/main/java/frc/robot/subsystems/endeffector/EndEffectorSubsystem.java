@@ -35,11 +35,8 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
       @Override
       public EndEffectorStates nextState() {
-        if (s_endEffectorInstance.nextState == null || s_endEffectorInstance.nextState == IDLE) {
-          return this;
-        } else {
-          return s_endEffectorInstance.nextState;
-        }
+        if (s_endEffectorInstance.nextState == null) return this;
+        return s_endEffectorInstance.nextState;
       }
     },
     SCORE {

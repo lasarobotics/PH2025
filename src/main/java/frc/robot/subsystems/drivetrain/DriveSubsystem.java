@@ -76,12 +76,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
             @Override
             public void execute() {
-                if (!s_shouldAutoAlign) {
-                    System.err.println("s_shouldAutoAlign is false in auto align execute");
-                    return;
-                }
                 double dt = (System.currentTimeMillis() - m_lastTime) / 1000.0;
                 m_lastTime = System.currentTimeMillis();
+                Logger.recordOutput("Drive/dt", dt);
 
                 /*
                  * // if we're too far from the drivetrain target...
@@ -160,7 +157,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             @Override
             public void end(boolean interrupted) {
                 s_shouldAutoAlign = false;
-                s_isAligned =  false;
+                s_isAligned = false;
             }
         }
     }
@@ -221,7 +218,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     }
 
     /**
-     * Request that the drivetrain aligns to the reef. Pass null to cancel.
+     * Request that the drivetrain aligns to the reef.
      * 
      * @param state
      */
@@ -263,13 +260,12 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
      * reef pole
      */
     private Pose2d findAutoAlignTarget() {
-        double angle = Math
-                .toDegrees(Math.atan2(s_drivetrain.getState().Pose.getX() - Constants.Field.REEF_LOCATION.getX(),
-                        s_drivetrain.getState().Pose.getY() - Constants.Field.REEF_LOCATION.getY()))
-                + 360;
-        angle = (((angle / 30)) + 10) % 12;
-        return Constants.Drive.AUTO_ALIGN_LOCATIONS.get((int) angle);
-        // return Constants.Drive.AUTO_ALIGN_LOCATIONS.get(0);
+        double angle = Math.toDegrees(Math.atan2(
+            s_drivetrain.getState().Pose.getX() - Constants.Field.REEF_LOCATION.getX(),
+            s_drivetrain.getState().Pose.getY() - Constants.Field.REEF_LOCATION.getY()
+        )) + 360;
+        int index = (int) ((angle / 30) + 10) % 12;
+        return Constants.Drive.AUTO_ALIGN_LOCATIONS.get(index);
     }
 
     /**
