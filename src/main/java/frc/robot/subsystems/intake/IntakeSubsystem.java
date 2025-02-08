@@ -194,6 +194,10 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     return ((m_firstBeamBreak.getInputs().value) && !(m_secondBeamBreak.getInputs().value));
   }
 
+  /**
+   * Checks if the intake is fully empty
+   * @return Boolean value whether coral is empty or not
+   */
   public boolean isEmpty() {
     return !m_firstBeamBreak.getInputs().value && !m_secondBeamBreak.getInputs().value;
   }
