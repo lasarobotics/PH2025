@@ -1039,7 +1039,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    * Set arm pivot to a certain angle
    * @param angle The angle you want to move the pivot
    */
-  public void setArmAngle(Angle angle) {
+  private void setArmAngle(Angle angle) {
     m_pivotMotor.setControl(m_pivotPositionSetter.withPosition(angle));
   }
 
@@ -1047,7 +1047,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    * Set elevator to a certain height
    * @param height The height you want to move the elevator to
    */
-  public void setElevatorHeight(Distance height) {
+  private void setElevatorHeight(Distance height) {
     Distance SPROCKET_RADIUS = Constants.LiftHardware.SPROCKET_PITCH_RADIUS;
     double circumference = 2 * Math.PI * SPROCKET_RADIUS.in(Meters);
     Angle elevatorMoveAngle = Rotations.of(height.in(Meters) / circumference);
@@ -1057,14 +1057,14 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   /**
    * Get current arm angle
    */
-  private Angle getArmAngle() {
+  public Angle getArmAngle() {
     return m_armCANcoder.getInputs().absolutePosition;
   }
 
   /**
    * Get current elevator height
    */
-  private Distance getElevatorHeight() {
+  public Distance getElevatorHeight() {
     Angle elevatorAngle = m_elevatorMotor.getInputs().rotorPosition;
     Distance SPROCKET_RADIUS = Constants.LiftHardware.SPROCKET_PITCH_RADIUS;
     double circumference = 2 * Math.PI * SPROCKET_RADIUS.in(Meters);
@@ -1073,7 +1073,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * Slowly run the elevator motor
+   * Slowly run the elevator motor to home
    */
   private void startHomingElevator() {
     m_elevatorMotor.setControl(HOMING_SPEED);
@@ -1122,6 +1122,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Gets the SysID routine for the elevator
+   * @return SysID routine for the elvator
    */
   public SysIdRoutine getElevatorSysIDRoutine() {
     return new SysIdRoutine(
@@ -1138,8 +1139,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   *
-   * @return
+   * Gets the SysID routine for the pivot/arm
+   * @return Returns the SysID routine for the pivot/arm
    */
   public SysIdRoutine getPivotSysIDRoutine() {
     return new SysIdRoutine(
@@ -1170,7 +1171,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * Set state of lift state machine
+   * Set state of lift state machine for API purposes
    * @param state The target TargetLiftStates state to go to
    */
   public void setState(TargetLiftStates state) {
