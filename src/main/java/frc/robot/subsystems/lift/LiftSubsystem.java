@@ -983,7 +983,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     pivotConfig.CurrentLimits.SupplyCurrentLowerTime = 1.0;
     pivotConfig.Feedback.SensorToMechanismRatio = 1.0;
     pivotConfig.Feedback.RotorToSensorRatio = 52.36363636363636;
-    pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     pivotConfig.Feedback.FeedbackRemoteSensorID = m_armCANcoder.getID().deviceID;
     pivotConfig.Audio.AllowMusicDurDisable = true;
     pivotConfig.MotionMagic.MotionMagicAcceleration = 0;
@@ -1024,7 +1024,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    * Get an instance of LiftSubsystem
    * <p>
    * Will only return an instance once, subsequent calls will return null.
-   * 
+   *
    * @param LiftHardware Necessary hardware for this subsystem
    * @return Subsystem instance
    */
@@ -1038,7 +1038,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Initialize hardware devices for lift subsystem
-   * 
+   *
    * @return Hardware object containing all necessary devices for this subsystem
    */
   public static Hardware initializeHardware() {
@@ -1054,7 +1054,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Set arm pivot to a certain angle
-   * 
+   *
    * @param angle The angle you want to move the pivot
    */
   private void setArmAngle(Angle angle) {
@@ -1063,7 +1063,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Set elevator to a certain height
-   * 
+   *
    * @param height The height you want to move the elevator to
    */
   private void setElevatorHeight(Distance height) {
@@ -1110,7 +1110,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Check if elevator is at home
-   * 
+   *
    * @return True if elevator is home
    */
   public boolean elevatorAtHome() {
@@ -1119,7 +1119,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Return whether the elevator is at a target height or not
-   * 
+   *
    * @return Boolean of if elevator is at target height
    */
   public boolean elevatorAt(Distance targetHeight) {
@@ -1129,7 +1129,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Return whether the arm is at a target angle or not
-   * 
+   *
    * @return Boolean of if arm is at target angle
    */
   public boolean armAt(Angle targetAngle) {
@@ -1201,7 +1201,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * See if the current nextState is at a given state
-   * 
+   *
    * @param state The LiftStates state to check against
    */
   public boolean isAtState(TargetLiftStates state) {

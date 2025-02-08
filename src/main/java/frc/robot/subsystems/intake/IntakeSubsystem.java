@@ -156,26 +156,22 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * Checks if coral is NOT fully in the intake using the beam breaks
-   * @return Boolean value whether coral in fully in the intake or not
-   */
-  public boolean coralNotInIntake() {
-    return (!(m_firstBeamBreak.getInputs().value) && !(m_secondBeamBreak.getInputs().value));
-  }
-
-  /**
    * Checks if coral is fully in the intake using the beam breaks
-   * @return Boolean value whether coral is fully in intake or not
+   * @return True if coral is fully in intake
    */
   public boolean coralInIntake() {
     return ((m_firstBeamBreak.getInputs().value) && !(m_secondBeamBreak.getInputs().value));
   }
 
+  /**
+   * Checks if the intake is fully empty
+   * @return Boolean value whether coral is empty or not
+   */
   public boolean isEmpty() {
     return !m_firstBeamBreak.getInputs().value && !m_secondBeamBreak.getInputs().value;
   }
 
-   /**
+  /**
    * Intake coral using intake motor
    */
   private void intake() {
@@ -195,7 +191,6 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   private void stopIntakeMotor() {
     m_intakeMotor.stopMotor();
   }
-
 
   /**
    * Closes all the motors, makes intake instance null
