@@ -14,12 +14,16 @@ import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.Dimensionless;
+import edu.wpi.first.wpilibj.AsynchronousInterrupt;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
 public class EndEffectorSubsystem extends StateMachine implements AutoCloseable {
-  public static record Hardware(
-      Spark endEffectorMotor) {
-  }
+  public static record Hardware (
+    Spark endEffectorMotor,
+    DigitalInput forwardBeamBreak,
+    DigitalInput reverseBeamBreak
+  ) {}
 
   static final Dimensionless INTAKE_MOTOR_SPEED = Percent.of(50);;
   static final Dimensionless REGURGITATE_MOTOR_SPEED = Percent.of(-50);
@@ -35,37 +39,56 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
       @Override
       public EndEffectorStates nextState() {
-        if (s_endEffectorInstance.nextState == null) return this;
         return s_endEffectorInstance.nextState;
       }
     },
     SCORE {
       @Override
       public void initialize() {
-        s_endEffectorInstance.disableForwardLimitSwitch();
-        s_endEffectorInstance.disableReverseLimitSwitch();
         s_endEffectorInstance.score();
       }
 
       @Override
       public SystemState nextState() {
-        if (s_endEffectorInstance.nextState != SCORE) {
-          s_endEffectorInstance.enableForwardLimitSwitch();
-          s_endEffectorInstance.enableReverseLimitSwitch();
+        return s_endEffectorInstance.nextState;
 
-          return IDLE;
-        }
-        return this;
+      }
+    },
+    SCORE_L4 {
+      @Override
+      public void initialize() {
+        s_endEffectorInstance.outtake_reverse();
+      }
 
+      @Override
+      public SystemState nextState() {
+        return s_endEffectorInstance.nextState;
       }
     },
     INTAKE {
       @Override
       public void initialize() {
-        s_endEffectorInstance.enableForwardLimitSwitch();
         s_endEffectorInstance.intake();
+        s_endEffectorInstance.m_Interrupt.enable();
       }
 
+      @Override
+      public void end(boolean interrupted) {
+        s_endEffectorInstance.m_Interrupt.disable();
+        s_endEffectorInstance.stopMotor();
+      }
+
+      @Override
+      public SystemState nextState() {
+        if(s_endEffectorInstance.forwardBeamBreakBroken()) {
+          s_endEffectorInstance.nextState = HOLD;
+          return HOLD;
+        }
+        return s_endEffectorInstance.nextState;
+      }
+
+    },
+    HOLD {
       @Override
       public void execute() {
         s_endEffectorInstance.centerCoral();
@@ -73,34 +96,9 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
       @Override
       public SystemState nextState() {
-        if (s_endEffectorInstance.nextState != INTAKE) {
-          s_endEffectorInstance.enableForwardLimitSwitch();
-          s_endEffectorInstance.enableReverseLimitSwitch();
-
-          return IDLE;
-        }
-        return this;
+        return s_endEffectorInstance.nextState;
       }
 
-    },
-    SCORE_L4 {
-      @Override
-      public void initialize() {
-        s_endEffectorInstance.disableForwardLimitSwitch();
-        s_endEffectorInstance.disableReverseLimitSwitch();
-        s_endEffectorInstance.outtake_reverse();
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (s_endEffectorInstance.nextState != SCORE) {
-          s_endEffectorInstance.enableForwardLimitSwitch();
-          s_endEffectorInstance.enableReverseLimitSwitch();
-
-          return IDLE;
-        }
-        return this;
-      }
     },
     REGURGITATE {
       @Override
@@ -110,10 +108,11 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
       @Override
       public SystemState nextState() {
-        if (s_endEffectorInstance.nextState != REGURGITATE) {
+        if(s_endEffectorInstance.isEmpty()) {
+          s_endEffectorInstance.nextState = IDLE;
           return IDLE;
         }
-        return this;
+        return s_endEffectorInstance.nextState;
       }
     }
 
@@ -121,7 +120,11 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
   private static EndEffectorSubsystem s_endEffectorInstance;
   private final Spark m_endEffectorMotor;
+  private final DigitalInput m_forwardBeamBreak;
+  private final DigitalInput m_reverseBeamBreak;
+  private final AsynchronousInterrupt m_Interrupt;
   private EndEffectorStates nextState;
+  
 
   /**
    * Returns an instance of EndEffectorSubsystem
@@ -140,12 +143,16 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   /** Creates a new endEffectorSubsystem. */
   private EndEffectorSubsystem(Hardware endEffectorHardware) {
     super(EndEffectorStates.IDLE);
+    this.nextState = EndEffectorStates.IDLE;
     this.m_endEffectorMotor = endEffectorHardware.endEffectorMotor;
-
-    enableForwardLimitSwitch();
-    enableReverseLimitSwitch();
+    this.m_forwardBeamBreak = endEffectorHardware.forwardBeamBreak;
+    this.m_reverseBeamBreak = endEffectorHardware.reverseBeamBreak;
+    this.m_Interrupt = new AsynchronousInterrupt(m_forwardBeamBreak, (rising, falling) -> {
+      if(rising) {
+        s_endEffectorInstance.stopMotor();
+      }
+    });
   }
-
   /**
    * Initalizes hardware devices used by subsystem
    * 
@@ -153,9 +160,11 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    */
   public static Hardware initializeHardware() {
     Hardware endEffectorHardware = new Hardware(
-        new Spark(Constants.EndEffectorHardware.OUTTAKE_MOTOR_ID, MotorKind.NEO));
-
-    return endEffectorHardware;
+      new Spark(Constants.EndEffectorHardware.OUTTAKE_MOTOR_ID, MotorKind.NEO_VORTEX),
+      new DigitalInput(Constants.EndEffectorHardware.FORWARD_BEAM_BREAK),
+      new DigitalInput(Constants.EndEffectorHardware.REVERSE_BEAM_BREAK)
+      );
+      return endEffectorHardware;
   }
 
   /**
@@ -187,40 +196,12 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   }
 
   /**
-   * Enables forward beam break
-   */
-  private void enableForwardLimitSwitch() {
-    m_endEffectorMotor.enableForwardLimitSwitch();
-  }
-
-  /**
-   * Enables reverse beam break
-   */
-  private void enableReverseLimitSwitch() {
-    m_endEffectorMotor.enableReverseLimitSwitch();
-  }
-
-  /**
-   * Disables forward beam break
-   */
-  private void disableForwardLimitSwitch() {
-    m_endEffectorMotor.disableForwardLimitSwitch();
-  }
-
-  /**
-   * Disables reverse beam break
-   */
-  private void disableReverseLimitSwitch() {
-    m_endEffectorMotor.disableReverseLimitSwitch();
-  }
-
-  /**
    * Checks status of forward beam break
    * 
    * @return True if beam break broken, false otherwise
    */
-  private boolean forwardBeamBreakStatus() {
-    return m_endEffectorMotor.getInputs().forwardLimitSwitch;
+  private boolean forwardBeamBreakBroken(){
+    return m_forwardBeamBreak.get();
   }
 
   /**
@@ -228,19 +209,19 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * 
    * @return True if beam break broken, false otherwise
    */
-  private boolean reverseBeamBreakStatus() {
-    return m_endEffectorMotor.getInputs().reverseLimitSwitch;
+  private boolean reverseBeamBreakBroken(){
+    return m_reverseBeamBreak.get();
   }
 
   /**
    * Centers coral in end effector
    */
   private void centerCoral() {
-    if (forwardBeamBreakStatus()) {
-      m_endEffectorMotor.enableReverseLimitSwitch();
-      m_endEffectorMotor.set(CENTER_CORAL_MOTOR_SPEED.in(Value));
-    }
-    if (reverseBeamBreakStatus()) {
+    if(forwardBeamBreakBroken() && !reverseBeamBreakBroken()) {
+      s_endEffectorInstance.outtake_reverse();
+    } else if (reverseBeamBreakBroken() && !forwardBeamBreakBroken()) {
+      s_endEffectorInstance.intake();
+    } else {
       s_endEffectorInstance.stopMotor();
     }
   }
@@ -251,7 +232,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * @return True if both beam breaks are true, false otherwise
    */
   public boolean isCoralCentered() {
-    return forwardBeamBreakStatus() && reverseBeamBreakStatus();
+    return forwardBeamBreakBroken() && reverseBeamBreakBroken();
   }
 
   /**
@@ -260,7 +241,16 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * @return True if end effector is empty
    */
   public boolean isEmpty() {
-    return !forwardBeamBreakStatus() && !reverseBeamBreakStatus();
+    return !forwardBeamBreakBroken() && !reverseBeamBreakBroken();
+  }
+
+  /**
+   * Sets next state instance variable used in state machines
+   * 
+   * @param nextState next state to transition to
+   */
+  public void setState(EndEffectorStates nextState) {
+    this.nextState = nextState;
   }
 
   public void requestScore() {
@@ -279,15 +269,6 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     setState(EndEffectorStates.INTAKE);
   }
 
-  /**
-   * Sets next state instance variable used in state machines
-   * 
-   * @param nextState next state to transition to
-   */
-  public void setState(EndEffectorStates nextState) {
-    this.nextState = nextState;
-  }
-
   @Override
   public void periodic() {
     super.periodic();
@@ -298,6 +279,9 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
   public void close() {
     m_endEffectorMotor.close();
+    m_forwardBeamBreak.close();
+    m_forwardBeamBreak.close();
     s_endEffectorInstance = null;
+    m_Interrupt.close();
   }
 }

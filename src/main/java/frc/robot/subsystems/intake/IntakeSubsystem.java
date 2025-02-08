@@ -238,3 +238,4 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     s_intakeInstance = null;
   }
 }
+
