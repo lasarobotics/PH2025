@@ -24,17 +24,14 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
       LimitSwitch secondBeamBreak) {
   }
 
-  static final Dimensionless FLAPPER_INTAKE_SPEED = Percent.of(100);
-  static final Dimensionless FUNNEL_INTAKE_SPEED = Percent.of(100);
-  static final Dimensionless REVERSE_FLAPPER_INTAKE_SPEED = Percent.of(-50);
-  static final Dimensionless REVERSE_FUNNEL_INTAKE_SPEED = Percent.of(-50);
+  static final Dimensionless INTAKE_SPEED = Percent.of(100);
+  static final Dimensionless REVERSE_INTAKE_SPEED = Percent.of(-50);
 
   public enum IntakeStates implements SystemState {
-    IDLE {
+    STOP {
       @Override
       public void initialize() {
-        s_intakeInstance.stopFlapperIntake();
-        s_intakeInstance.stopFunnelIntake();
+        s_intakeInstance.stopIntakeMotor();
       }
 
       @Override
@@ -52,8 +49,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     INTAKE {
       @Override
       public void initialize() {
-        s_intakeInstance.startFlapperIntake();
-        s_intakeInstance.startFunnelIntake();
+        s_intakeInstance.intake();
       }
 
       @Override
@@ -71,8 +67,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     REGURGITATE {
       @Override
       public void initialize() {
-        s_intakeInstance.startReverseFlapperIntake();
-        s_intakeInstance.startReverseFunnelIntake();
+        s_intakeInstance.reverseIntake();
       }
 
       @Override
@@ -91,27 +86,23 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
 
   private static IntakeStates s_requestedState;
   private static IntakeSubsystem s_intakeInstance;
-  private final Spark m_flapperMotor;
-  private final Spark m_funnelMotor;
+  private final Spark m_intakeMotor;
   private final LimitSwitch m_firstBeamBreak;
   private final LimitSwitch m_secondBeamBreak;
 
   /** Creates a new IntakeSubsystem */
   private IntakeSubsystem(Hardware intakeHardware) {
-    super(IntakeStates.IDLE);
-    this.m_flapperMotor = intakeHardware.flapperMotor;
-    this.m_funnelMotor = intakeHardware.funnelMotor;
+    super(IntakeStates.STOP);
+    this.m_intakeMotor = intakeHardware.intakeMotor;
     this.m_firstBeamBreak = intakeHardware.firstBeamBreak;
     this.m_secondBeamBreak = intakeHardware.secondBeamBreak;
-    s_requestedState = IntakeStates.IDLE;
+    s_requestedState = IntakeStates.STOP;
 
     // Restore to factory defaults
-    m_flapperMotor.restoreFactoryDefaults();
-    m_funnelMotor.restoreFactoryDefaults();
+    m_intakeMotor.restoreFactoryDefaults();
 
     // Set idle mode
-    m_flapperMotor.setIdleMode(IdleMode.kBrake);
-    m_funnelMotor.setIdleMode(IdleMode.kBrake);
+    m_intakeMotor.setIdleMode(IdleMode.kBrake);
   }
 
   /**
@@ -147,23 +138,23 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * Calls the idle state in the state machine for API purposes
+   * Calls the stop state in the state machine for API purposes
    */
-  public void idle() {
-    s_requestedState = IntakeStates.IDLE;
+  public void stopIntake() {
+    s_requestedState = IntakeStates.STOP;
   }
 
   /**
    * Calls the intake state in the state machine for API purpose
    */
-  public void intake() {
+  public void startIntake() {
     s_requestedState = IntakeStates.INTAKE;
   }
 
   /**
    * Calls the regurgitate state in the state machine for APi purposes
    */
-  public void regurgitate() {
+  public void startRegurgitate() {
     s_requestedState = IntakeStates.REGURGITATE;
   }
 
@@ -211,15 +202,15 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   /**
    * Stop all the flapper motor
    */
-  private void stopFlapperIntake() {
-    m_flapperMotor.stopMotor();
+  private void reverseIntake() {
+    m_intakeMotor.set(INTAKE_SPEED.in(Value));
   }
 
   /**
    * Stop all the funnel motor
    */
-  private void stopFunnelIntake() {
-    m_funnelMotor.stopMotor();
+  private void stopIntakeMotor() {
+    m_intakeMotor.stopMotor();
   }
 
   @Override
@@ -233,8 +224,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
    * Closes all the motors, makes intake instance null
    */
   public void close() {
-    m_flapperMotor.close();
-    m_funnelMotor.close();
+    m_intakeMotor.close();
     s_intakeInstance = null;
   }
 }
