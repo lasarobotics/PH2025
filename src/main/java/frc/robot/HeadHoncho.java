@@ -24,7 +24,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
                 END_EFFECTOR_SUBSYSTEM.requestStop();
                 DRIVE_SUBSYSTEM.cancelAutoAlign();
                 LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
-                INTAKE_SUBSYSTEM.idle();
+                INTAKE_SUBSYSTEM.stop();
             }
 
             @Override
@@ -58,7 +58,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         INTAKE {
             @Override
             public void initialize() {
-                INTAKE_SUBSYSTEM.intake();
+                INTAKE_SUBSYSTEM.startIntake();
                 END_EFFECTOR_SUBSYSTEM.requestIntake();
             }
 
@@ -72,7 +72,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
             @Override
             public void end(boolean interrupted) {
-                INTAKE_SUBSYSTEM.idle();
+                INTAKE_SUBSYSTEM.stop();
                 END_EFFECTOR_SUBSYSTEM.requestStop();
             }
         },
@@ -80,12 +80,12 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
             @Override
             public void initialize() {
                 END_EFFECTOR_SUBSYSTEM.requestScoreReverse();
-                INTAKE_SUBSYSTEM.regurgitate();
+                INTAKE_SUBSYSTEM.startRegurgitate();
             }
 
             @Override
             public SystemState nextState() {
-                if (cancel_button.getAsBoolean() && (INTAKE_SUBSYSTEM.coralFullyInIntake() || INTAKE_SUBSYSTEM.isEmpty())) return REST;
+                if (cancel_button.getAsBoolean() && (INTAKE_SUBSYSTEM.coralInIntake() || INTAKE_SUBSYSTEM.coralNotInIntake())) return REST;
                 // TODO algae
 
                 return this;
@@ -93,7 +93,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
             @Override
             public void end(boolean interrupted) {
-                INTAKE_SUBSYSTEM.idle();
+                INTAKE_SUBSYSTEM.stop();
                 END_EFFECTOR_SUBSYSTEM.requestStop();
             }
         },
@@ -209,7 +209,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
             @Override
             public SystemState nextState() {
                 if (END_EFFECTOR_SUBSYSTEM.isEmpty()) return REST;
-                
+
                 return this;
             }
 
@@ -315,6 +315,6 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        
+
     }
 }
