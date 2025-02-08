@@ -55,6 +55,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   private static TargetLiftStates nextState;
   private static TargetLiftStates curState;
+  private static boolean isLiftReady;
 
   static final DutyCycleOut HOMING_SPEED = new DutyCycleOut(-0.05);
   static final Distance HOMING_EPSILON = Millimeters.of(5);
@@ -121,6 +122,15 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       }
 
       @Override
+      public void execute() {
+        if (s_liftinstance.armAt(STOW_ANGLE) && s_liftinstance.elevatorAt(STOW_HEIGHT)) {
+          isLiftReady = true;
+        } else {
+          isLiftReady = false;
+        }
+      }
+
+      @Override
       public SystemState nextState() {
         curState = TargetLiftStates.STOW;
         if (nextState == TargetLiftStates.L1) {
@@ -171,6 +181,15 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       public void initialize() {
         s_liftinstance.setElevatorHeight(L1_HEIGHT);
         s_liftinstance.setArmAngle(SCORING_L1_ANGLE);
+      }
+
+      @Override
+      public void execute() {
+        if (s_liftinstance.armAt(SCORING_L1_ANGLE) && s_liftinstance.elevatorAt(L1_HEIGHT)) {
+          isLiftReady = true;
+        } else {
+          isLiftReady = false;
+        }
       }
 
       @Override
@@ -311,6 +330,15 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       }
 
       @Override
+      public void execute() {
+        if (s_liftinstance.armAt(SCORING_L2_ANGLE) && s_liftinstance.elevatorAt(L2_HEIGHT)) {
+          isLiftReady = true;
+        } else {
+          isLiftReady = false;
+        }
+      }
+
+      @Override
       public SystemState nextState() {
         curState = TargetLiftStates.L2;
         if (nextState == TargetLiftStates.STOW) {
@@ -431,6 +459,15 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       public void initialize() {
         s_liftinstance.setElevatorHeight(L3_HEIGHT);
         s_liftinstance.setArmAngle(SCORING_L3_ANGLE);
+      }
+
+      @Override
+      public void execute() {
+        if (s_liftinstance.armAt(SCORING_L3_ANGLE) && s_liftinstance.elevatorAt(L3_HEIGHT)) {
+          isLiftReady = true;
+        } else {
+          isLiftReady = false;
+        }
       }
 
       @Override
@@ -680,6 +717,15 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       public void initialize() {
         s_liftinstance.setElevatorHeight(L4_HEIGHT);
         s_liftinstance.setArmAngle(SCORING_L4_ANGLE);
+      }
+
+      @Override
+      public void execute() {
+        if (s_liftinstance.armAt(SCORING_L4_ANGLE) && s_liftinstance.elevatorAt(L4_HEIGHT)) {
+          isLiftReady = true;
+        } else {
+          isLiftReady = false;
+        }
       }
 
       @Override
@@ -1032,6 +1078,14 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   public boolean armAt(Angle targetAngle) {
     Angle currentAngle = getArmAngle();
     return (currentAngle.isNear(targetAngle, ARM_TOLERANCE));
+  }
+
+  /**
+   * Return whether the lift is ready to move or not
+   * @return Boolean of if lift is at one of the 5 stages
+   */
+  public boolean isLiftReady() {
+    return isLiftReady;
   }
 
   /**
