@@ -56,6 +56,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   private static TargetLiftStates nextState;
   private static TargetLiftStates curState;
   private static boolean isLiftReady;
+  private static boolean isDisabled;
 
   static final DutyCycleOut HOMING_SPEED = new DutyCycleOut(-0.05);
   static final Distance HOMING_EPSILON = Millimeters.of(5);
@@ -86,6 +87,19 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Distance L4_HEIGHT = Inches.of(0);
 
   public enum LiftStates implements SystemState {
+    DISABLED {
+      @Override
+      public void initialize() {
+        s_liftinstance.stopElevator();
+        s_liftinstance.stopArm();
+      }
+
+      @Override
+      public LiftStates nextState() {
+        // Intentionally designed to have no escape, robot restart needed
+        return this;
+      }
+    },
     IDLE {
       @Override
       public LiftStates nextState() {
@@ -98,11 +112,10 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     HOME {
       @Override
       public void initialize() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_INTAKE_ANGLE_BOTTOM) && s_liftinstance.elevatorAtHome()) {
+        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM) && s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM) && s_liftinstance.elevatorAtHome()) {
           s_liftinstance.startHomingElevator();
         } else {
-          s_liftinstance.stopElevator();
-          s_liftinstance.stopArm();
+          isDisabled = true;
         }
       }
 
@@ -114,8 +127,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public LiftStates nextState() {
-        if (s_liftinstance.elevatorAtHome())
+        if (s_liftinstance.elevatorAtHome() && !isDisabled) {
           return IDLE;
+        }
+        if (isDisabled) {
+          return DISABLED;
+        }
         return this;
       }
     },
@@ -156,6 +173,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     STOW_L1_S0 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
       }
 
@@ -218,6 +236,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L1_STOW_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
       }
 
@@ -246,6 +265,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L1_L2_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
       }
 
@@ -274,6 +294,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L1_L3_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
       }
 
@@ -288,6 +309,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L1_L4_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
       }
 
@@ -302,6 +324,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     STOW_L2_S0 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
       }
 
@@ -364,6 +387,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L2_L1_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
       }
 
@@ -378,6 +402,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L2_L3_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
       }
 
@@ -392,6 +417,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L2_L4_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
       }
 
@@ -406,6 +432,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     STOW_L3_S0 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
       }
 
@@ -496,6 +523,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L3_STOW_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_TOP.minus(ARM_TOLERANCE));
       }
 
@@ -552,6 +580,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L3_L1_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_TOP.plus(ARM_TOLERANCE));
       }
 
@@ -608,6 +637,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L3_L2_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_TOP.plus(ARM_TOLERANCE));
       }
 
@@ -664,6 +694,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L3_L4_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_TOP.minus(ARM_TOLERANCE));
       }
 
@@ -692,6 +723,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     STOW_L4_S0 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
       }
 
@@ -754,6 +786,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L4_STOW_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
       }
 
@@ -782,6 +815,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L4_L1_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
       }
 
@@ -810,6 +844,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L4_L2_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
       }
 
@@ -838,6 +873,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L4_L3_S1 {
       @Override
       public void initialize() {
+        isLiftReady = false;
         s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_TOP.minus(ARM_TOLERANCE));
       }
 
