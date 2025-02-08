@@ -40,7 +40,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
                 double angle = Math.atan2(s_drivetrain.getState().Pose.getX() - Constants.Field.REEF_LOCATION.getX(),
                         s_drivetrain.getState().Pose.getY() - Constants.Field.REEF_LOCATION.getY());
-                Logger.recordOutput("Drive/angle", angle);
             }
 
             @Override
@@ -138,15 +137,13 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                                 .withTargetY(m_currentDriveYState.position)
                                 .withFeedforwardY(m_currentDriveYState.velocity));
 
-                Logger.recordOutput("Drive/autoAlign/targetPose", new Pose2d(m_currentDriveXState.position,
+                Logger.recordOutput("DriveSubsystem/autoAlign/targetPose", new Pose2d(m_currentDriveXState.position,
                         m_currentDriveYState.position, new Rotation2d(m_currentTurnState.position)));
-                Logger.recordOutput("Drive/autoAlign/finalPose", new Pose2d(s_autoAlignTargetDriveX.position,
+                Logger.recordOutput("DriveSubsystem/autoAlign/finalPose", new Pose2d(s_autoAlignTargetDriveX.position,
                         s_autoAlignTargetDriveY.position, new Rotation2d(s_autoAlignTargetTurn.position)));
 
-                if (Math.abs(
-                        s_drivetrain.getState().Pose.getRotation().getRadians() - s_autoAlignTargetTurn.position) < 0.05
-                        && Math.abs(s_drivetrain.getState().Pose.getX() - s_autoAlignTargetDriveX.position) < 0.05
-                        && Math.abs(s_drivetrain.getState().Pose.getY() - s_autoAlignTargetDriveY.position) < 0.05) {
+                if (s_drivetrain.getState().Pose.getTranslation().getDistance(s_autoAlignTarget.getTranslation()) < Constants.Drive.AUTO_ALIGN_TOLERANCE
+                && Math.abs((s_drivetrain.getState().Pose.getRotation().getDegrees() + 360) % 360 - s_autoAlignTargetTurn.position) < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN) {
                     s_isAligned = true;
                 }
             }
@@ -177,6 +174,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     private static DoubleSupplier s_rotateRequest = () -> 0;
 
     private static boolean s_shouldAutoAlign = false;
+    private static Pose2d s_autoAlignTarget = new Pose2d();
     private static TrapezoidProfile.State s_autoAlignTargetDriveX;
     private static TrapezoidProfile.State s_autoAlignTargetDriveY;
     private static TrapezoidProfile.State s_autoAlignTargetTurn;
@@ -228,6 +226,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
      * @param state
      */
     public void requestAutoAlign(Pose2d pose) {
+        s_autoAlignTarget = pose;
         s_autoAlignTargetDriveX = new TrapezoidProfile.State(pose.getX(), 0);
         s_autoAlignTargetDriveY = new TrapezoidProfile.State(pose.getY(), 0);
         s_autoAlignTargetTurn = new TrapezoidProfile.State(pose.getRotation().getRadians(), 0);
@@ -298,9 +297,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                     result.standardDeviation);
         }
 
-        Logger.recordOutput("Drive/state", getState().toString());
-        Logger.recordOutput("Drive/autotarget", findAutoAlignTarget());
-        Logger.recordOutput("Drive/autoAlign/temp", s_drivetrain.getState().Pose.getRotation().getRadians());
+        Logger.recordOutput(getName() + "/state", getState().toString());
+        Logger.recordOutput(getName() + "/autoAlign/autotarget", findAutoAlignTarget());
+        Logger.recordOutput(getName() + "/isNearSource", isNearSource());
     }
 
     @Override
