@@ -110,7 +110,9 @@ public final class Constants {
   }
 
   public static class EndEffectorHardware {
-    public static final Spark.ID OUTTAKE_MOTOR_ID = new Spark.ID("endEffecterMotor", 9);
+    public static final Spark.ID OUTTAKE_MOTOR_ID = new Spark.ID("endEffecterMotor", 7);
+    public static final int FORWARD_BEAM_BREAK = 3;
+  public static final int REVERSE_BEAM_BREAK = 4;
   }
 
   public static class VisionHardware {
