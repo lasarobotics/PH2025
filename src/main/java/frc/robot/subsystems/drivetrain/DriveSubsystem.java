@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drivetrain;
 
+import java.util.List;
 import java.util.function.DoubleSupplier;
 
 import org.lasarobotics.fsm.StateMachine;
@@ -11,8 +12,11 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -37,9 +41,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                         .withVelocityX(Constants.Drive.MAX_SPEED.times(-s_driveRequest.getAsDouble()))
                         .withVelocityY(Constants.Drive.MAX_SPEED.times(-s_strafeRequest.getAsDouble()))
                         .withRotationalRate(Constants.Drive.MAX_ANGULAR_RATE.times(-s_rotateRequest.getAsDouble())));
-
-                double angle = Math.atan2(s_drivetrain.getState().Pose.getX() - Constants.Field.REEF_LOCATION.getX(),
-                        s_drivetrain.getState().Pose.getY() - Constants.Field.REEF_LOCATION.getY());
             }
 
             @Override
@@ -142,8 +143,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 Logger.recordOutput("DriveSubsystem/autoAlign/finalPose", new Pose2d(s_autoAlignTargetDriveX.position,
                         s_autoAlignTargetDriveY.position, new Rotation2d(s_autoAlignTargetTurn.position)));
 
-                if (s_drivetrain.getState().Pose.getTranslation().getDistance(s_autoAlignTarget.getTranslation()) < Constants.Drive.AUTO_ALIGN_TOLERANCE
-                && Math.abs((s_drivetrain.getState().Pose.getRotation().getDegrees() + 360) % 360 - s_autoAlignTargetTurn.position) < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN) {
+                double distance = s_drivetrain.getState().Pose.getTranslation().getDistance(s_autoAlignTarget.getTranslation());
+                // double heading = Math.abs((s_drivetrain.getState().Pose.getRotation().getDegrees() + 360) - (s_autoAlignTargetTurn.position + 360));
+                double heading = Math.abs((s_drivetrain.getState().Pose.getRotation().getRadians() - s_autoAlignTargetTurn.position)) % 360;
+                System.out.println(distance + "," + heading);
+                if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN || heading > (Math.PI * 2 - Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN))) {
                     s_isAligned = true;
                 }
             }
@@ -263,12 +267,22 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
      * reef pole
      */
     private Pose2d findAutoAlignTarget() {
+        Translation2d reefLocation;
+        List<Pose2d> autoAlignLocations;
+        if (DriverStation.getAlliance().equals(Alliance.Red)) {
+            reefLocation = Constants.Field.REEF_LOCATION_RED;
+            autoAlignLocations = Constants.Drive.AUTO_ALIGN_LOCATIONS_RED;
+        } else {
+            reefLocation = Constants.Field.REEF_LOCATION_BLUE;
+            autoAlignLocations = Constants.Drive.AUTO_ALIGN_LOCATIONS_BLUE;
+        }
         double angle = Math
-                .toDegrees(Math.atan2(s_drivetrain.getState().Pose.getX() - Constants.Field.REEF_LOCATION.getX(),
-                        s_drivetrain.getState().Pose.getY() - Constants.Field.REEF_LOCATION.getY()))
+                .toDegrees(Math.atan2(s_drivetrain.getState().Pose.getX() - reefLocation.getX(),
+                        s_drivetrain.getState().Pose.getY() - reefLocation.getY()))
                 + 360;
         angle = (((angle / 30)) + 10) % 12;
-        return Constants.Drive.AUTO_ALIGN_LOCATIONS.get((int) angle);
+
+        return autoAlignLocations.get((int) angle);
         // return Constants.Drive.AUTO_ALIGN_LOCATIONS.get(0);
     }
 
