@@ -262,6 +262,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     super.periodic();
 
     Logger.recordOutput(getName() + "/state", getState().toString());
+    Logger.recordOutput(getName() + "/isCoralCentered", isCoralCentered());
   }
 
   public void close() {
