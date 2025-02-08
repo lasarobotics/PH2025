@@ -9,7 +9,6 @@ import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.lasarobotics.hardware.generic.LimitSwitch.SwitchPolarity;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
-import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
