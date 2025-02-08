@@ -511,7 +511,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         if (nextState == TargetLiftStates.L1) {
           return L3_L1_S1;
         }
-        if (nextState == TargetLiftStates.L3) {
+        if (nextState == TargetLiftStates.L2) {
           return L3_L2_S1;
         }
         if (nextState == TargetLiftStates.L4) {
@@ -774,10 +774,10 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         if (nextState == TargetLiftStates.L1) {
           return L4_L1_S1;
         }
-        if (nextState == TargetLiftStates.L3) {
+        if (nextState == TargetLiftStates.L2) {
           return L4_L2_S1;
         }
-        if (nextState == TargetLiftStates.L4) {
+        if (nextState == TargetLiftStates.L3) {
           return L4_L3_S1;
         }
         return this;
