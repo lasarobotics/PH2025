@@ -135,7 +135,6 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public void end(boolean interrupted) {
-        s_liftinstance.resetElevatorEncoder();
         s_liftinstance.stopElevator();
       }
 
@@ -1097,13 +1096,6 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   private void startHomingElevator() {
     m_elevatorMotor.setControl(HOMING_SPEED);
-  }
-
-  /**
-   * Zero the elevator encoder
-   */
-  private void resetElevatorEncoder() {
-    m_elevatorMotor.setPosition(Degrees.of(0.0));
   }
 
   /**
