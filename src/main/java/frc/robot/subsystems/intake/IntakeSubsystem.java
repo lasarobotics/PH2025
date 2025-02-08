@@ -140,7 +140,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   /**
    * Calls the stop state in the state machine for API purposes
    */
-  public void stopIntake() {
+  public void stop() {
     s_requestedState = IntakeStates.STOP;
   }
 
@@ -171,7 +171,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
    * @return Boolean value whether coral is fully in intake or not
    */
   public boolean coralInIntake() {
-    return ((m_firstBeamBreak.getInputs().value) && (m_secondBeamBreak.getInputs().value));
+    return ((m_firstBeamBreak.getInputs().value) && !(m_secondBeamBreak.getInputs().value));
   }
 
    /**
