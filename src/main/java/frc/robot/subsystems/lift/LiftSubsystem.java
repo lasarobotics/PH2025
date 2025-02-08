@@ -13,12 +13,14 @@ import java.util.function.Consumer;
 
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
+import org.lasarobotics.hardware.ctre.CANcoder;
 import org.lasarobotics.hardware.ctre.TalonFX;
 import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.lasarobotics.hardware.generic.LimitSwitch.SwitchPolarity;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -27,6 +29,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
@@ -35,11 +38,12 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 
 public class LiftSubsystem extends StateMachine implements AutoCloseable {
-  public static record Hardware(
-      TalonFX elevatorMotor,
-      TalonFX pivotMotor,
-      LimitSwitch elevatorHomingBeamBreak) {
-  }
+  public static record Hardware (
+    TalonFX elevatorMotor,
+    TalonFX pivotMotor,
+    LimitSwitch elevatorHomingBeamBreak,
+    CANcoder armCANCoder
+  ) {}
 
   public static enum TargetLiftStates {
     STOW,
@@ -814,6 +818,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   private final TalonFX m_elevatorMotor;
   private final TalonFX m_pivotMotor;
+  private final CANcoder m_armCANcoder;
   private final MotionMagicVoltage m_pivotPositionSetter;
   private final MotionMagicVoltage m_elevatorPositionSetter;
   private final LimitSwitch m_elevatorHomingBeamBreak;
@@ -827,6 +832,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     super(LiftStates.IDLE);
     m_elevatorMotor = liftHardware.elevatorMotor;
     m_pivotMotor = liftHardware.pivotMotor;
+    m_armCANcoder = liftHardware.armCANCoder;
+
     m_pivotPositionSetter = new MotionMagicVoltage(Radians.zero());
     m_elevatorPositionSetter = new MotionMagicVoltage(Radians.zero());
     m_elevatorHomingBeamBreak = liftHardware.elevatorHomingBeamBreak;
@@ -877,6 +884,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     pivotConfig.Feedback.SensorToMechanismRatio = 1.0;
     pivotConfig.Feedback.RotorToSensorRatio = 52.36363636363636;
     pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    pivotConfig.Feedback.FeedbackRemoteSensorID = m_armCANcoder.getID().deviceID;
     pivotConfig.Audio.AllowMusicDurDisable = true;
     pivotConfig.MotionMagic.MotionMagicAcceleration = 0;
     pivotConfig.MotionMagic.MotionMagicJerk = 0;
@@ -896,6 +904,11 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     pivotConfig.Slot0.kS = 0;
     pivotConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
+    CANcoderConfiguration armCANCoderConfig = new CANcoderConfiguration();
+    armCANCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    armCANCoderConfig.MagnetSensor.MagnetOffset = 0;
+    armCANCoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
+
     m_elevatorSysIDLogConsumer = state -> SignalLogger.writeString(getName() + ELEVATOR_MOTOR_SYSID_STATE_LOG_ENTRY,
         state.toString());
     m_pivotSysIDLogConsumer = state -> SignalLogger.writeString(getName() + PIVOT_MOTOR_SYSID_STATE_LOG_ENTRY,
@@ -904,6 +917,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     // Apply configs for TalonFX motors
     m_elevatorMotor.applyConfigs(elevatorConfig);
     m_pivotMotor.applyConfigs(pivotConfig);
+    m_armCANcoder.getConfigurator().apply(armCANCoderConfig);
   }
 
   /**
@@ -929,10 +943,11 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   public static Hardware initializeHardware() {
     Hardware liftHardware = new Hardware(
-        new TalonFX(Constants.LiftHardware.ELEVATOR_MOTOR_ID, Constants.Frequencies.TALON_UPDATE_RATE),
-        new TalonFX(Constants.LiftHardware.PIVOT_MOTOR_ID, Constants.Frequencies.TALON_UPDATE_RATE),
-        new LimitSwitch(Constants.LiftHardware.ELEVATOR_HOMING_BEAM_BREAK_PORT, SwitchPolarity.NORMALLY_OPEN,
-            Constants.Frequencies.BEAM_BREAK_UPDATE_RATE));
+      new TalonFX(Constants.LiftHardware.ELEVATOR_MOTOR_ID, Constants.Frequencies.TALON_UPDATE_RATE),
+      new TalonFX(Constants.LiftHardware.PIVOT_MOTOR_ID, Constants.Frequencies.TALON_UPDATE_RATE),
+      new LimitSwitch(Constants.LiftHardware.ELEVATOR_HOMING_BEAM_BREAK_PORT, SwitchPolarity.NORMALLY_OPEN, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE),
+      new CANcoder(Constants.LiftHardware.ARM_CANCODER_ID, Constants.Frequencies.TALON_UPDATE_RATE)
+    );
 
     return liftHardware;
   }
@@ -962,7 +977,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    * Get current arm angle
    */
   private Angle getArmAngle() {
-    return m_pivotMotor.getInputs().rotorPosition;
+    return m_armCANcoder.getInputs().absolutePosition;
   }
 
   /**

@@ -13,6 +13,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import java.util.Arrays;
 import java.util.List;
 
+import org.lasarobotics.hardware.ctre.CANcoder;
 import org.lasarobotics.hardware.ctre.PhoenixCANBus;
 import org.lasarobotics.hardware.ctre.TalonFX;
 import org.lasarobotics.hardware.generic.LimitSwitch;
