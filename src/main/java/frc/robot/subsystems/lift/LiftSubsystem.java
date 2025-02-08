@@ -92,6 +92,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       public void initialize() {
         s_liftinstance.stopElevator();
         s_liftinstance.stopArm();
+        isLiftReady = true; // Done so that the entire robot can keep working, even though the lift is disabled
       }
 
       @Override
@@ -127,11 +128,11 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public LiftStates nextState() {
-        if (s_liftinstance.elevatorAtHome() && !isDisabled) {
-          return IDLE;
-        }
         if (isDisabled) {
           return DISABLED;
+        }
+        if (s_liftinstance.elevatorAtHome()) {
+          return IDLE;
         }
         return this;
       }
