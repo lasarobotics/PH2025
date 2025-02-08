@@ -253,6 +253,22 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     this.nextState = nextState;
   }
 
+  public void requestScore() {
+    setState(EndEffectorStates.SCORE);
+  }
+
+  public void requestScoreReverse() {
+    setState(EndEffectorStates.SCORE_L4);
+  }
+
+  public void requestStop() {
+    setState(EndEffectorStates.IDLE);
+  }
+
+  public void requestIntake() {
+    setState(EndEffectorStates.INTAKE);
+  }
+
   @Override
   public void periodic() {
     super.periodic();
