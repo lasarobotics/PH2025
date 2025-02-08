@@ -33,7 +33,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
                     return INTAKE;
                 }
 
-                if (END_EFFECTOR_SUBSYSTEM.isEmpty()) return INTAKE;
+                if (END_EFFECTOR_SUBSYSTEM.isEmpty() && LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW)) return INTAKE;
 
                 if (regurgitate_button.getAsBoolean() && LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW)) {
                     return REGURGITATE;
