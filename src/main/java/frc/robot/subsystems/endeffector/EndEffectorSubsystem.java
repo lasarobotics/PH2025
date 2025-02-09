@@ -57,7 +57,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     SCORE_L4 {
       @Override
       public void initialize() {
-        s_endEffectorInstance.outtake_reverse();
+        s_endEffectorInstance.outtakeReverse();
       }
 
       @Override
@@ -103,7 +103,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     REGURGITATE {
       @Override
       public void initialize() {
-        s_endEffectorInstance.outtake_reverse();
+        s_endEffectorInstance.outtakeReverse();
       }
 
       @Override
@@ -182,7 +182,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   /**
    * Runs motor at power required for scoring at L4 / for reguritating
    */
-  private void outtake_reverse() {
+  private void outtakeReverse() {
     m_endEffectorMotor.set(SCORE_MOTOR_SPEED.in(Value));
   }
 
@@ -216,7 +216,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    */
   private void centerCoral() {
     if(forwardBeamBreakBroken() && !reverseBeamBreakBroken()) {
-      s_endEffectorInstance.outtake_reverse();
+      s_endEffectorInstance.outtakeReverse();
     } else if (reverseBeamBreakBroken() && !forwardBeamBreakBroken()) {
       s_endEffectorInstance.intake();
     } else {
