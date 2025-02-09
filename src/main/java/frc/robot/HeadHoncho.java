@@ -14,8 +14,6 @@ import frc.robot.subsystems.lift.LiftSubsystem;
 import frc.robot.subsystems.lift.LiftSubsystem.TargetLiftStates;
 
 public class HeadHoncho extends StateMachine implements AutoCloseable {
-  public static record Hardware() {}
-
   public enum State implements SystemState {
     REST {
       @Override
@@ -249,18 +247,17 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
   private static BooleanSupplier s_cancelButton;
 
   public HeadHoncho(
-    Hardware hardware,
-    DriveSubsystem drive_subsystem,
-    IntakeSubsystem intake_subsystem,
-    LiftSubsystem lift_subsystem,
-    EndEffectorSubsystem end_effector_subsystem
+    DriveSubsystem driveSubsystem,
+    IntakeSubsystem intakeSubsystem,
+    LiftSubsystem liftSubsystem,
+    EndEffectorSubsystem endEffectorSubsystem
   ) {
     super(State.REST);
 
-    DRIVE_SUBSYSTEM = drive_subsystem;
-    INTAKE_SUBSYSTEM = intake_subsystem;
-    LIFT_SUBSYSTEM = lift_subsystem;
-    END_EFFECTOR_SUBSYSTEM = end_effector_subsystem;
+    DRIVE_SUBSYSTEM = driveSubsystem;
+    INTAKE_SUBSYSTEM = intakeSubsystem;
+    LIFT_SUBSYSTEM = liftSubsystem;
+    END_EFFECTOR_SUBSYSTEM = endEffectorSubsystem;
   }
 
   public void bindControls(
@@ -287,10 +284,6 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     s_cancelButton = cancelButton;
 
     DRIVE_SUBSYSTEM.bindControls(driveRequest, strafeRequest, rotateRequest);
-  }
-
-  public static Hardware initializeHardware() {
-    return new Hardware();
   }
 
   @Override

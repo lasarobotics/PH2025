@@ -286,7 +286,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Initialize hardware devices for drive subsystem
-   *
    * @return Hardware object containing all necessary devices for this subsystem
    */
   public static Hardware initializeHardware() {
