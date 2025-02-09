@@ -57,7 +57,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         if (END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return REST;
-        if (cancel_button.getAsBoolean()) return REST;
+        if (s_cancelButton.getAsBoolean()) return REST;
 
         return this;
       }
@@ -77,7 +77,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (cancel_button.getAsBoolean() && (INTAKE_SUBSYSTEM.coralInIntake() || !INTAKE_SUBSYSTEM.coralInIntake())) return REST;
+        if (s_cancelButton.getAsBoolean() && (INTAKE_SUBSYSTEM.coralFullyInIntake() || END_EFFECTOR_SUBSYSTEM.isCoralCentered())) return REST;
         // TODO algae
 
         return this;
@@ -89,7 +89,6 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         END_EFFECTOR_SUBSYSTEM.requestStop();
       }
     },
-
     STOW {
       @Override
       public void initialize() {
@@ -102,7 +101,6 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       }
 
     },
-
     L1 {
       @Override
       public void initialize() {
@@ -113,14 +111,14 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         if (LIFT_SUBSYSTEM.isAtState(TargetLiftStates.L1) && DRIVE_SUBSYSTEM.isAligned()) return SCORE;
-        if (score_button.getAsBoolean()) return SCORE;
+        if (s_scoreButton.getAsBoolean()) return SCORE;
 
         if (s_L1Button.getAsBoolean()) return L1;
         if (s_L2Button.getAsBoolean()) return L2;
         if (s_L3Button.getAsBoolean()) return L3;
         if (s_L4Button.getAsBoolean()) return L4;
 
-        if (cancel_button.getAsBoolean()) return STOW;
+        if (s_cancelButton.getAsBoolean()) return STOW;
 
         return this;
       }
@@ -135,14 +133,14 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         if (LIFT_SUBSYSTEM.isAtState(TargetLiftStates.L2) && DRIVE_SUBSYSTEM.isAligned()) return SCORE;
-        if (score_button.getAsBoolean()) return SCORE;
+        if (s_scoreButton.getAsBoolean()) return SCORE;
 
         if (s_L1Button.getAsBoolean()) return L1;
         if (s_L2Button.getAsBoolean()) return L2;
         if (s_L3Button.getAsBoolean()) return L3;
         if (s_L4Button.getAsBoolean()) return L4;
 
-        if (cancel_button.getAsBoolean()) return STOW;
+        if (s_cancelButton.getAsBoolean()) return STOW;
 
         return this;
       }
@@ -157,14 +155,14 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         if (LIFT_SUBSYSTEM.isAtState(TargetLiftStates.L3) && DRIVE_SUBSYSTEM.isAligned()) return SCORE;
-        if (score_button.getAsBoolean()) return SCORE;
+        if (s_scoreButton.getAsBoolean()) return SCORE;
 
         if (s_L1Button.getAsBoolean()) return L1;
         if (s_L2Button.getAsBoolean()) return L2;
         if (s_L3Button.getAsBoolean()) return L3;
         if (s_L4Button.getAsBoolean()) return L4;
 
-        if (cancel_button.getAsBoolean()) return STOW;
+        if (s_cancelButton.getAsBoolean()) return STOW;
 
         return this;
       }
@@ -179,19 +177,18 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         if (LIFT_SUBSYSTEM.isAtState(TargetLiftStates.L4) && DRIVE_SUBSYSTEM.isAligned()) return SCORE_L4;
-        if (score_button.getAsBoolean()) return SCORE;
+        if (s_scoreButton.getAsBoolean()) return SCORE;
 
         if (s_L1Button.getAsBoolean()) return L1;
         if (s_L2Button.getAsBoolean()) return L2;
         if (s_L3Button.getAsBoolean()) return L3;
         if (s_L4Button.getAsBoolean()) return L4;
 
-        if (cancel_button.getAsBoolean()) return STOW;
+        if (s_cancelButton.getAsBoolean()) return STOW;
 
         return this;
       }
     },
-
     SCORE {
       @Override
       public void initialize() {
@@ -248,9 +245,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
   private static BooleanSupplier s_L3Button;
   private static BooleanSupplier s_L4Button;
 
-  private static BooleanSupplier score_button; // force robot to score, regardless of alignment
-
-  private static BooleanSupplier cancel_button;
+  private static BooleanSupplier s_scoreButton; // force robot to score, regardless of alignment
+  private static BooleanSupplier s_cancelButton;
 
   public HeadHoncho(
     Hardware hardware,
@@ -268,17 +264,17 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
   }
 
   public void bindControls(
-    DoubleSupplier drive_x_reqeust,
-    DoubleSupplier drive_y_request,
-    DoubleSupplier drive_rotate_request,
+    DoubleSupplier driveRequest,
+    DoubleSupplier strafeRequest,
+    DoubleSupplier rotateRequest,
     BooleanSupplier intakeButton,
     BooleanSupplier regurgitateButton,
     BooleanSupplier L1Button,
     BooleanSupplier L2Button,
     BooleanSupplier L3Button,
     BooleanSupplier L4Button,
-    BooleanSupplier score_button,
-    BooleanSupplier cancel_button
+    BooleanSupplier scoreButton,
+    BooleanSupplier cancelButton
   ) {
     s_intakeButton = intakeButton;
     s_regurgitateButton = regurgitateButton;
@@ -287,11 +283,10 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     s_L3Button = L3Button;
     s_L4Button = L4Button;
 
-    HeadHoncho.score_button = score_button;
+    s_scoreButton = scoreButton;
+    s_cancelButton = cancelButton;
 
-    HeadHoncho.cancel_button = cancel_button;
-
-    DRIVE_SUBSYSTEM.bindControls(drive_x_reqeust, drive_y_request, drive_rotate_request);
+    DRIVE_SUBSYSTEM.bindControls(driveRequest, strafeRequest, rotateRequest);
   }
 
   public static Hardware initializeHardware() {
