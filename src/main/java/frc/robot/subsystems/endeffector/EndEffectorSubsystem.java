@@ -25,7 +25,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     DigitalInput reverseBeamBreak
   ) {}
 
-  static final Dimensionless INTAKE_MOTOR_SPEED = Percent.of(50);;
+  static final Dimensionless INTAKE_MOTOR_SPEED = Percent.of(50);
   static final Dimensionless REGURGITATE_MOTOR_SPEED = Percent.of(-50);
   static final Dimensionless SCORE_MOTOR_SPEED = Percent.of(100);
   static final Dimensionless CENTER_CORAL_MOTOR_SPEED = Percent.of(-40);
@@ -115,7 +115,6 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
         return s_endEffectorInstance.nextState;
       }
     }
-
   }
 
   private static EndEffectorSubsystem s_endEffectorInstance;
@@ -124,7 +123,6 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   private final DigitalInput m_reverseBeamBreak;
   private final AsynchronousInterrupt m_Interrupt;
   private EndEffectorStates nextState;
-  
 
   /**
    * Returns an instance of EndEffectorSubsystem
@@ -155,7 +153,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   }
   /**
    * Initalizes hardware devices used by subsystem
-   * 
+   *
    * @return Hardware object containing all necessary devices for subsytem
    */
   public static Hardware initializeHardware() {
@@ -197,19 +195,19 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
   /**
    * Checks status of forward beam break
-   * 
+   *
    * @return True if beam break broken, false otherwise
    */
-  private boolean forwardBeamBreakBroken(){
+  private boolean forwardBeamBreakBroken() {
     return m_forwardBeamBreak.get();
   }
 
   /**
    * Checks status of reverse beam break
-   * 
+   *
    * @return True if beam break broken, false otherwise
    */
-  private boolean reverseBeamBreakBroken(){
+  private boolean reverseBeamBreakBroken() {
     return m_reverseBeamBreak.get();
   }
 
@@ -228,7 +226,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
   /**
    * Checks if coral is centered in end effector
-   * 
+   *
    * @return True if both beam breaks are true, false otherwise
    */
   public boolean isCoralCentered() {

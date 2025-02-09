@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.Value;
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
 import org.lasarobotics.hardware.generic.LimitSwitch;
-import org.lasarobotics.hardware.generic.LimitSwitch.SwitchPolarity;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 
@@ -128,8 +127,8 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   public static Hardware initializeHardware() {
     Hardware intakeHardware = new Hardware(
       new Spark(Constants.IntakeHardware.INTAKE_MOTOR_ID, MotorKind.NEO_VORTEX),
-      new LimitSwitch(Constants.IntakeHardware.FIRST_INTAKE_BEAM_BREAK, SwitchPolarity.NORMALLY_OPEN, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE),
-      new LimitSwitch(Constants.IntakeHardware.SECOND_INTAKE_BEAM_BREAK, SwitchPolarity.NORMALLY_OPEN, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE)
+      new LimitSwitch(Constants.IntakeHardware.FIRST_INTAKE_BEAM_BREAK, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE),
+      new LimitSwitch(Constants.IntakeHardware.SECOND_INTAKE_BEAM_BREAK, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE)
     );
     return intakeHardware;
   }
@@ -196,7 +195,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Checks if the intake is fully empty
-   * @return Boolean value whether coral is empty or not
+   * @return True if coral is empty
    */
   public boolean isEmpty() {
     return !m_firstBeamBreak.getInputs().value && !m_secondBeamBreak.getInputs().value;
