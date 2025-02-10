@@ -119,27 +119,27 @@ public final class Constants {
 
 
   public static class LiftHardware {
-   public static final TalonFX.ID ELEVATOR_MOTOR_ID = new TalonFX.ID("LiftHardware/Elevator", PhoenixCANBus.RIO, 4);
-   public static final TalonFX.ID PIVOT_MOTOR_ID = new TalonFX.ID("LiftHardware/Pivot", PhoenixCANBus.RIO, 5);
+   public static final TalonFX.ID ELEVATOR_MOTOR_ID = new TalonFX.ID("LiftHardware/Elevator", PhoenixCANBus.RIO, 60);
+   public static final TalonFX.ID PIVOT_MOTOR_ID = new TalonFX.ID("LiftHardware/Pivot", PhoenixCANBus.RIO, 61);
    public static final Distance SPROCKET_PITCH_RADIUS = Inches.of((1.751)/(2.0));
-   public static final LimitSwitch.ID ELEVATOR_HOMING_BEAM_BREAK_PORT = new LimitSwitch.ID("LiftHardware/HomingSwitch", 0);
-   public static final CANcoder.ID ARM_CANCODER_ID = new CANcoder.ID("LiftHardware/CANcoder", PhoenixCANBus.RIO, 8);
+   public static final LimitSwitch.ID ELEVATOR_HOMING_BEAM_BREAK_PORT = new LimitSwitch.ID("LiftHardware/HomingSwitch", 4);
+   public static final CANcoder.ID ARM_CANCODER_ID = new CANcoder.ID("LiftHardware/CANcoder", PhoenixCANBus.RIO, 62);
   }
 
   public static class IntakeHardware {
-    public static final Spark.ID INTAKE_MOTOR_ID = new Spark.ID("IntakeHardware/IntakeMotor", 7);
+    public static final Spark.ID INTAKE_MOTOR_ID = new Spark.ID("IntakeHardware/IntakeMotor", 53);
     public static final LimitSwitch.ID FIRST_INTAKE_BEAM_BREAK = new LimitSwitch.ID(
-      "IntakeHardware/FirstIntakeBeamBreak", 1
+      "IntakeHardware/FirstIntakeBeamBreak", 0
     );
     public static final LimitSwitch.ID SECOND_INTAKE_BEAM_BREAK = new LimitSwitch.ID(
-      "IntakeHardware/SecondIntakeBeamBreak", 2
+      "IntakeHardware/SecondIntakeBeamBreak", 1
     );
   }
 
   public static class EndEffectorHardware {
-    public static final Spark.ID OUTTAKE_MOTOR_ID = new Spark.ID("endEffecterMotor", 9);
-    public static final int FORWARD_BEAM_BREAK = 3;
-    public static final int REVERSE_BEAM_BREAK = 4;
+    public static final Spark.ID OUTTAKE_MOTOR_ID = new Spark.ID("endEffectorMotor", 52);
+    public static final int FORWARD_BEAM_BREAK = 2;
+    public static final int REVERSE_BEAM_BREAK = 3;
   }
 
   public static class ClimbHardware {
