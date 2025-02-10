@@ -126,7 +126,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
    */
   public static Hardware initializeHardware() {
     Hardware intakeHardware = new Hardware(
-      new Spark(Constants.IntakeHardware.INTAKE_MOTOR_ID, MotorKind.NEO_VORTEX),
+      new Spark(Constants.IntakeHardware.INTAKE_MOTOR_ID, MotorKind.NEO),
       new LimitSwitch(Constants.IntakeHardware.FIRST_INTAKE_BEAM_BREAK, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE),
       new LimitSwitch(Constants.IntakeHardware.SECOND_INTAKE_BEAM_BREAK, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE)
     );

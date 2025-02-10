@@ -982,7 +982,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     pivotConfig.CurrentLimits.SupplyCurrentLowerTime = 1.0;
     pivotConfig.Feedback.SensorToMechanismRatio = 1.0;
     pivotConfig.Feedback.RotorToSensorRatio = 52.36363636363636;
-    pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+    pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     pivotConfig.Feedback.FeedbackRemoteSensorID = m_armCANcoder.getID().deviceID;
     pivotConfig.Audio.AllowMusicDurDisable = true;
     pivotConfig.MotionMagic.MotionMagicAcceleration = 0;
@@ -1005,7 +1005,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
     CANcoderConfiguration armCANCoderConfig = new CANcoderConfiguration();
     armCANCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    armCANCoderConfig.MagnetSensor.MagnetOffset = 0;
+    armCANCoderConfig.MagnetSensor.MagnetOffset = 0.69287109375;
     armCANCoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
 
     m_elevatorSysIDLogConsumer = state -> SignalLogger.writeString(getName() + ELEVATOR_MOTOR_SYSID_STATE_LOG_ENTRY,
