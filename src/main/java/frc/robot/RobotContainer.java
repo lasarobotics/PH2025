@@ -50,6 +50,17 @@ public class RobotContainer {
     PRIMARY_CONTROLLER.povRight().onTrue(Commands.runOnce(() -> {
       DRIVE_SUBSYSTEM.cancelAutoAlign();
     }));
+
+    PRIMARY_CONTROLLER.a().onTrue(Commands.runOnce(() -> {
+      System.out.println("a");
+      INTAKE_SUBSYSTEM.startIntake();
+    }));
+    PRIMARY_CONTROLLER.b().onTrue(Commands.runOnce(() -> {
+      INTAKE_SUBSYSTEM.startRegurgitate();
+    }));
+    PRIMARY_CONTROLLER.x().onTrue(Commands.runOnce(() -> {
+      INTAKE_SUBSYSTEM.stop();
+    }));
   }
 
   public Command getAutonomousCommand() {

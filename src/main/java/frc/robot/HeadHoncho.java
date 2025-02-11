@@ -15,6 +15,13 @@ import frc.robot.subsystems.lift.LiftSubsystem.TargetLiftStates;
 
 public class HeadHoncho extends StateMachine implements AutoCloseable {
   public enum State implements SystemState {
+
+    NOTHING {
+        @Override
+        public SystemState nextState() {
+            return this;
+        }
+    },
     REST {
       @Override
       public void initialize() {
@@ -252,7 +259,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     LiftSubsystem liftSubsystem,
     EndEffectorSubsystem endEffectorSubsystem
   ) {
-    super(State.REST);
+    super(State.NOTHING);
 
     DRIVE_SUBSYSTEM = driveSubsystem;
     INTAKE_SUBSYSTEM = intakeSubsystem;
