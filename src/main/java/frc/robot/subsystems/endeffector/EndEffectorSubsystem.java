@@ -237,10 +237,13 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   public void periodic() {
     super.periodic();
 
-    Logger.recordOutput(getName() + "/state", getState().toString());
-    Logger.recordOutput(getName() + "/isCoralCentered", isCoralCentered());
+    Logger.recordOutput(getName() + "/State", getState().toString());
+    Logger.recordOutput(getName() + "/IsCoralCentered", isCoralCentered());
+    Logger.recordOutput(getName() + "/FirstBeamBreak", m_forwardBeamBreak.get());
+    Logger.recordOutput(getName() + "/SecondBeamBreak", m_reverseBeamBreak.get());
   }
 
+  @Override
   public void close() {
     m_endEffectorMotor.close();
     m_forwardBeamBreak.close();

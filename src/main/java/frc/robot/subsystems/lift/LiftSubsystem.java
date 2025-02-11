@@ -1217,6 +1217,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   /**
    * Close the motors of the lift subsystem, make the instance null
    */
+  @Override
   public void close() {
     m_elevatorMotor.close();
     m_pivotMotor.close();

@@ -8,6 +8,7 @@ import org.lasarobotics.fsm.SystemState;
 import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
+import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -225,6 +226,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   /**
    * Closes all the motors, makes intake instance null
    */
+  @Override
   public void close() {
     m_intakeMotor.close();
     s_intakeInstance = null;
