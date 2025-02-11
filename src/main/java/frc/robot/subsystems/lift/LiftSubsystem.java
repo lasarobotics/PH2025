@@ -88,6 +88,14 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Distance BEAM_BREAK_HEIGHT = Inches.of(0);
 
   public enum LiftStates implements SystemState {
+    NOTHING {
+
+      @Override
+      public SystemState nextState() {
+        return this;
+      }
+
+    },
     DISABLED {
       @Override
       public void initialize() {
@@ -928,7 +936,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /** Creates a new LiftSubsystem */
   private LiftSubsystem(Hardware liftHardware) {
-    super(LiftStates.IDLE);
+    super(LiftStates.NOTHING);
     m_elevatorMotor = liftHardware.elevatorMotor;
     m_pivotMotor = liftHardware.pivotMotor;
     m_armCANcoder = liftHardware.armCANCoder;
@@ -1113,7 +1121,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    * @return True if elevator is home
    */
   public boolean elevatorAtHome() {
-    return m_elevatorHomingBeamBreak.getInputs().value;
+    return elevatorHomingBeamBreak();
   }
 
   /**
@@ -1142,6 +1150,10 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   public boolean isLiftReady() {
     return isLiftReady;
+  }
+
+  private boolean elevatorHomingBeamBreak() {
+    return !m_elevatorHomingBeamBreak.getInputs().value;
   }
 
   /**
@@ -1212,6 +1224,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     super.periodic();
 
     Logger.recordOutput(getName() + "/state", getState().toString());
+    Logger.recordOutput(getName() + "/homingBeamBreak", elevatorHomingBeamBreak());
   }
 
   /**

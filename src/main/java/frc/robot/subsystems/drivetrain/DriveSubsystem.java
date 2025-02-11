@@ -33,6 +33,14 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   ) {}
 
   public enum State implements SystemState {
+    NOTHING {
+
+      @Override
+      public SystemState nextState() {
+        return this;
+      }
+
+    },
     DRIVER_CONTROL {
       @Override
       public void execute() {

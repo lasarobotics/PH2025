@@ -22,10 +22,18 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     LimitSwitch secondBeamBreak
   ) {}
 
-  static final Dimensionless INTAKE_SPEED = Percent.of(100);
+  static final Dimensionless INTAKE_SPEED = Percent.of(-20);
   static final Dimensionless REVERSE_INTAKE_SPEED = Percent.of(-50);
 
   public enum IntakeStates implements SystemState {
+    NOTHING {
+
+      @Override
+      public SystemState nextState() {
+        return this;
+      }
+
+    },
     STOP {
       @Override
       public void initialize() {
@@ -77,7 +85,8 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
         }
         else if (s_requestedState == INTAKE) {
           return INTAKE;
-        } else if (s_requestedState == REGURGITATE) {
+        }
+        else if (s_requestedState == REGURGITATE) {
           return REGURGITATE;
         }
         return this;
@@ -160,7 +169,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
    * @return True if coral is fully in intake
    */
   public boolean coralFullyInIntake() {
-    return m_firstBeamBreak.getInputs().value && !m_secondBeamBreak.getInputs().value;
+    return firstIntakeBeamBreak() && !secondIntakeBeamBreak();
   }
 
   /**
@@ -168,7 +177,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
    * @return True if coral is empty
    */
   public boolean isEmpty() {
-    return !m_firstBeamBreak.getInputs().value && !m_secondBeamBreak.getInputs().value;
+    return !firstIntakeBeamBreak() && !secondIntakeBeamBreak();
   }
 
   /**
@@ -192,9 +201,22 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     m_intakeMotor.stopMotor();
   }
 
+  private boolean firstIntakeBeamBreak() {
+    return !m_firstBeamBreak.getInputs().value;
+  }
+
+  private boolean secondIntakeBeamBreak() {
+    return !m_secondBeamBreak.getInputs().value;
+  }
+
   @Override
   public void periodic() {
     super.periodic();
+
+    Logger.recordOutput(getName() + "/state", getState().toString());
+    Logger.recordOutput(getName() + "/firstBeamBreak", firstIntakeBeamBreak());
+    Logger.recordOutput(getName() + "/secondBeamBreak", secondIntakeBeamBreak());
+
   }
 
   /**

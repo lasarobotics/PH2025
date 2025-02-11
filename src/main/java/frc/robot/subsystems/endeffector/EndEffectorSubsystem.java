@@ -31,6 +31,14 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   static final Dimensionless CENTER_CORAL_MOTOR_SPEED = Percent.of(-40);
 
   public enum EndEffectorStates implements SystemState {
+    NOTHING {
+
+      @Override
+      public SystemState nextState() {
+        return this;
+      }
+
+    },
     IDLE {
       @Override
       public void initialize() {
@@ -146,10 +154,12 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     this.m_forwardBeamBreak = endEffectorHardware.forwardBeamBreak;
     this.m_reverseBeamBreak = endEffectorHardware.reverseBeamBreak;
     this.m_Interrupt = new AsynchronousInterrupt(m_forwardBeamBreak, (rising, falling) -> {
-      if(rising) {
+      if(falling) {
         s_endEffectorInstance.stopMotor();
       }
     });
+    this.m_Interrupt.setInterruptEdges(false, true);
+    m_Interrupt.disable();
   }
   /**
    * Initalizes hardware devices used by subsystem
@@ -199,7 +209,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * @return True if beam break broken, false otherwise
    */
   private boolean forwardBeamBreakBroken() {
-    return m_forwardBeamBreak.get();
+    return !m_forwardBeamBreak.get();
   }
 
   /**
@@ -208,7 +218,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * @return True if beam break broken, false otherwise
    */
   private boolean reverseBeamBreakBroken() {
-    return m_reverseBeamBreak.get();
+    return !m_reverseBeamBreak.get();
   }
 
   /**
@@ -272,8 +282,8 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
     Logger.recordOutput(getName() + "/State", getState().toString());
     Logger.recordOutput(getName() + "/IsCoralCentered", isCoralCentered());
-    Logger.recordOutput(getName() + "/FirstBeamBreak", m_forwardBeamBreak.get());
-    Logger.recordOutput(getName() + "/SecondBeamBreak", m_reverseBeamBreak.get());
+    Logger.recordOutput(getName() + "/forwardBeamBreak", forwardBeamBreakBroken());
+    Logger.recordOutput(getName() + "/reverseBeamBreak", reverseBeamBreakBroken());
   }
 
   @Override
