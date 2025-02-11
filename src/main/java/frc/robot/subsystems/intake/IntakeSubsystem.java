@@ -8,6 +8,7 @@ import org.lasarobotics.fsm.SystemState;
 import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
+import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -163,14 +164,6 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * Checks if coral is fully outside the intake using the beam breaks
-   * @return True if neither beam break is triggered
-   */
-  public boolean coralFullyOutsideIntake() {
-    return m_firstBeamBreak.getInputs().value && !m_secondBeamBreak.getInputs().value;
-  }
-
-  /**
    * Checks if the intake is fully empty
    * @return True if coral is empty
    */
@@ -199,9 +192,15 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     m_intakeMotor.stopMotor();
   }
 
+  @Override
+  public void periodic() {
+    super.periodic();
+  }
+
   /**
    * Closes all the motors, makes intake instance null
    */
+  @Override
   public void close() {
     m_intakeMotor.close();
     s_intakeInstance = null;
