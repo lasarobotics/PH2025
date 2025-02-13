@@ -148,8 +148,8 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
   /** Creates a new endEffectorSubsystem. */
   private EndEffectorSubsystem(Hardware endEffectorHardware) {
-    super(EndEffectorStates.IDLE);
-    this.nextState = EndEffectorStates.IDLE;
+    super(EndEffectorStates.NOTHING);
+    this.nextState = EndEffectorStates.NOTHING;
     this.m_endEffectorMotor = endEffectorHardware.endEffectorMotor;
     this.m_forwardBeamBreak = endEffectorHardware.forwardBeamBreak;
     this.m_reverseBeamBreak = endEffectorHardware.reverseBeamBreak;

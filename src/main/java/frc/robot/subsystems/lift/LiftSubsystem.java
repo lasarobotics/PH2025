@@ -949,7 +949,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
     // Create configurations for elevator motor
     TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
-    elevatorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    elevatorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     elevatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     elevatorConfig.CurrentLimits.StatorCurrentLimit = 120;
     elevatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -960,28 +960,29 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     elevatorConfig.Feedback.SensorToMechanismRatio = 5.0;
     elevatorConfig.Feedback.RotorToSensorRatio = 1.0;
     elevatorConfig.Audio.AllowMusicDurDisable = true;
-    elevatorConfig.MotionMagic.MotionMagicAcceleration = 0;
+    elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = 15;
+    elevatorConfig.MotionMagic.MotionMagicAcceleration = 65;
     elevatorConfig.MotionMagic.MotionMagicJerk = 0;
     elevatorConfig.MotionMagic.MotionMagicExpo_kV = 0.12;
     elevatorConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
     elevatorConfig.ClosedLoopGeneral.ContinuousWrap = false;
     elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0;
+    elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 4.38;
     elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
-    elevatorConfig.Slot0.kP = 0;
+    elevatorConfig.Slot0.kP = 20;
     elevatorConfig.Slot0.kI = 0;
-    elevatorConfig.Slot0.kD = 0;
+    elevatorConfig.Slot0.kD = 0.01;
     elevatorConfig.Slot0.kA = 0;
-    elevatorConfig.Slot0.kV = 0;
-    elevatorConfig.Slot0.kG = 0;
-    elevatorConfig.Slot0.kS = 0;
+    elevatorConfig.Slot0.kV = 0.650887573964497;
+    elevatorConfig.Slot0.kG = 0.5;
+    elevatorConfig.Slot0.kS = 0.1;
     elevatorConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
     // Create configurations for pivot motor
     TalonFXConfiguration pivotConfig = new TalonFXConfiguration();
     pivotConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     pivotConfig.CurrentLimits.StatorCurrentLimit = 120;
     pivotConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     pivotConfig.CurrentLimits.SupplyCurrentLimit = 70;
@@ -989,31 +990,32 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     pivotConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
     pivotConfig.CurrentLimits.SupplyCurrentLowerTime = 1.0;
     pivotConfig.Feedback.SensorToMechanismRatio = 1.0;
-    pivotConfig.Feedback.RotorToSensorRatio = 52.36363636363636;
+    pivotConfig.Feedback.RotorToSensorRatio = 72.0;
     pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     pivotConfig.Feedback.FeedbackRemoteSensorID = m_armCANcoder.getID().deviceID;
     pivotConfig.Audio.AllowMusicDurDisable = true;
-    pivotConfig.MotionMagic.MotionMagicAcceleration = 0;
-    pivotConfig.MotionMagic.MotionMagicJerk = 0;
+    pivotConfig.MotionMagic.MotionMagicCruiseVelocity = 1.5;
+    pivotConfig.MotionMagic.MotionMagicAcceleration = 5;
+    pivotConfig.MotionMagic.MotionMagicJerk = 20;
     pivotConfig.MotionMagic.MotionMagicExpo_kV = 0.12;
     pivotConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
     pivotConfig.ClosedLoopGeneral.ContinuousWrap = false;
     pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0;
-    pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
-    pivotConfig.Slot0.kP = 0;
+    pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.25;
+    pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.25;
+    pivotConfig.Slot0.kP = 25;
     pivotConfig.Slot0.kI = 0;
     pivotConfig.Slot0.kD = 0;
     pivotConfig.Slot0.kA = 0;
-    pivotConfig.Slot0.kV = 0;
-    pivotConfig.Slot0.kG = 0;
-    pivotConfig.Slot0.kS = 0;
+    pivotConfig.Slot0.kV = 9.162500381469727;
+    pivotConfig.Slot0.kG = 0.5029296875;
+    pivotConfig.Slot0.kS = 0.009765625;
     pivotConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
     CANcoderConfiguration armCANCoderConfig = new CANcoderConfiguration();
-    armCANCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    armCANCoderConfig.MagnetSensor.MagnetOffset = 0.69287109375;
+    armCANCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+    armCANCoderConfig.MagnetSensor.MagnetOffset = 0.693115234375;
     armCANCoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
 
     m_elevatorSysIDLogConsumer = state -> SignalLogger.writeString(getName() + ELEVATOR_MOTOR_SYSID_STATE_LOG_ENTRY,
