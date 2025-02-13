@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.drivetrain.DriveSubsystem;
 import frc.robot.subsystems.endeffector.EndEffectorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -47,20 +48,22 @@ public class RobotContainer {
       DRIVE_SUBSYSTEM.requestAutoAlign();
     }));
 
-    PRIMARY_CONTROLLER.povRight().onTrue(Commands.runOnce(() -> {
-      DRIVE_SUBSYSTEM.cancelAutoAlign();
-    }));
+    // PRIMARY_CONTROLLER.a().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().dynamic(SysIdRoutine.Direction.kForward));
+    // PRIMARY_CONTROLLER.b().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().dynamic(SysIdRoutine.Direction.kReverse));
+    // PRIMARY_CONTROLLER.x().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().quasistatic(SysIdRoutine.Direction.kForward));
+    // PRIMARY_CONTROLLER.y().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().quasistatic(SysIdRoutine.Direction.kReverse));
 
-    PRIMARY_CONTROLLER.a().onTrue(Commands.runOnce(() -> {
-      System.out.println("a");
-      INTAKE_SUBSYSTEM.startIntake();
-    }));
-    PRIMARY_CONTROLLER.b().onTrue(Commands.runOnce(() -> {
-      INTAKE_SUBSYSTEM.startRegurgitate();
-    }));
-    PRIMARY_CONTROLLER.x().onTrue(Commands.runOnce(() -> {
-      INTAKE_SUBSYSTEM.stop();
-    }));
+
+    // PRIMARY_CONTROLLER.a().onTrue(Commands.runOnce(() -> {
+    //   System.out.println("a");
+    //   INTAKE_SUBSYSTEM.startIntake();
+    // }));
+    // PRIMARY_CONTROLLER.b().onTrue(Commands.runOnce(() -> {
+    //   INTAKE_SUBSYSTEM.startRegurgitate();
+    // }));
+    // PRIMARY_CONTROLLER.x().onTrue(Commands.runOnce(() -> {
+    //   INTAKE_SUBSYSTEM.stop();
+    // }));
   }
 
   public Command getAutonomousCommand() {

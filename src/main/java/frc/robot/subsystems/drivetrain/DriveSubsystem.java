@@ -193,7 +193,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   private static ArrayList<AprilTagCamera> m_cameras;
 
   public DriveSubsystem(Hardware driveHardware, Telemetry logger) {
-    super(State.DRIVER_CONTROL);
+    super(State.NOTHING);
 
     m_cameras = new ArrayList<AprilTagCamera>();
     m_cameras.add(driveHardware.frontLeftCamera);
