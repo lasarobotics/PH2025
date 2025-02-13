@@ -100,7 +100,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
 
   /** Creates a new IntakeSubsystem */
   private IntakeSubsystem(Hardware intakeHardware) {
-    super(IntakeStates.STOP);
+    super(IntakeStates.NOTHING);
     this.m_intakeMotor = intakeHardware.intakeMotor;
     this.m_firstBeamBreak = intakeHardware.firstBeamBreak;
     this.m_secondBeamBreak = intakeHardware.secondBeamBreak;
