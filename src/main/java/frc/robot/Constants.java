@@ -129,9 +129,13 @@ public final class Constants {
   }
 
   public static class EndEffectorHardware {
-    public static final Spark.ID OUTTAKE_MOTOR_ID = new Spark.ID("endEffectorMotor", 52);
+    public static final Spark.ID OUTTAKE_MOTOR_ID = new Spark.ID("EndEffectorHardware/EndEffectorMotor", 52);
     public static final int FORWARD_BEAM_BREAK = 2;
     public static final int REVERSE_BEAM_BREAK = 3;
+    public static final LimitSwitch.ID FORWARD_ENDEFFECTOR_BEAM_BREAK =
+      new LimitSwitch.ID("EndEffectorHardware/ForwardBeamBreak", 2);
+    public static final LimitSwitch.ID REVERSE_ENDEFFECTOR_BEAM_BREAK =
+      new LimitSwitch.ID("EndEffectorHardware/ReverseBeamBreak", 3);
   }
 
   public static class VisionHardware {
