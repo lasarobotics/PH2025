@@ -28,7 +28,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   static final Dimensionless INTAKE_MOTOR_SPEED = Percent.of(50);
   static final Dimensionless REGURGITATE_MOTOR_SPEED = Percent.of(-50);
   static final Dimensionless SCORE_MOTOR_SPEED = Percent.of(100);
-  static final Dimensionless CENTER_CORAL_MOTOR_SPEED = Percent.of(-40);
+  static final Dimensionless CENTER_CORAL_MOTOR_SPEED = Percent.of(-10);
 
   public enum EndEffectorStates implements SystemState {
     NOTHING {
@@ -59,7 +59,6 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
       @Override
       public SystemState nextState() {
         return s_endEffectorInstance.nextState;
-
       }
     },
     SCORE_L4 {
@@ -77,7 +76,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
       @Override
       public void initialize() {
         s_endEffectorInstance.intake();
-        s_endEffectorInstance.m_Interrupt.enable();
+        // s_endEffectorInstance.m_Interrupt.enable();
       }
 
       @Override
@@ -149,7 +148,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   /** Creates a new endEffectorSubsystem. */
   private EndEffectorSubsystem(Hardware endEffectorHardware) {
     super(EndEffectorStates.NOTHING);
-    this.nextState = EndEffectorStates.NOTHING;
+    this.nextState = EndEffectorStates.IDLE;
     this.m_endEffectorMotor = endEffectorHardware.endEffectorMotor;
     this.m_forwardBeamBreak = endEffectorHardware.forwardBeamBreak;
     this.m_reverseBeamBreak = endEffectorHardware.reverseBeamBreak;
@@ -168,7 +167,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    */
   public static Hardware initializeHardware() {
     Hardware endEffectorHardware = new Hardware(
-      new Spark(Constants.EndEffectorHardware.OUTTAKE_MOTOR_ID, MotorKind.NEO_VORTEX),
+      new Spark(Constants.EndEffectorHardware.OUTTAKE_MOTOR_ID, MotorKind.NEO),
       new DigitalInput(Constants.EndEffectorHardware.FORWARD_BEAM_BREAK),
       new DigitalInput(Constants.EndEffectorHardware.REVERSE_BEAM_BREAK)
       );
@@ -186,6 +185,14 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * Runs motor at power required for scoring
    */
   private void score() {
+    m_endEffectorMotor.set(CENTER_CORAL_MOTOR_SPEED.in(Value));
+  }
+
+  private void centerReverse() {
+    m_endEffectorMotor.set(-CENTER_CORAL_MOTOR_SPEED.in(Value));
+  }
+
+  private void centerForward() {
     m_endEffectorMotor.set(CENTER_CORAL_MOTOR_SPEED.in(Value));
   }
 
@@ -226,9 +233,9 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    */
   private void centerCoral() {
     if(forwardBeamBreakBroken() && !reverseBeamBreakBroken()) {
-      s_endEffectorInstance.outtakeReverse();
+      s_endEffectorInstance.centerForward();
     } else if (reverseBeamBreakBroken() && !forwardBeamBreakBroken()) {
-      s_endEffectorInstance.intake();
+      s_endEffectorInstance.centerReverse();
     } else {
       s_endEffectorInstance.stopMotor();
     }

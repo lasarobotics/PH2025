@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
 import org.lasarobotics.hardware.ctre.CANcoder;
-import org.lasarobotics.hardware.ctre.TalonFX;
 import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.littletonrobotics.junction.Logger;
 
@@ -24,6 +23,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -45,6 +45,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   ) {}
 
   public static enum TargetLiftStates {
+    NOTHING,
     STOW,
     L1,
     L2,
@@ -66,26 +67,26 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   // Tolerance in degrees of arm
   static final Angle ARM_TOLERANCE = Degrees.of(0.5);
 
-  static final Angle SCORING_L1_ANGLE = Degrees.of(0);
-  static final Angle SCORING_L2_ANGLE = Degrees.of(0);
-  static final Angle SCORING_L3_ANGLE = Degrees.of(0);
-  static final Angle SCORING_L4_ANGLE = Degrees.of(0);
+  static final Angle SCORING_L1_ANGLE = Rotations.of(-0.263184);
+  static final Angle SCORING_L2_ANGLE = Rotations.of(-0.27002);
+  static final Angle SCORING_L3_ANGLE = Rotations.of(0.328125);
+  static final Angle SCORING_L4_ANGLE = Rotations.of(0.326172);
 
-  static final Angle SAFE_REEF_ANGLE_BOTTOM = Degrees.of(0);
-  static final Angle SAFE_REEF_ANGLE_TOP = Degrees.of(0);
-  static final Angle SAFE_INTAKE_ANGLE_BOTTOM = Degrees.of(0);
-  static final Angle SAFE_INTAKE_ANGLE_TOP = Degrees.of(0);
+  static final Angle SAFE_REEF_ANGLE_BOTTOM = Rotations.of(-0.256836);
+  static final Angle SAFE_REEF_ANGLE_TOP = Rotations.of(0.287598);
+  static final Angle SAFE_INTAKE_ANGLE_BOTTOM =  Rotations.of(-0.242188);
+  static final Angle SAFE_INTAKE_ANGLE_TOP = Rotations.of(0.112793);
 
-  static final Angle STOW_ANGLE = Degrees.of(0);
-  static final Distance STOW_HEIGHT = Inches.of(0);
+  static final Angle STOW_ANGLE = Rotations.of(-0.208008);
+  static final Distance STOW_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0.252197));
 
-  static final Distance L1_HEIGHT = Inches.of(0);
-  static final Distance L2_HEIGHT = Inches.of(0);
-  static final Distance CLEAR_HEIGHT = Inches.of(0);
-  static final Distance L3_HEIGHT = Inches.of(0);
-  static final Distance L4_HEIGHT = Inches.of(0);
+  static final Distance L1_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(1.167969));
+  static final Distance L2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(2.55246));
+  static final Distance CLEAR_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(3.724609));
+  static final Distance L3_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
+  static final Distance L4_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(4.43335));
 
-  static final Distance BEAM_BREAK_HEIGHT = Inches.of(0);
+  static final Distance BEAM_BREAK_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
 
   public enum LiftStates implements SystemState {
     NOTHING {
@@ -936,7 +937,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /** Creates a new LiftSubsystem */
   private LiftSubsystem(Hardware liftHardware) {
-    super(LiftStates.NOTHING);
+    super(LiftStates.IDLE);
+    nextState = TargetLiftStates.NOTHING;
     m_elevatorMotor = liftHardware.elevatorMotor;
     m_pivotMotor = liftHardware.pivotMotor;
     m_armCANcoder = liftHardware.armCANCoder;
@@ -960,8 +962,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     elevatorConfig.Feedback.SensorToMechanismRatio = 5.0;
     elevatorConfig.Feedback.RotorToSensorRatio = 1.0;
     elevatorConfig.Audio.AllowMusicDurDisable = true;
-    elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = 15;
-    elevatorConfig.MotionMagic.MotionMagicAcceleration = 65;
+    elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = 1;
+    elevatorConfig.MotionMagic.MotionMagicAcceleration = 1;
     elevatorConfig.MotionMagic.MotionMagicJerk = 0;
     elevatorConfig.MotionMagic.MotionMagicExpo_kV = 0.12;
     elevatorConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
@@ -982,7 +984,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     // Create configurations for pivot motor
     TalonFXConfiguration pivotConfig = new TalonFXConfiguration();
     pivotConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     pivotConfig.CurrentLimits.StatorCurrentLimit = 120;
     pivotConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     pivotConfig.CurrentLimits.SupplyCurrentLimit = 70;
@@ -994,16 +996,16 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     pivotConfig.Feedback.FeedbackRemoteSensorID = m_armCANcoder.getID().deviceID;
     pivotConfig.Audio.AllowMusicDurDisable = true;
-    pivotConfig.MotionMagic.MotionMagicCruiseVelocity = 1.5;
-    pivotConfig.MotionMagic.MotionMagicAcceleration = 5;
+    pivotConfig.MotionMagic.MotionMagicCruiseVelocity = 0.1;
+    pivotConfig.MotionMagic.MotionMagicAcceleration = 1;
     pivotConfig.MotionMagic.MotionMagicJerk = 20;
     pivotConfig.MotionMagic.MotionMagicExpo_kV = 0.12;
     pivotConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
     pivotConfig.ClosedLoopGeneral.ContinuousWrap = false;
     pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.25;
-    pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.25;
+    pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.5;
+    pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.5;
     pivotConfig.Slot0.kP = 25;
     pivotConfig.Slot0.kI = 0;
     pivotConfig.Slot0.kD = 0;
@@ -1024,8 +1026,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         state.toString());
 
     // Apply configs for TalonFX motors
-    m_elevatorMotor.applyConfigs(elevatorConfig);
-    m_pivotMotor.applyConfigs(pivotConfig);
+    m_elevatorMotor.getConfigurator().apply(elevatorConfig);
+    m_pivotMotor.getConfigurator().apply(pivotConfig);
     m_armCANcoder.getConfigurator().apply(armCANCoderConfig);
   }
 
@@ -1052,8 +1054,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   public static Hardware initializeHardware() {
     Hardware liftHardware = new Hardware(
-      new TalonFX(Constants.LiftHardware.ELEVATOR_MOTOR_ID, Constants.Frequencies.TALON_UPDATE_RATE),
-      new TalonFX(Constants.LiftHardware.PIVOT_MOTOR_ID, Constants.Frequencies.TALON_UPDATE_RATE),
+      new TalonFX(Constants.LiftHardware.ELEVATOR_MOTOR_ID.deviceID, Constants.LiftHardware.ELEVATOR_MOTOR_ID.bus.name),
+      new TalonFX(Constants.LiftHardware.PIVOT_MOTOR_ID.deviceID, Constants.LiftHardware.PIVOT_MOTOR_ID.bus.name),
       new LimitSwitch(Constants.LiftHardware.ELEVATOR_HOMING_BEAM_BREAK_PORT, Constants.Frequencies.BEAM_BREAK_UPDATE_RATE),
       new CANcoder(Constants.LiftHardware.ARM_CANCODER_ID, Constants.Frequencies.TALON_UPDATE_RATE)
     );
@@ -1067,7 +1069,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    * @param angle The angle you want to move the pivot
    */
   private void setArmAngle(Angle angle) {
-    m_pivotMotor.setControl(m_pivotPositionSetter.withPosition(angle));
+    Logger.recordOutput(getName() + "/targetArmAngle", angle.in(Rotations));
+    // m_pivotMotor.setControl(m_pivotPositionSetter.withPosition(angle));
   }
 
   /**
@@ -1079,7 +1082,10 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     Distance SPROCKET_RADIUS = Constants.LiftHardware.SPROCKET_PITCH_RADIUS;
     double circumference = 2 * Math.PI * SPROCKET_RADIUS.in(Meters);
     Angle elevatorMoveAngle = Rotations.of(height.in(Meters) / circumference);
-    m_elevatorMotor.setControl(m_elevatorPositionSetter.withPosition(elevatorMoveAngle));
+
+    Logger.recordOutput(getName() + "/targetElevatorHeight", height);
+    Logger.recordOutput(getName() + "/targetElevatorAngle", elevatorMoveAngle.in(Rotations));
+    // m_elevatorMotor.setControl(m_elevatorPositionSetter.withPosition(elevatorMoveAngle));
   }
 
   /**
@@ -1089,15 +1095,18 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     return m_armCANcoder.getInputs().absolutePosition;
   }
 
+  public static Distance convertToDistance(Angle angle) {
+    Distance SPROCKET_RADIUS = Constants.LiftHardware.SPROCKET_PITCH_RADIUS;
+    double circumference = 2 * Math.PI * SPROCKET_RADIUS.in(Meters);
+    Distance height = Meters.of(circumference * angle.in(Rotations));
+    return height;
+  }
+
   /**
    * Get current elevator height
    */
   public Distance getElevatorHeight() {
-    Angle elevatorAngle = m_elevatorMotor.getInputs().rotorPosition;
-    Distance SPROCKET_RADIUS = Constants.LiftHardware.SPROCKET_PITCH_RADIUS;
-    double circumference = 2 * Math.PI * SPROCKET_RADIUS.in(Meters);
-    Distance height = Meters.of(circumference * elevatorAngle.in(Rotations));
-    return height;
+    return LiftSubsystem.convertToDistance(m_elevatorMotor.getPosition().getValue());
   }
 
   /**
@@ -1133,7 +1142,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   public boolean elevatorAt(Distance targetHeight) {
     Distance currentHeight = getElevatorHeight();
-    return (currentHeight.isNear(currentHeight, ELEVATOR_TOLERANCE));
+    return (currentHeight.isNear(targetHeight, ELEVATOR_TOLERANCE));
   }
 
   /**
@@ -1227,6 +1236,10 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
     Logger.recordOutput(getName() + "/state", getState().toString());
     Logger.recordOutput(getName() + "/homingBeamBreak", elevatorHomingBeamBreak());
+
+    Logger.recordOutput(getName() + "/currentArmAngle", getArmAngle().in(Rotations));
+    Logger.recordOutput(getName() + "/currentElevatorHeight", getElevatorHeight());
+    Logger.recordOutput(getName() + "/currentElevatorAngle", m_elevatorMotor.getPosition().getValue().in(Rotations));
   }
 
   /**
