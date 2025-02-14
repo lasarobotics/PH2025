@@ -23,7 +23,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
       LimitSwitch secondBeamBreak) {
   }
 
-  static final Dimensionless INTAKE_SPEED = Percent.of(-20);
+  static final Dimensionless INTAKE_SPEED = Percent.of(-100);
   static final Dimensionless REVERSE_INTAKE_SPEED = Percent.of(-50);
 
   public enum IntakeStates implements SystemState {

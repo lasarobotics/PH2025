@@ -14,6 +14,7 @@ import frc.robot.subsystems.drivetrain.DriveSubsystem;
 import frc.robot.subsystems.endeffector.EndEffectorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lift.LiftSubsystem;
+import frc.robot.subsystems.lift.LiftSubsystem.TargetLiftStates;
 
 public class RobotContainer {
   private final CommandXboxController PRIMARY_CONTROLLER = new CommandXboxController(0);
@@ -30,23 +31,41 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    HEAD_HONCHO.bindControls(
-      () -> PRIMARY_CONTROLLER.getLeftX(), // drive x
-      () -> PRIMARY_CONTROLLER.getLeftY(), // drive y
-      () -> PRIMARY_CONTROLLER.getRightX(), // drive rotate
-      PRIMARY_CONTROLLER.leftTrigger(), // intake
-      PRIMARY_CONTROLLER.leftBumper(), // regurgitate
-      PRIMARY_CONTROLLER.a(), // L1
-      PRIMARY_CONTROLLER.b(), // L2
-      PRIMARY_CONTROLLER.x(), // L3
-      PRIMARY_CONTROLLER.y(), // L4
-      PRIMARY_CONTROLLER.rightTrigger(), // score
-      PRIMARY_CONTROLLER.rightBumper() // cancel
-    );
-
-    PRIMARY_CONTROLLER.povLeft().onTrue(Commands.runOnce(() -> {
-      DRIVE_SUBSYSTEM.requestAutoAlign();
+   ///[[/   () -> PRIMARY_CONTROLLER.getLeftX(), // drive x
+   //   () -> PRIMARY_CONTROLLER.getLeftY(), // drive y
+   //   () -> PRIMARY_CONTROLLER.getRightX(), // drive rotate 
+   //   PRIMARY_CONTROLLER.leftTrigger(), // intake
+   //   PRIMARY_CONTROLLER.leftBumper(), // regurgitate
+    //  PRIMARY_CONTROLLER.a(), // L1
+     // PRIMARY_CONTROLLER.b(), // L2
+    //  PRIMARY_CONTROLLER.x(), // L3
+     // PRIMARY_CONTROLLER.y(), // L4
+     // PRIMARY_CONTROLLER.rightTrigger(), // score
+    //  PRIMARY_CONTROLLER.rightBumper() // cancel
+    PRIMARY_CONTROLLER.x().onTrue(Commands.runOnce(() -> {
+      LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
     }));
+
+    PRIMARY_CONTROLLER.y().onTrue(Commands.runOnce(() -> {
+      LIFT_SUBSYSTEM.setState(TargetLiftStates.L1);
+    }));
+
+    PRIMARY_CONTROLLER.b().onTrue(Commands.runOnce(() -> {
+      LIFT_SUBSYSTEM.setState(TargetLiftStates.L2);
+    }));
+
+    PRIMARY_CONTROLLER.a().onTrue(Commands.runOnce(() -> {
+      LIFT_SUBSYSTEM.setState(TargetLiftStates.L3);
+    }));
+
+    PRIMARY_CONTROLLER.rightTrigger().onTrue(Commands.runOnce(() -> {
+      LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
+    }));
+      
+
+    // PRIMARY_CONTROLLER.povLeft().onTrue(Commands.runOnce(() -> {
+    //   DRIVE_SUBSYSTEM.requestAutoAlign();
+    // }));
 
     // PRIMARY_CONTROLLER.a().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().dynamic(SysIdRoutine.Direction.kForward));
     // PRIMARY_CONTROLLER.b().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().dynamic(SysIdRoutine.Direction.kReverse));
