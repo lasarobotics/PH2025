@@ -203,11 +203,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_drivetrain = TunerConstants.createDrivetrain();
     /* Setting up bindings for necessary control of the swerve drive platform */
     s_drive = new SwerveRequest.FieldCentric()
-    // .withDeadband(Constants.Drive.MAX_SPEED.times(0.1))
-    // .withRotationalDeadband(Constants.Drive.MAX_ANGULAR_RATE.times(0.1)) // Add a
+    .withDeadband(Constants.Drive.MAX_SPEED.times(0.1))
+    .withRotationalDeadband(Constants.Drive.MAX_ANGULAR_RATE.times(0.1)) // Add a
     // 10% deadband
-    .withDeadband(0)
-    .withRotationalDeadband(0)
+    // .withDeadband(0)
+    // .withRotationalDeadband(0)
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
     s_autoDrive = new FieldCentricWithPose()
@@ -290,6 +290,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     return autoAlignLocations.get((int) angle);
     // return Constants.Drive.AUTO_ALIGN_LOCATIONS.get(0);
+  }
+
+  public void resetPose() {
+    s_drivetrain.resetPose(new Pose2d());
   }
 
   /**

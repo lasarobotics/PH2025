@@ -31,17 +31,19 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-   ///[[/   () -> PRIMARY_CONTROLLER.getLeftX(), // drive x
-   //   () -> PRIMARY_CONTROLLER.getLeftY(), // drive y
-   //   () -> PRIMARY_CONTROLLER.getRightX(), // drive rotate 
-   //   PRIMARY_CONTROLLER.leftTrigger(), // intake
-   //   PRIMARY_CONTROLLER.leftBumper(), // regurgitate
-    //  PRIMARY_CONTROLLER.a(), // L1
-     // PRIMARY_CONTROLLER.b(), // L2
-    //  PRIMARY_CONTROLLER.x(), // L3
-     // PRIMARY_CONTROLLER.y(), // L4
-     // PRIMARY_CONTROLLER.rightTrigger(), // score
-    //  PRIMARY_CONTROLLER.rightBumper() // cancel
+    HEAD_HONCHO.bindControls(
+    () -> PRIMARY_CONTROLLER.getLeftX(), // drive x
+     () -> PRIMARY_CONTROLLER.getLeftY(), // drive y
+     () -> PRIMARY_CONTROLLER.getRightX(), // drive rotate 
+     PRIMARY_CONTROLLER.leftTrigger(), // intake
+     PRIMARY_CONTROLLER.leftBumper(), // regurgitate
+     PRIMARY_CONTROLLER.a(), // L1
+     PRIMARY_CONTROLLER.b(), // L2
+     PRIMARY_CONTROLLER.x(), // L3
+     PRIMARY_CONTROLLER.y(), // L4
+     PRIMARY_CONTROLLER.rightTrigger(), // score
+     PRIMARY_CONTROLLER.rightBumper() // cancel
+    );
     PRIMARY_CONTROLLER.x().onTrue(Commands.runOnce(() -> {
       LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
     }));
@@ -83,6 +85,12 @@ public class RobotContainer {
     // PRIMARY_CONTROLLER.x().onTrue(Commands.runOnce(() -> {
     //   INTAKE_SUBSYSTEM.stop();
     // }));
+
+    PRIMARY_CONTROLLER.povUp().onTrue(
+      Commands.runOnce(() -> {
+        DRIVE_SUBSYSTEM.resetPose();
+      })
+    );
   }
 
   public Command getAutonomousCommand() {
