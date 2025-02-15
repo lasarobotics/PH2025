@@ -20,6 +20,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import frc.robot.Constants;
@@ -45,8 +46,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public void execute() {
         s_drivetrain.setControl(s_drive
-        .withVelocityX(Constants.Drive.MAX_SPEED.times(-Math.pow(s_driveRequest.getAsDouble(), 3)))
-        .withVelocityY(Constants.Drive.MAX_SPEED.times(-Math.pow(s_strafeRequest.getAsDouble(), 3)))
+        .withVelocityX(Constants.Drive.MAX_SPEED.times(-Math.pow(s_strafeRequest.getAsDouble(), 1)))
+        .withVelocityY(Constants.Drive.MAX_SPEED.times(-Math.pow(s_driveRequest.getAsDouble(), 1)))
         .withRotationalRate(Constants.Drive.MAX_ANGULAR_RATE.times(-s_rotateRequest.getAsDouble())));
       }
 
@@ -204,8 +205,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_drivetrain = TunerConstants.createDrivetrain();
     /* Setting up bindings for necessary control of the swerve drive platform */
     s_drive = new SwerveRequest.FieldCentric()
-    .withDeadband(Constants.Drive.MAX_SPEED.times(0.01))
-    .withRotationalDeadband(Constants.Drive.MAX_ANGULAR_RATE.times(0.01)) // Add a
+    .withDeadband(Constants.Drive.MAX_SPEED.times(0.05))
+    .withRotationalDeadband(Constants.Drive.MAX_ANGULAR_RATE.times(0.1)) // Add a
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
     s_autoDrive = new FieldCentricWithPose()
@@ -334,7 +335,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   @Override
   public void periodic() {
     // Add AprilTag pose estimates if available
+    int i = 0;
     for (var camera : m_cameras) {
+      i++;
       var result = camera.getLatestEstimatedPose();
 
       // If no updated vision pose estimate, continue
@@ -343,14 +346,18 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       // Add vision measurement
       s_drivetrain.addVisionMeasurement(
         result.estimatedRobotPose.estimatedPose.toPose2d(),
-        result.estimatedRobotPose.timestampSeconds,
+        Utils.getCurrentTimeSeconds(),
         result.standardDeviation
       );
+
+      Logger.recordOutput(getName() + "/cameraPose_" + i, result.estimatedRobotPose.estimatedPose);
     }
 
     Logger.recordOutput(getName() + "/state", getState().toString());
     Logger.recordOutput(getName() + "/autoAlign/autotarget", findAutoAlignTarget());
     Logger.recordOutput(getName() + "/isNearSource", isNearSource());
+    Logger.recordOutput(getName() + "/robotPose", s_drivetrain.getState().Pose);
+    Logger.recordOutput("temp", new Pose2d(new Translation2d(5.994174, 4.0259), new Rotation2d(Math.toRadians(180))));
   }
 
   @Override

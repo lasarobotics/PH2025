@@ -40,7 +40,7 @@ import frc.robot.generated.TunerConstants;
 
 public final class Constants {
   public static class Field {
-    public static final AprilTagFieldLayout FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    public static final AprilTagFieldLayout FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
     public static final Pose2d SOURCE_INTAKE_POINT = new Pose2d(
       new Translation2d(Meters.of(1.209), Meters.of(1.1)),
       Rotation2d.fromDegrees(-145.305)
@@ -139,26 +139,26 @@ public final class Constants {
   }
 
   public static class VisionHardware {
-    public static final String CAMERA_A_NAME = "Arducam_OV9782_USB_Camera_A";
+    public static final String CAMERA_A_NAME = "Left";
     public static final Transform3d CAMERA_A_LOCATION = new Transform3d(
-      new Translation3d(-0.1016, -0.2921, 0.521),
-      new Rotation3d(0.0, Math.toRadians(-26.0), Math.toRadians(+180.0))
+      new Translation3d(0.22, 0.31, 0.2),
+      new Rotation3d(Math.toRadians(0.7), Math.toRadians(-9.5), Math.toRadians(-41))
     );
     public static final Resolution CAMERA_A_RESOLUTION = Resolution.RES_1280_720;
-    public static final Rotation2d CAMERA_A_FOV = Rotation2d.fromDegrees(79.7);
+    public static final Rotation2d CAMERA_A_FOV = Rotation2d.fromDegrees(0);
 
-    public static final String CAMERA_B_NAME = "Arducam_OV9782_USB_Camera_B";
+    public static final String CAMERA_B_NAME = "Right";
     public static final Transform3d CAMERA_B_LOCATION = new Transform3d(
-      new Translation3d(0.0254, -0.2921, 0.584),
-      new Rotation3d(0.0, Math.toRadians(-25.6), 0.0)
+      new Translation3d(0.22, -0.3, 0.2),
+      new Rotation3d(Math.toRadians(-1.2), Math.toRadians(-10.8), Math.toRadians(39.6))
     );
     public static final Resolution CAMERA_B_RESOLUTION = Resolution.RES_1280_720;
-    public static final Rotation2d CAMERA_B_FOV = Rotation2d.fromDegrees(79.7);
+    public static final Rotation2d CAMERA_B_FOV = Rotation2d.fromDegrees(0);
 
     public static final String CAMERA_C_NAME = "Arducam_OV9782_USB_Camera_C";
     public static final Transform3d CAMERA_C_LOCATION = new Transform3d(
-      new Translation3d(0.3, 0.0, 0.5),
-      new Rotation3d(0, Math.toRadians(+15.0), Math.toRadians(180))
+      new Translation3d(00, 0, 0),
+      new Rotation3d(0, Math.toRadians(0), Math.toRadians(0))
     );
     public static final Resolution CAMERA_C_RESOLUTION = Resolution.RES_1280_720;
     public static final Rotation2d CAMERA_C_FOV = Rotation2d.fromDegrees(79.7);
