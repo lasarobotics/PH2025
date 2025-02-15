@@ -9,12 +9,10 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.drivetrain.DriveSubsystem;
 import frc.robot.subsystems.endeffector.EndEffectorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lift.LiftSubsystem;
-import frc.robot.subsystems.lift.LiftSubsystem.TargetLiftStates;
 
 public class RobotContainer {
   private final CommandXboxController PRIMARY_CONTROLLER = new CommandXboxController(0);
