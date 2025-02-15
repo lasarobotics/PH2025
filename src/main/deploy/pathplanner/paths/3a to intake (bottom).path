@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.288937717013888,
+        "y": 2.95
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.835141639253499,
+        "y": 3.2034877638578636
+      },
+      "isLocked": false,
+      "linkedName": "3a"
+    },
+    {
+      "anchor": {
+        "x": 1.5943647540983608,
+        "y": 0.842264344262295
+      },
+      "prevControl": {
+        "x": 1.3036464739153566,
+        "y": 0.6853186724696285
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "intake coral"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 50.042451069170895
+  },
+  "reversed": false,
+  "folder": "bottom paths",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 122.55090136867133
+  },
+  "useDefaultConstraints": true
+}

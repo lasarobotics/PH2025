@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "preload to 3a (bottom)"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3a to intake (bottom)"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "intake to 3b (bottom)"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "bottom autos",
+  "choreoAuto": false
+}
