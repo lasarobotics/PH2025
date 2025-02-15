@@ -27,7 +27,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
   static final Dimensionless INTAKE_MOTOR_SPEED = Percent.of(50);
   static final Dimensionless REGURGITATE_MOTOR_SPEED = Percent.of(-50);
-  static final Dimensionless SCORE_MOTOR_SPEED = Percent.of(100);
+  static final Dimensionless SCORE_MOTOR_SPEED = Percent.of(40);
   static final Dimensionless CENTER_CORAL_MOTOR_SPEED = Percent.of(-10);
 
   public enum EndEffectorStates implements SystemState {
@@ -37,7 +37,6 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
       public SystemState nextState() {
         return this;
       }
-
     },
     IDLE {
       @Override
@@ -64,7 +63,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     SCORE_L4 {
       @Override
       public void initialize() {
-        s_endEffectorInstance.outtakeReverse();
+        s_endEffectorInstance.scoreReverse();
       }
 
       @Override
@@ -103,14 +102,21 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
       @Override
       public SystemState nextState() {
-        return s_endEffectorInstance.nextState;
+        if (s_endEffectorInstance.isEmpty()) {
+          return s_endEffectorInstance.nextState;
+        } else {
+          if (s_endEffectorInstance.nextState.equals(SCORE) || s_endEffectorInstance.nextState.equals(SCORE_L4) || s_endEffectorInstance.nextState.equals(REGURGITATE)) {
+            return s_endEffectorInstance.nextState;
+          }
+        }
+        return this;
       }
 
     },
     REGURGITATE {
       @Override
       public void initialize() {
-        s_endEffectorInstance.outtakeReverse();
+        s_endEffectorInstance.scoreReverse();
       }
 
       @Override
@@ -147,7 +153,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
   /** Creates a new endEffectorSubsystem. */
   private EndEffectorSubsystem(Hardware endEffectorHardware) {
-    super(EndEffectorStates.NOTHING);
+    super(EndEffectorStates.IDLE);
     this.nextState = EndEffectorStates.IDLE;
     this.m_endEffectorMotor = endEffectorHardware.endEffectorMotor;
     this.m_forwardBeamBreak = endEffectorHardware.forwardBeamBreak;
@@ -185,7 +191,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * Runs motor at power required for scoring
    */
   private void score() {
-    m_endEffectorMotor.set(CENTER_CORAL_MOTOR_SPEED.in(Value));
+    m_endEffectorMotor.set(SCORE_MOTOR_SPEED.in(Value));
   }
 
   private void centerReverse() {
@@ -199,8 +205,8 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   /**
    * Runs motor at power required for scoring at L4 / for reguritating
    */
-  private void outtakeReverse() {
-    m_endEffectorMotor.set(SCORE_MOTOR_SPEED.in(Value));
+  private void scoreReverse() {
+    m_endEffectorMotor.set(-SCORE_MOTOR_SPEED.in(Value));
   }
 
   /**
@@ -275,6 +281,9 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     setState(EndEffectorStates.SCORE_L4);
   }
 
+  /**
+   * Go to idle state, or stay in HOLD if there's a coral in the end effector.
+   */
   public void requestStop() {
     setState(EndEffectorStates.IDLE);
   }

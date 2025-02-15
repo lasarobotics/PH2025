@@ -45,8 +45,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public void execute() {
         s_drivetrain.setControl(s_drive
-        .withVelocityX(Constants.Drive.MAX_SPEED.times(-s_driveRequest.getAsDouble()))
-        .withVelocityY(Constants.Drive.MAX_SPEED.times(-s_strafeRequest.getAsDouble()))
+        .withVelocityX(Constants.Drive.MAX_SPEED.times(-Math.pow(s_driveRequest.getAsDouble(), 3)))
+        .withVelocityY(Constants.Drive.MAX_SPEED.times(-Math.pow(s_strafeRequest.getAsDouble(), 3)))
         .withRotationalRate(Constants.Drive.MAX_ANGULAR_RATE.times(-s_rotateRequest.getAsDouble())));
       }
 
@@ -158,9 +158,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public State nextState() {
-        if (!s_shouldAutoAlign)
-          return DRIVER_CONTROL;
-        return this;
+        return DRIVER_CONTROL;
+        // if (!s_shouldAutoAlign)
+          // return DRIVER_CONTROL;
+        // return this;
       }
 
       @Override
@@ -193,7 +194,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   private static ArrayList<AprilTagCamera> m_cameras;
 
   public DriveSubsystem(Hardware driveHardware, Telemetry logger) {
-    super(State.NOTHING);
+    super(State.DRIVER_CONTROL);
 
     m_cameras = new ArrayList<AprilTagCamera>();
     m_cameras.add(driveHardware.frontLeftCamera);
@@ -203,11 +204,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_drivetrain = TunerConstants.createDrivetrain();
     /* Setting up bindings for necessary control of the swerve drive platform */
     s_drive = new SwerveRequest.FieldCentric()
-    .withDeadband(Constants.Drive.MAX_SPEED.times(0.1))
-    .withRotationalDeadband(Constants.Drive.MAX_ANGULAR_RATE.times(0.1)) // Add a
-    // 10% deadband
-    // .withDeadband(0)
-    // .withRotationalDeadband(0)
+    .withDeadband(Constants.Drive.MAX_SPEED.times(0.01))
+    .withRotationalDeadband(Constants.Drive.MAX_ANGULAR_RATE.times(0.01)) // Add a
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
     s_autoDrive = new FieldCentricWithPose()

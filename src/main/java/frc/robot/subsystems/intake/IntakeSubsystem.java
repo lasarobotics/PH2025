@@ -22,7 +22,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     LimitSwitch secondBeamBreak
   ) {}
 
-  static final Dimensionless INTAKE_SPEED = Percent.of(-100);
+  static final Dimensionless INTAKE_SPEED = Percent.of(-60);
   static final Dimensionless REVERSE_INTAKE_SPEED = Percent.of(-50);
 
   public enum IntakeStates implements SystemState {
@@ -102,7 +102,7 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
 
   /** Creates a new IntakeSubsystem */
   private IntakeSubsystem(Hardware intakeHardware) {
-    super(IntakeStates.NOTHING);
+    super(IntakeStates.STOP);
     this.m_intakeMotor = intakeHardware.intakeMotor;
     this.m_firstBeamBreak = intakeHardware.firstBeamBreak;
     this.m_secondBeamBreak = intakeHardware.secondBeamBreak;

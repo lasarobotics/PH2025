@@ -35,34 +35,35 @@ public class RobotContainer {
     () -> PRIMARY_CONTROLLER.getLeftX(), // drive x
      () -> PRIMARY_CONTROLLER.getLeftY(), // drive y
      () -> PRIMARY_CONTROLLER.getRightX(), // drive rotate 
-     PRIMARY_CONTROLLER.leftTrigger(), // intake
+     PRIMARY_CONTROLLER.leftTrigger(), // intake 
      PRIMARY_CONTROLLER.leftBumper(), // regurgitate
      PRIMARY_CONTROLLER.a(), // L1
      PRIMARY_CONTROLLER.b(), // L2
-     PRIMARY_CONTROLLER.x(), // L3
-     PRIMARY_CONTROLLER.y(), // L4
-     PRIMARY_CONTROLLER.rightTrigger(), // score
-     PRIMARY_CONTROLLER.rightBumper() // cancel
+     PRIMARY_CONTROLLER.y(), // L3
+     PRIMARY_CONTROLLER.rightTrigger(), // L4
+     PRIMARY_CONTROLLER.rightBumper(), // score
+     PRIMARY_CONTROLLER.x() // cancel
     );
-    PRIMARY_CONTROLLER.x().onTrue(Commands.runOnce(() -> {
-      LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
-    }));
 
-    PRIMARY_CONTROLLER.y().onTrue(Commands.runOnce(() -> {
-      LIFT_SUBSYSTEM.setState(TargetLiftStates.L1);
-    }));
+    // PRIMARY_CONTROLLER.x().onTrue(Commands.runOnce(() -> {
+    //   LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+    // }));
 
-    PRIMARY_CONTROLLER.b().onTrue(Commands.runOnce(() -> {
-      LIFT_SUBSYSTEM.setState(TargetLiftStates.L2);
-    }));
+    // PRIMARY_CONTROLLER.y().onTrue(Commands.runOnce(() -> {
+    //   LIFT_SUBSYSTEM.setState(TargetLiftStates.L1);
+    // }));
 
-    PRIMARY_CONTROLLER.a().onTrue(Commands.runOnce(() -> {
-      LIFT_SUBSYSTEM.setState(TargetLiftStates.L3);
-    }));
+    // PRIMARY_CONTROLLER.b().onTrue(Commands.runOnce(() -> {
+    //   LIFT_SUBSYSTEM.setState(TargetLiftStates.L2);
+    // }));
 
-    PRIMARY_CONTROLLER.rightTrigger().onTrue(Commands.runOnce(() -> {
-      LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
-    }));
+    // PRIMARY_CONTROLLER.a().onTrue(Commands.runOnce(() -> {
+    //   LIFT_SUBSYSTEM.setState(TargetLiftStates.L3);
+    // }));
+
+    // PRIMARY_CONTROLLER.rightTrigger().onTrue(Commands.runOnce(() -> {
+    //   LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
+    // }));
       
 
     // PRIMARY_CONTROLLER.povLeft().onTrue(Commands.runOnce(() -> {
