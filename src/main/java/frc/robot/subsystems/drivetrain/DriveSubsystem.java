@@ -1,5 +1,8 @@
 package frc.robot.subsystems.drivetrain;
 
+import static edu.wpi.first.units.Units.Degrees;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 
@@ -186,10 +189,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     private static TrapezoidProfile s_turnProfile;
     private static TrapezoidProfile s_driveProfile;
 
-    private static boolean s_isAligned;
+  private static boolean s_isAligned;
 
-    public DriveSubsystem(Hardware driveHardware, Telemetry logger) {
-        super(State.DRIVER_CONTROL);
+  public DriveSubsystem(Hardware driveHardware, Telemetry logger) {
+    super(State.DRIVER_CONTROL);
 
         s_drivetrain = TunerConstants.createDrivetrain();
 
@@ -262,29 +265,48 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         return s_isAligned;
     }
 
-    /**
-     * Returns the location the robot should go to in order to align to the nearest
-     * reef pole
-     */
-    private Pose2d findAutoAlignTarget() {
-        Translation2d reefLocation;
-        List<Pose2d> autoAlignLocations;
-        if (DriverStation.getAlliance().equals(Alliance.Red)) {
-            reefLocation = Constants.Field.REEF_LOCATION_RED;
-            autoAlignLocations = Constants.Drive.AUTO_ALIGN_LOCATIONS_RED;
-        } else {
-            reefLocation = Constants.Field.REEF_LOCATION_BLUE;
-            autoAlignLocations = Constants.Drive.AUTO_ALIGN_LOCATIONS_BLUE;
-        }
-        double angle = Math
-                .toDegrees(Math.atan2(s_drivetrain.getState().Pose.getX() - reefLocation.getX(),
-                        s_drivetrain.getState().Pose.getY() - reefLocation.getY()))
-                + 360;
-        angle = (((angle / 30)) + 10) % 12;
+  /**
+  * Returns the location the robot should go to in order to align to the nearest
+  * reef pole
+  */
+  private Pose2d findAutoAlignTarget() {
+    Translation2d reefLocation;
+    List<Pose2d> autoAlignLocations;
 
-        return autoAlignLocations.get((int) angle);
-        // return Constants.Drive.AUTO_ALIGN_LOCATIONS.get(0);
+    // Determine which reef we're aligning to
+    if (DriverStation.getAlliance().equals(Alliance.Red)) {
+      reefLocation = Constants.Field.REEF_LOCATION_RED;
+      autoAlignLocations = Constants.Drive.AUTO_ALIGN_LOCATIONS_RED;
+    } else {
+      reefLocation = Constants.Field.REEF_LOCATION_BLUE;
+      autoAlignLocations = Constants.Drive.AUTO_ALIGN_LOCATIONS_BLUE;
     }
+    reefLocation = Constants.Field.REEF_LOCATION_RED;
+
+    // find the angle to the reef
+    double angle = Math
+    .toDegrees(Math.atan2(s_drivetrain.getState().Pose.getX() - reefLocation.getX(),
+    s_drivetrain.getState().Pose.getY() - reefLocation.getY()))
+    + 360;
+    // Convert to an index (0-11)
+    int index = (int) ((((angle / 30)) + 10) % 12);
+
+    // Calculate the final position
+    Translation2d position;
+    // initial offset
+    if (index % 2 == 1) position = Constants.Drive.LEFT_BRANCH_OFFSET;
+    else position = Constants.Drive.RIGHT_BRANCH_OFFSET;
+    position = position.rotateBy(new Rotation2d(Degrees.of((int) (index / 2) * -60))); // move to correct side of reef
+    position = position.plus(reefLocation); // move to actual reef location
+    // position = position.plus(autoAlignLocations.get(index).getTranslation()); // apply custom offset for this position
+
+    Logger.recordOutput(getName() + "/targetReefLocation", new Pose2d(Constants.Field.REEF_LOCATION_RED, new Rotation2d()));
+    Logger.recordOutput(getName() + "/targetBranch", index % 2 == 0);
+
+    return new Pose2d(position, autoAlignLocations.get(index).getRotation());
+    // return autoAlignLocations.get(index);
+    // return Constants.Drive.AUTO_ALIGN_LOCATIONS.get(0);
+  }
 
     /**
      * Initialize hardware devices for drive subsystem
