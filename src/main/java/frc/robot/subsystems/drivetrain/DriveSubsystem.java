@@ -161,10 +161,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public State nextState() {
-        return DRIVER_CONTROL;
-        // if (!s_shouldAutoAlign)
-          // return DRIVER_CONTROL;
-        // return this;
+        if (!s_shouldAutoAlign)
+          return DRIVER_CONTROL;
+        return this;
       }
 
       @Override
@@ -307,7 +306,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     position = position.plus(reefLocation); // move to actual reef location
     // position = position.plus(autoAlignLocations.get(index).getTranslation()); // apply custom offset for this position
 
-    Logger.recordOutput(getName() + "/autoAlign/targetReefLocation", new Pose2d(Constants.Field.REEF_LOCATION_RED, new Rotation2d()));
     Logger.recordOutput(getName() + "/autoAlign/targetBranch", index % 2 == 0);
 
     return new Pose2d(position, autoAlignLocations.get(index).getRotation());

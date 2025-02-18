@@ -69,6 +69,9 @@ public class RobotContainer {
     PRIMARY_CONTROLLER.povLeft().onTrue(Commands.runOnce(() -> {
       DRIVE_SUBSYSTEM.requestAutoAlign();
     }));
+    PRIMARY_CONTROLLER.povRight().onTrue(Commands.runOnce(() -> {
+      DRIVE_SUBSYSTEM.cancelAutoAlign();
+    }));
 
     // PRIMARY_CONTROLLER.a().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().dynamic(SysIdRoutine.Direction.kForward));
     // PRIMARY_CONTROLLER.b().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().dynamic(SysIdRoutine.Direction.kReverse));

@@ -46,8 +46,8 @@ public final class Constants {
       Rotation2d.fromDegrees(-145.305)
     );
 
-    public static final Translation2d REEF_LOCATION_RED = new Translation2d(4.489337, 4.02);
-    public static final Translation2d REEF_LOCATION_BLUE = new Translation2d(16-4.46, 4.02);
+    public static final Translation2d REEF_LOCATION_RED = new Translation2d(16+4.489337, 4.02);
+    public static final Translation2d REEF_LOCATION_BLUE = new Translation2d(4.489337, 4.02);
 
   }
 
@@ -84,33 +84,33 @@ public final class Constants {
     public static final Translation2d RIGHT_BRANCH_OFFSET = new Translation2d(1.29885805, -0.05);
 
     public static List<Pose2d> AUTO_ALIGN_LOCATIONS_RED = Arrays.asList(
-      new Pose2d(new Translation2d(5.79, 4.21), new Rotation2d(0)),
-      new Pose2d(new Translation2d(5.79, 3.87), new Rotation2d(0)),
-      new Pose2d(new Translation2d(5.28, 2.95), new Rotation2d(Units.degreesToRadians(-60))),
-      new Pose2d(new Translation2d(4.95, 2.82), new Rotation2d(Units.degreesToRadians(-60))),
-      new Pose2d(new Translation2d(4.02, 2.87), new Rotation2d(Units.degreesToRadians(-120))),
-      new Pose2d(new Translation2d(3.70, 2.98), new Rotation2d(Units.degreesToRadians(-120))),
-      new Pose2d(new Translation2d(3.18, 3.84), new Rotation2d(Units.degreesToRadians(-180))),
-      new Pose2d(new Translation2d(3.18, 4.16), new Rotation2d(Units.degreesToRadians(-180))),
-      new Pose2d(new Translation2d(3.64, 5.06), new Rotation2d(Units.degreesToRadians(120))),
-      new Pose2d(new Translation2d(3.99, 5.22), new Rotation2d(Units.degreesToRadians(120))),
-      new Pose2d(new Translation2d(5.02, 5.24), new Rotation2d(Units.degreesToRadians(60))),
-      new Pose2d(new Translation2d(5.31, 5.03), new Rotation2d(Units.degreesToRadians(60)))
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(180))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(180))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(120))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(120))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(60))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(60))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(0))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(0))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(300))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(300))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(240))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(240)))
     );
 
     public static List<Pose2d> AUTO_ALIGN_LOCATIONS_BLUE = Arrays.asList(
-      new Pose2d(new Translation2d(16 - 5.79, 4.21), new Rotation2d(0)),
-      new Pose2d(new Translation2d(16 - 5.79, 3.87), new Rotation2d(0)),
-      new Pose2d(new Translation2d(16 - 5.28, 2.95), new Rotation2d(Units.degreesToRadians(-60))),
-      new Pose2d(new Translation2d(16 - 4.95, 2.82), new Rotation2d(Units.degreesToRadians(-60))),
-      new Pose2d(new Translation2d(16 - 4.02, 2.87), new Rotation2d(Units.degreesToRadians(-120))),
-      new Pose2d(new Translation2d(16 - 3.70, 2.98), new Rotation2d(Units.degreesToRadians(-120))),
-      new Pose2d(new Translation2d(16 - 3.18, 3.84), new Rotation2d(Units.degreesToRadians(-180))),
-      new Pose2d(new Translation2d(16 - 3.18, 4.16), new Rotation2d(Units.degreesToRadians(-180))),
-      new Pose2d(new Translation2d(16 - 3.64, 5.06), new Rotation2d(Units.degreesToRadians(120))),
-      new Pose2d(new Translation2d(16 - 3.99, 5.22), new Rotation2d(Units.degreesToRadians(120))),
-      new Pose2d(new Translation2d(16 - 5.02, 5.24), new Rotation2d(Units.degreesToRadians(60))),
-      new Pose2d(new Translation2d(16 - 5.31, 5.03), new Rotation2d(Units.degreesToRadians(60)))
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(180))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(180))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(120))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(120))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(60))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(60))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(0))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(0))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(300))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(300))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(240))),
+      new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(240)))
     );
   }
 
