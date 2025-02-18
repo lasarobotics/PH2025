@@ -46,7 +46,7 @@ public final class Constants {
       Rotation2d.fromDegrees(-145.305)
     );
 
-    public static final Translation2d REEF_LOCATION_RED = new Translation2d(4.46, 4.02);
+    public static final Translation2d REEF_LOCATION_RED = new Translation2d(4.489337, 4.02);
     public static final Translation2d REEF_LOCATION_BLUE = new Translation2d(16-4.46, 4.02);
 
   }
@@ -78,6 +78,10 @@ public final class Constants {
     public static final double TURN_P = 0.01;
     public static final double TURN_I = 0;
     public static final double TURN_D = 0;
+
+    // Offsets from the center of the reef to the bottom (-x direction) branches
+    public static final Translation2d LEFT_BRANCH_OFFSET = new Translation2d(1.29885805, -0.375);
+    public static final Translation2d RIGHT_BRANCH_OFFSET = new Translation2d(1.29885805, -0.05);
 
     public static List<Pose2d> AUTO_ALIGN_LOCATIONS_RED = Arrays.asList(
       new Pose2d(new Translation2d(5.79, 4.21), new Rotation2d(0)),
