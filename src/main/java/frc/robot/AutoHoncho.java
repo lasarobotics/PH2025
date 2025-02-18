@@ -39,7 +39,7 @@ public class AutoHoncho implements Subsystem {
 			{
 				LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
 			}, () -> {},
-			this
+			LIFT_SUBSYSTEM
 			)
 			.until(() -> {
 				return LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW);
@@ -49,7 +49,7 @@ public class AutoHoncho implements Subsystem {
 				INTAKE_SUBSYSTEM.startIntake();
 				END_EFFECTOR_SUBSYSTEM.requestIntake();
 			}, () -> {},
-			this
+			INTAKE_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM
 			)
 			.until(() -> {
 				return END_EFFECTOR_SUBSYSTEM.isCoralCentered();
@@ -66,7 +66,7 @@ public class AutoHoncho implements Subsystem {
 		{
 			LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
 		}, () -> {},
-		this
+		LIFT_SUBSYSTEM
 		)
 		.until(() -> {
 			return LIFT_SUBSYSTEM.isAtState(TargetLiftStates.L4);
@@ -82,7 +82,7 @@ public class AutoHoncho implements Subsystem {
 			{
 				END_EFFECTOR_SUBSYSTEM.setState(EndEffectorStates.SCORE_L4);
 			}, () -> {},
-			this)
+			END_EFFECTOR_SUBSYSTEM)
 			.until(() -> {
 				return END_EFFECTOR_SUBSYSTEM.isEmpty();
 			});
