@@ -1230,6 +1230,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     return curState == state;
   }
 
+
   @Override
   public void periodic() {
     super.periodic();
