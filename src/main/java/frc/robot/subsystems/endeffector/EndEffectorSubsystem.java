@@ -8,9 +8,6 @@ package frc.robot.subsystems.endeffector;
 import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Value;
 
-import static edu.wpi.first.units.Units.Percent;
-import static edu.wpi.first.units.Units.Value;
-
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
 import org.lasarobotics.hardware.generic.LimitSwitch;
@@ -29,10 +26,10 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     LimitSwitch reverseBeamBreak
   ) {}
 
-  static final Dimensionless INTAKE_MOTOR_SPEED = Percent.of(50);;
+  static final Dimensionless INTAKE_MOTOR_SPEED = Percent.of(50);
   static final Dimensionless REGURGITATE_MOTOR_SPEED = Percent.of(-50);
-  static final Dimensionless SCORE_MOTOR_SPEED = Percent.of(100);
-  static final Dimensionless CENTER_CORAL_MOTOR_SPEED = Percent.of(-40);
+  static final Dimensionless SCORE_MOTOR_SPEED = Percent.of(40);
+  static final Dimensionless CENTER_CORAL_MOTOR_SPEED = Percent.of(-10);
 
   public enum EndEffectorStates implements SystemState {
     NOTHING {
@@ -196,21 +193,22 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * Runs motor at power required for scoring
    */
   private void score() {
+    m_endEffectorMotor.set(SCORE_MOTOR_SPEED.in(Value));
+  }
+
+  private void centerReverse() {
+    m_endEffectorMotor.set(-CENTER_CORAL_MOTOR_SPEED.in(Value));
+  }
+
+  private void centerForward() {
     m_endEffectorMotor.set(CENTER_CORAL_MOTOR_SPEED.in(Value));
   }
 
   /**
-   * Runs motor at power required for scoring at L4
+   * Runs motor at power required for scoring at L4 / for reguritating
    */
-  private void scoreL4() {
-    m_endEffectorMotor.set(SCORE_MOTOR_SPEED.in(Value));
-  }
-
-  /**
-   * Regurgitates Coral back into lift
-   */
-  private void regurgitate() {
-    m_endEffectorMotor.set(REGURGITATE_MOTOR_SPEED.in(Value));
+  private void scoreReverse() {
+    m_endEffectorMotor.set(-SCORE_MOTOR_SPEED.in(Value));
   }
 
   /**
@@ -242,11 +240,11 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * Centers coral in end effector
    */
   private void centerCoral() {
-    if(forwardBeamBreakStatus()) {
-      m_endEffectorMotor.enableReverseLimitSwitch();
-      m_endEffectorMotor.set(CENTER_CORAL_MOTOR_SPEED.in(Value));
-    }
-    if(reverseBeamBreakStatus()) {
+    if(forwardBeamBreakBroken() && !reverseBeamBreakBroken()) {
+      s_endEffectorInstance.centerForward();
+    } else if (reverseBeamBreakBroken() && !forwardBeamBreakBroken()) {
+      s_endEffectorInstance.centerReverse();
+    } else {
       s_endEffectorInstance.stopMotor();
     }
   }

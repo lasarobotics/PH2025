@@ -79,28 +79,36 @@ public final class Constants {
     public static final double TURN_I = 0;
     public static final double TURN_D = 0;
 
-    public static List<Pose2d> AUTO_ALIGN_LOCATIONS = Arrays.asList(
-        new Pose2d(new Translation2d(5.79, 4.21), new Rotation2d(0)),
-        new Pose2d(new Translation2d(5.79, 3.87), new Rotation2d(0)),
-        new Pose2d(new Translation2d(5.28, 2.95), new Rotation2d(Units.degreesToRadians(-60))),
-        new Pose2d(new Translation2d(4.95, 2.82), new Rotation2d(Units.degreesToRadians(-60))),
-        new Pose2d(new Translation2d(4.02, 2.87), new Rotation2d(Units.degreesToRadians(-120))),
-        new Pose2d(new Translation2d(3.70, 2.98), new Rotation2d(Units.degreesToRadians(-120))),
-        new Pose2d(new Translation2d(3.18, 3.84), new Rotation2d(Units.degreesToRadians(-180))),
-        new Pose2d(new Translation2d(3.18, 4.16), new Rotation2d(Units.degreesToRadians(-180))),
-        new Pose2d(new Translation2d(3.64, 5.06), new Rotation2d(Units.degreesToRadians(120))),
-        new Pose2d(new Translation2d(3.99, 5.22), new Rotation2d(Units.degreesToRadians(120))),
-        new Pose2d(new Translation2d(5.02, 5.24), new Rotation2d(Units.degreesToRadians(60))),
-        new Pose2d(new Translation2d(5.31, 5.03), new Rotation2d(Units.degreesToRadians(60))));
-  }
+    public static List<Pose2d> AUTO_ALIGN_LOCATIONS_RED = Arrays.asList(
+      new Pose2d(new Translation2d(5.79, 4.21), new Rotation2d(0)),
+      new Pose2d(new Translation2d(5.79, 3.87), new Rotation2d(0)),
+      new Pose2d(new Translation2d(5.28, 2.95), new Rotation2d(Units.degreesToRadians(-60))),
+      new Pose2d(new Translation2d(4.95, 2.82), new Rotation2d(Units.degreesToRadians(-60))),
+      new Pose2d(new Translation2d(4.02, 2.87), new Rotation2d(Units.degreesToRadians(-120))),
+      new Pose2d(new Translation2d(3.70, 2.98), new Rotation2d(Units.degreesToRadians(-120))),
+      new Pose2d(new Translation2d(3.18, 3.84), new Rotation2d(Units.degreesToRadians(-180))),
+      new Pose2d(new Translation2d(3.18, 4.16), new Rotation2d(Units.degreesToRadians(-180))),
+      new Pose2d(new Translation2d(3.64, 5.06), new Rotation2d(Units.degreesToRadians(120))),
+      new Pose2d(new Translation2d(3.99, 5.22), new Rotation2d(Units.degreesToRadians(120))),
+      new Pose2d(new Translation2d(5.02, 5.24), new Rotation2d(Units.degreesToRadians(60))),
+      new Pose2d(new Translation2d(5.31, 5.03), new Rotation2d(Units.degreesToRadians(60)))
+    );
 
-  public static class EndEffector {
-    public static final double INTAKE_MOTOR_SPEED = 0.5;
-    public static final double REGURGITATE_MOTOR_SPEED = -0.5;
-    public static final double SCORE_MOTOR_SPEED = 1.0;
-    public static final double CENTER_CORAL_MOTOR_SPEED = -0.4;
+    public static List<Pose2d> AUTO_ALIGN_LOCATIONS_BLUE = Arrays.asList(
+      new Pose2d(new Translation2d(16 - 5.79, 4.21), new Rotation2d(0)),
+      new Pose2d(new Translation2d(16 - 5.79, 3.87), new Rotation2d(0)),
+      new Pose2d(new Translation2d(16 - 5.28, 2.95), new Rotation2d(Units.degreesToRadians(-60))),
+      new Pose2d(new Translation2d(16 - 4.95, 2.82), new Rotation2d(Units.degreesToRadians(-60))),
+      new Pose2d(new Translation2d(16 - 4.02, 2.87), new Rotation2d(Units.degreesToRadians(-120))),
+      new Pose2d(new Translation2d(16 - 3.70, 2.98), new Rotation2d(Units.degreesToRadians(-120))),
+      new Pose2d(new Translation2d(16 - 3.18, 3.84), new Rotation2d(Units.degreesToRadians(-180))),
+      new Pose2d(new Translation2d(16 - 3.18, 4.16), new Rotation2d(Units.degreesToRadians(-180))),
+      new Pose2d(new Translation2d(16 - 3.64, 5.06), new Rotation2d(Units.degreesToRadians(120))),
+      new Pose2d(new Translation2d(16 - 3.99, 5.22), new Rotation2d(Units.degreesToRadians(120))),
+      new Pose2d(new Translation2d(16 - 5.02, 5.24), new Rotation2d(Units.degreesToRadians(60))),
+      new Pose2d(new Translation2d(16 - 5.31, 5.03), new Rotation2d(Units.degreesToRadians(60)))
+    );
   }
-
 
   public static class LiftHardware {
    public static final TalonFX.ID ELEVATOR_MOTOR_ID = new TalonFX.ID("LiftHardware/Elevator", PhoenixCANBus.RIO, 60);
@@ -120,6 +128,10 @@ public final class Constants {
     );
   }
 
+  public static class ClimbHardware {
+    public static final Spark.ID CLIMB_MOTOR_ID = new Spark.ID("endEffecterMotor", 9);
+  }
+
   public static class EndEffectorHardware {
     public static final Spark.ID OUTTAKE_MOTOR_ID = new Spark.ID("EndEffectorHardware/EndEffectorMotor", 52);
     public static final int FORWARD_BEAM_BREAK = 2;
@@ -128,10 +140,6 @@ public final class Constants {
       new LimitSwitch.ID("EndEffectorHardware/ForwardBeamBreak", 2);
     public static final LimitSwitch.ID REVERSE_ENDEFFECTOR_BEAM_BREAK =
       new LimitSwitch.ID("EndEffectorHardware/ReverseBeamBreak", 3);
-  }
-
-  public static class ClimbHardware {
-    public static final Spark.ID CLIMB_MOTOR_ID = new Spark.ID("endEffecterMotor", 9);
   }
 
   public static class VisionHardware {
