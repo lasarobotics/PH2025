@@ -16,12 +16,11 @@ import edu.wpi.first.units.measure.Dimensionless;
 import frc.robot.Constants;
 
 public class IntakeSubsystem extends StateMachine implements AutoCloseable {
-  public static record Hardware(
-      Spark flapperMotor,
-      Spark funnelMotor,
-      LimitSwitch firstBeamBreak,
-      LimitSwitch secondBeamBreak) {
-  }
+  public static record Hardware (
+    Spark intakeMotor,
+    LimitSwitch firstBeamBreak,
+    LimitSwitch secondBeamBreak
+  ) {}
 
   static final Dimensionless INTAKE_SPEED = Percent.of(-60);
   static final Dimensionless REVERSE_INTAKE_SPEED = Percent.of(-50);
@@ -43,9 +42,10 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public IntakeStates nextState() {
-        if (s_requestedState == IDLE) {
-          return IDLE;
-        } else if (s_requestedState == INTAKE) {
+        if (s_requestedState == STOP) {
+          return STOP;
+        }
+        else if (s_requestedState == INTAKE) {
           return INTAKE;
         } else if (s_requestedState == REGURGITATE) {
           return REGURGITATE;
@@ -61,9 +61,10 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public IntakeStates nextState() {
-        if (s_requestedState == IDLE) {
-          return IDLE;
-        } else if (s_requestedState == INTAKE) {
+        if (s_requestedState == STOP) {
+          return STOP;
+        }
+        else if (s_requestedState == INTAKE) {
           return INTAKE;
         } else if (s_requestedState == REGURGITATE) {
           return REGURGITATE;
@@ -79,9 +80,10 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public IntakeStates nextState() {
-        if (s_requestedState == IDLE) {
-          return IDLE;
-        } else if (s_requestedState == INTAKE) {
+        if (s_requestedState == STOP) {
+          return STOP;
+        }
+        else if (s_requestedState == INTAKE) {
           return INTAKE;
         }
         else if (s_requestedState == REGURGITATE) {
@@ -117,7 +119,6 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
    * Get an instance of IntakeSubsystem
    * <p>
    * Will only return an instance once, subsequent calls will return null.
-   * 
    * @param intakeHardware Necessary hardware for this subsystem
    * @return Subsystem instance
    */
@@ -131,7 +132,6 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Initialize hardware devices for intake subsystem
-   * 
    * @return Hardware object containing all necessary devices for this subsystem
    */
   public static Hardware initializeHardware() {
@@ -165,42 +165,11 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * Intake coral using only flapper intake motor
-   */
-  private void startFlapperIntake() {
-    m_flapperMotor.set(FLAPPER_INTAKE_SPEED.in(Value));
-  }
-
-  /**
-   * Intakes the coral using the funnel motor into the end effector
-   */
-  private void startFunnelIntake() {
-    m_funnelMotor.set(FUNNEL_INTAKE_SPEED.in(Value));
-  }
-
-  /**
-   * Outtakes the coral using the flapper motor
-   */
-  private void startReverseFlapperIntake() {
-    m_flapperMotor.set(REVERSE_FLAPPER_INTAKE_SPEED.in(Value));
-  }
-
-  /**
-   * Outtakes the coral using the funnel motor
-   */
-  private void startReverseFunnelIntake() {
-    m_funnelMotor.set(REVERSE_FUNNEL_INTAKE_SPEED.in(Value));
-  }
-
-  /**
    * Checks if coral is fully in the intake using the beam breaks
-   * 
-   * @return Boolean value whether coral is fully in intake or not
+   * @return True if coral is fully in intake
    */
   public boolean coralFullyInIntake() {
-    return ((m_firstBeamBreak.getInputs().value) && !(m_secondBeamBreak.getInputs().value));
-  public boolean coralInIntake() {
-    return ((m_firstBeamBreak.getInputs().value) && !(m_secondBeamBreak.getInputs().value));
+    return firstIntakeBeamBreak() && !secondIntakeBeamBreak();
   }
 
   /**
@@ -212,14 +181,21 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * Stop all the flapper motor
+   * Intake coral using intake motor
+   */
+  private void intake() {
+    m_intakeMotor.set(INTAKE_SPEED.in(Value));
+  }
+
+  /**
+   * Outtakes the coral using the intake motor
    */
   private void reverseIntake() {
     m_intakeMotor.set(INTAKE_SPEED.in(Value));
   }
 
   /**
-   * Stop all the funnel motor
+   *  Stop the intake motor
    */
   private void stopIntakeMotor() {
     m_intakeMotor.stopMotor();
@@ -238,6 +214,9 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     super.periodic();
 
     Logger.recordOutput(getName() + "/state", getState().toString());
+    Logger.recordOutput(getName() + "/firstBeamBreak", firstIntakeBeamBreak());
+    Logger.recordOutput(getName() + "/secondBeamBreak", secondIntakeBeamBreak());
+
   }
 
   /**
@@ -249,4 +228,3 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     s_intakeInstance = null;
   }
 }
-
