@@ -70,21 +70,21 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Angle SCORING_L1_ANGLE = Rotations.of(-0.263184);
   static final Angle SCORING_L2_ANGLE = Rotations.of(-0.27002);
   static final Angle SCORING_L3_ANGLE = Rotations.of(0.328125);
-  static final Angle SCORING_L4_ANGLE = Rotations.of(0.326172-0.027777777777);
+  static final Angle SCORING_L4_ANGLE = Rotations.of(0.326172-0.027777777777).plus(Degrees.of(10));
 
   static final Angle SAFE_REEF_ANGLE_BOTTOM = Rotations.of(-0.256836);
-  static final Angle SAFE_REEF_ANGLE_TOP = Rotations.of(0.287598);
-  static final Angle SAFE_INTAKE_ANGLE_BOTTOM =  Rotations.of(-0.242188);
-  static final Angle SAFE_INTAKE_ANGLE_TOP = Rotations.of(0.112793);
+  static final Angle SAFE_REEF_ANGLE_TOP = Rotations.of(0.287598-0.0278);
+  static final Angle SAFE_INTAKE_ANGLE_BOTTOM =  Rotations.of(-0.24469);
+  static final Angle SAFE_INTAKE_ANGLE_TOP = Rotations.of(0.109375);
 
-  static final Angle STOW_ANGLE = Rotations.of((-0.208008)-0.008333333333);
-  static final Distance STOW_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0.252197));
+  static final Angle STOW_ANGLE = Rotations.of(-0.215333);
+  static final Distance STOW_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0.2)).minus(Inches.of(1/2));
 
   static final Distance L1_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(1.167969));
   static final Distance L2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(2.55246)).plus(Inches.of(1));
-  static final Distance CLEAR_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(3.724609));
+  static final Distance CLEAR_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(3.824));
   static final Distance L3_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
-  static final Distance L4_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(4.35));
+  static final Distance L4_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(4.49));
 
   static final Distance BEAM_BREAK_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
 
@@ -970,7 +970,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     elevatorConfig.ClosedLoopGeneral.ContinuousWrap = false;
     elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 4.38;
+    elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 4.5;
     elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
     elevatorConfig.Slot0.kP = 10;
     elevatorConfig.Slot0.kI = 0;

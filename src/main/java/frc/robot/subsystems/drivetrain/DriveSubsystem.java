@@ -346,7 +346,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       // Add vision measurement
       s_drivetrain.addVisionMeasurement(
         result.estimatedRobotPose.estimatedPose.toPose2d(),
-        Utils.getCurrentTimeSeconds(),
+        Utils.fpgaToCurrentTime(result.estimatedRobotPose.timestampSeconds),
         result.standardDeviation
       );
 

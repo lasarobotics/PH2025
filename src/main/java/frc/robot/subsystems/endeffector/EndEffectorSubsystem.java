@@ -25,9 +25,9 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     DigitalInput reverseBeamBreak
   ) {}
 
-  static final Dimensionless INTAKE_MOTOR_SPEED = Percent.of(50);
+  static final Dimensionless INTAKE_MOTOR_SPEED = Percent.of(100);
   static final Dimensionless REGURGITATE_MOTOR_SPEED = Percent.of(-50);
-  static final Dimensionless SCORE_MOTOR_SPEED = Percent.of(40);
+  static final Dimensionless SCORE_MOTOR_SPEED = Percent.of(60);
   static final Dimensionless CENTER_CORAL_MOTOR_SPEED = Percent.of(-10);
 
   public enum EndEffectorStates implements SystemState {
@@ -173,7 +173,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    */
   public static Hardware initializeHardware() {
     Hardware endEffectorHardware = new Hardware(
-      new Spark(Constants.EndEffectorHardware.OUTTAKE_MOTOR_ID, MotorKind.NEO),
+      new Spark(Constants.EndEffectorHardware.OUTTAKE_MOTOR_ID, MotorKind.NEO_550),
       new DigitalInput(Constants.EndEffectorHardware.FORWARD_BEAM_BREAK),
       new DigitalInput(Constants.EndEffectorHardware.REVERSE_BEAM_BREAK)
       );
