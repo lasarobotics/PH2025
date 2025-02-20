@@ -29,6 +29,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   static final Dimensionless REGURGITATE_MOTOR_SPEED = Percent.of(-50);
   static final Dimensionless SCORE_MOTOR_SPEED = Percent.of(60);
   static final Dimensionless CENTER_CORAL_MOTOR_SPEED = Percent.of(-10);
+  static final Dimensionless DESCORE_ALGAE_MOTOR_SPEED = Percent.of(10);
 
   public enum EndEffectorStates implements SystemState {
     NOTHING {
@@ -127,6 +128,22 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
         }
         return s_endEffectorInstance.nextState;
       }
+    },
+    ALGAE_DESCORE {
+      @Override
+      public void initialize() {
+        s_endEffectorInstance.descoreAlgae();
+      }
+
+      @Override
+      public void execute() {
+        s_endEffectorInstance.descoreAlgae();
+      }
+
+      @Override
+      public SystemState nextState() {
+        return s_endEffectorInstance.nextState;
+      }
     }
   }
 
@@ -200,6 +217,13 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
   private void centerForward() {
     m_endEffectorMotor.set(CENTER_CORAL_MOTOR_SPEED.in(Value));
+  }
+
+  /**
+   * Runs motor at power required to descore algae
+   */
+  private void descoreAlgae() {
+    m_endEffectorMotor.set(DESCORE_ALGAE_MOTOR_SPEED.in(Value));
   }
 
   /**
