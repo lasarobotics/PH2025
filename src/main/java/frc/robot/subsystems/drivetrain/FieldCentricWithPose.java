@@ -113,7 +113,7 @@ public class FieldCentricWithPose implements SwerveRequest {
                 parameters.timestamp
             );
 
-        double toApplyY = TargetXFeedForward +
+        double toApplyY = TargetYFeedForward +
             YController.calculate(
                 parameters.currentPose.getY(),
                 TargetY,

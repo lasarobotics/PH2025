@@ -115,7 +115,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (LIFT_SUBSYSTEM.isLiftReady() && DRIVE_SUBSYSTEM.isAligned()) return SCORE;
+        if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean()) return SCORE;
         if (s_scoreButton.getAsBoolean()) return SCORE;
 
         if (s_L1Button.getAsBoolean()) return L1;
@@ -137,7 +137,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (LIFT_SUBSYSTEM.isLiftReady() && DRIVE_SUBSYSTEM.isAligned()) return SCORE;
+        if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean()) return SCORE;
         if (s_scoreButton.getAsBoolean()) return SCORE;
 
         if (s_L1Button.getAsBoolean()) return L1;
@@ -159,7 +159,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (LIFT_SUBSYSTEM.isLiftReady() && DRIVE_SUBSYSTEM.isAligned()) return SCORE_REVERSE;
+        if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
         if (s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
 
         if (s_L1Button.getAsBoolean()) return L1;
@@ -181,7 +181,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (LIFT_SUBSYSTEM.isLiftReady() && DRIVE_SUBSYSTEM.isAligned()) return SCORE_REVERSE;
+        if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
         if (s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
 
         if (s_L1Button.getAsBoolean()) return L1;

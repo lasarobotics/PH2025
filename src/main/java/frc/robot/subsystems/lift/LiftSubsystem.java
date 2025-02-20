@@ -937,8 +937,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /** Creates a new LiftSubsystem */
   private LiftSubsystem(Hardware liftHardware) {
-    super(LiftStates.IDLE);
-    nextState = TargetLiftStates.NOTHING;
+    super(LiftStates.STOW);
+    nextState = TargetLiftStates.STOW;
     m_elevatorMotor = liftHardware.elevatorMotor;
     m_pivotMotor = liftHardware.pivotMotor;
     m_armCANcoder = liftHardware.armCANCoder;

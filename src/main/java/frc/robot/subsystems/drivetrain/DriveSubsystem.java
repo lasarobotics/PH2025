@@ -1,6 +1,8 @@
 package frc.robot.subsystems.drivetrain;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,7 @@ import org.lasarobotics.vision.AprilTagCamera;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -21,7 +24,9 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -195,6 +200,75 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   private static ArrayList<AprilTagCamera> m_cameras;
 
+  
+
+    /* Swerve requests to apply during SysId characterization */
+    private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
+    private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
+    private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+
+    /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
+    private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
+        new SysIdRoutine.Config(
+            null,        // Use default ramp rate (1 V/s)
+            Volts.of(4), // Reduce dynamic step voltage to 4 V to prevent brownout
+            null,        // Use default timeout (10 s)
+            // Log state with SignalLogger class
+            state -> SignalLogger.writeString("SysIdTranslation_State", state.toString())
+        ),
+        new SysIdRoutine.Mechanism(
+            output -> s_drivetrain.setControl(m_translationCharacterization.withVolts(output)),
+            null,
+            this
+        )
+    );
+
+    /* SysId routine for characterizing steer. This is used to find PID gains for the steer motors. */
+    private final SysIdRoutine m_sysIdRoutineSteer = new SysIdRoutine(
+        new SysIdRoutine.Config(
+            null,        // Use default ramp rate (1 V/s)
+            Volts.of(7), // Use dynamic voltage of 7 V
+            null,        // Use default timeout (10 s)
+            // Log state with SignalLogger class
+            state -> SignalLogger.writeString("SysIdSteer_State", state.toString())
+        ),
+        new SysIdRoutine.Mechanism(
+            volts -> s_drivetrain.setControl(m_steerCharacterization.withVolts(volts)),
+            null,
+            this
+        )
+    );
+
+    /*
+     * SysId routine for characterizing rotation.
+     * This is used to find PID gains for the FieldCentricFacingAngle HeadingController.
+     * See the documentation of SwerveRequest.SysIdSwerveRotation for info on importing the log to SysId.
+     */
+    private final SysIdRoutine m_sysIdRoutineRotation = new SysIdRoutine(
+        new SysIdRoutine.Config(
+            /* This is in radians per second², but SysId only supports "volts per second" */
+            Volts.of(Math.PI / 6).per(Second),
+            /* This is in radians per second, but SysId only supports "volts" */
+            Volts.of(Math.PI),
+            null, // Use default timeout (10 s)
+            // Log state with SignalLogger class
+            state -> SignalLogger.writeString("SysIdRotation_State", state.toString())
+        ),
+        new SysIdRoutine.Mechanism(
+            output -> {
+                /* output is actually radians per second, but SysId only supports "volts" */
+                s_drivetrain.setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
+                /* also log the requested output for SysId */
+                SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
+            },
+            null,
+            this
+        )
+    );
+
+    /* The SysId routine to test */
+    public SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineSteer;
+
   public DriveSubsystem(Hardware driveHardware, Telemetry logger) {
     super(State.DRIVER_CONTROL);
 
@@ -208,17 +282,18 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_drive = new SwerveRequest.FieldCentric()
     .withDeadband(Constants.Drive.MAX_SPEED.times(0.05))
     .withRotationalDeadband(Constants.Drive.MAX_ANGULAR_RATE.times(0.1)) // Add a
-    .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+    .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
     s_autoDrive = new FieldCentricWithPose()
-    .withDriveRequestType(DriveRequestType.Velocity)
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
     .withDeadband(0)
     .withRotationalDeadband(0);
-    s_autoDrive.HeadingController.setPID(10, 0, 0);
+    s_autoDrive.HeadingController.setPID(5, 0, 0);
     s_autoDrive.HeadingController.enableContinuousInput(0, Math.PI * 2);
 
-    s_autoDrive.XController.setPID(5, 0, 0);
-    s_autoDrive.YController.setPID(5, 0, 0);
+    s_autoDrive.XController.setPID(3, 0, 0);
+    s_autoDrive.YController.setPID(3, 0, 0);
 
     s_drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -350,8 +425,34 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     return driveHardware;
   }
 
+  /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
+  private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
+  /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
+  private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
+  /* Keep track if we've ever applied the operator perspective before or not */
+  private boolean m_hasAppliedOperatorPerspective = false;
+
   @Override
   public void periodic() {
+    
+    /*
+    * Periodically try to apply the operator perspective.
+    * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
+    * This allows us to correct the perspective in case the robot code restarts mid-match.
+    * Otherwise, only check and apply the operator perspective if the DS is disabled.
+    * This ensures driving behavior doesn't change until an explicit disable event occurs during testing.
+    */
+    if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
+        DriverStation.getAlliance().ifPresent(allianceColor -> {
+        s_drivetrain.setOperatorPerspectiveForward(
+          allianceColor == Alliance.Red
+          ? kRedAlliancePerspectiveRotation
+          : kBlueAlliancePerspectiveRotation
+        );
+        m_hasAppliedOperatorPerspective = true;
+      });
+    }
+
     // Add AprilTag pose estimates if available
     int i = 0;
     for (var camera : m_cameras) {

@@ -58,7 +58,7 @@ public final class Constants {
 
   public static class Drive {
     public static final LinearVelocity MAX_SPEED = TunerConstants.kSpeedAt12Volts;
-    public static final LinearAcceleration MAX_ACCELERATION = MetersPerSecondPerSecond.of(5); // TODO measure
+    public static final LinearAcceleration MAX_ACCELERATION = MetersPerSecondPerSecond.of(3); // TODO measure
     public static final AngularVelocity MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75); // TODO measure
     public static final AngularAcceleration MAX_ANGULAR_ACCELERATION = RotationsPerSecondPerSecond.of(1); // TODO
                                                                                                           // measure
@@ -68,8 +68,8 @@ public final class Constants {
       MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond)
     );
     public static final TrapezoidProfile.Constraints DRIVE_CONSTRAINTS = new TrapezoidProfile.Constraints(
-      MAX_SPEED.in(MetersPerSecond),
-      MAX_ACCELERATION.in(MetersPerSecondPerSecond)
+      MAX_SPEED.in(MetersPerSecond) * 0.8,
+      MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.8
     );
 
     public static final double AUTO_ALIGN_TOLERANCE = 0.05;

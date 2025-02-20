@@ -45,9 +45,7 @@ public class RobotContainer {
      PRIMARY_CONTROLLER.x() // cancel
     );
 
-    // PRIMARY_CONTROLLER.x().onTrue(Commands.runOnce(() -> {
-    //   LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
-    // }));
+    // PRIMARY_CONTROLLER.x().whileTrue(DRIVE_SUBSYSTEM.m_sysIdRoutineToApply.dynamic(SysIdRoutine.Direction.kForward));
 
     // PRIMARY_CONTROLLER.y().onTrue(Commands.runOnce(() -> {
     //   LIFT_SUBSYSTEM.setState(TargetLiftStates.L1);
