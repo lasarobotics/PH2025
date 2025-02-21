@@ -47,6 +47,9 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_L3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L3;
         if (s_L4Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L4;
 
+        if(s_algaeL2Button.getAsBoolean()) return ALGAE_DESCORE_L2;
+        if(s_algaeL3Button.getAsBoolean()) return ALGAE_DESCORE_L3;
+
         return this;
       }
     },
@@ -194,6 +197,12 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         return this;
       }
     },
+    ALGAE_DESCORE_L2 {
+      
+    },
+    ALGAE_DESCORE_L3 {
+
+    },
     SCORE {
       @Override
       public void initialize() {
@@ -253,6 +262,9 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
   private static BooleanSupplier s_scoreButton; // force robot to score, regardless of alignment
   private static BooleanSupplier s_cancelButton;
 
+  private static BooleanSupplier s_algaeL2Button;
+  private static BooleanSupplier s_algaeL3Button;
+
   public HeadHoncho(
     DriveSubsystem driveSubsystem,
     IntakeSubsystem intakeSubsystem,
@@ -277,6 +289,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     BooleanSupplier L2Button,
     BooleanSupplier L3Button,
     BooleanSupplier L4Button,
+    BooleanSupplier L2AlgaeButton,
+    BooleanSupplier L3AlgaeButton,
     BooleanSupplier scoreButton,
     BooleanSupplier cancelButton
   ) {
@@ -286,6 +300,9 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     s_L2Button = L2Button;
     s_L3Button = L3Button;
     s_L4Button = L4Button;
+
+    s_algaeL2Button = L2AlgaeButton;
+    s_algaeL3Button = L3AlgaeButton;
 
     s_scoreButton = scoreButton;
     s_cancelButton = cancelButton;
