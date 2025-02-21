@@ -5,6 +5,7 @@ import java.util.function.DoubleSupplier;
 
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
+import org.littletonrobotics.conduit.schema.SystemData;
 import org.littletonrobotics.junction.Logger;
 
 import frc.robot.subsystems.drivetrain.DriveSubsystem;
@@ -198,10 +199,43 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       }
     },
     ALGAE_DESCORE_L2 {
-      
+      @Override
+      public void initialize() {
+        LIFT_SUBSYSTEM.setState(TargetLiftStates.A1);
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
+        if (s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
+
+        if (s_algaeL2Button.getAsBoolean()) return ALGAE_DESCORE_L2;
+        if (s_algaeL3Button.getAsBoolean()) return ALGAE_DESCORE_L3;
+
+        if (s_cancelButton.getAsBoolean()) return STOW;
+
+
+        return this;
+      }
     },
     ALGAE_DESCORE_L3 {
+      @Override
+      public void initialize() {
+        LIFT_SUBSYSTEM.setState(TargetLiftStates.A2);
+      }
 
+      @Override
+      public SystemState nextState() {
+        if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
+        if (s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
+
+        if (s_algaeL2Button.getAsBoolean()) return ALGAE_DESCORE_L2;
+        if (s_algaeL3Button.getAsBoolean()) return ALGAE_DESCORE_L3;
+
+        if (s_cancelButton.getAsBoolean()) return STOW;
+
+        return this;
+      }
     },
     SCORE {
       @Override
