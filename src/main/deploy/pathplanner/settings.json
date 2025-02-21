@@ -6,7 +6,10 @@
     "bottom paths",
     "top paths"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "bottom autos",
+    "top autos"
+  ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 540.0,

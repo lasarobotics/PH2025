@@ -30,36 +30,41 @@ public class AutoHoncho implements Subsystem {
 	}
 
 	/**
-	 * Tells the robot to move the entire robot to the intake state during autonomous
-	 * @return Command which tells the robot to move the entire robot to the intake state during autonomous
+	 * Tells the robot to move the lift to the intake state during autonomous
+	 * @return Command which tells the robot to move the lift to the intake state during autonomous
 	 */
-	private Command autononomousIntakeCommand() {
-		return Commands.sequence(
-			Commands.startEnd(() -> 
-			{
-				LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
-			}, () -> {},
-			LIFT_SUBSYSTEM
-			)
-			.until(() -> {
-				return LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW);
-			}),
-			Commands.startEnd(() -> 
-			{
-				INTAKE_SUBSYSTEM.startIntake();
-				END_EFFECTOR_SUBSYSTEM.requestIntake();
-			}, () -> {},
-			INTAKE_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM
-			)
-			.until(() -> {
-				return END_EFFECTOR_SUBSYSTEM.isCoralCentered();
-			})
-		);
+	private Command autononomousMoveLiftToStowCommand() {
+		return Commands.startEnd(() -> 
+		{
+			LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+		}, () -> {},
+		LIFT_SUBSYSTEM
+		)
+		.until(() -> {
+			return LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW);
+		});
 	}
 
 	/**
-	 * Tells the robot to move the entire robot to the L4 state during autonomous
-	 * @return Command which tells the robot to move the entire robot to the L4 state during autonomous
+	 * Sets the intake and end effector subsystems to intake state in autonomous
+	 * @return Command which sets the intake and end-effector to the intake state in autonomous
+	 */
+	private Command autonomousWaitForIntakeCommand() {
+		return Commands.startEnd(() -> 
+		{}, () -> {
+			LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
+		},
+		INTAKE_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM
+		)
+		.until(() -> {
+			return END_EFFECTOR_SUBSYSTEM.isCoralCentered();
+		});
+	}
+
+
+	/**
+	 * Tells the robot to move the lift to the L4 state during autonomous
+	 * @return Command which tells the robot to move the lift to the L4 state during autonomous
 	 */
 	private Command autononomousL4Command() {
 		return Commands.startEnd(() -> 
@@ -78,15 +83,18 @@ public class AutoHoncho implements Subsystem {
 	 * @return Command that tells the robot to score coral during autononomous
 	 */
 	private Command autonomousScoreCommand() { {
-			return Commands.startEnd(() ->
-			{
-				END_EFFECTOR_SUBSYSTEM.setState(EndEffectorStates.SCORE_L4);
-			}, () -> {},
-			END_EFFECTOR_SUBSYSTEM)
-			.until(() -> {
-				return END_EFFECTOR_SUBSYSTEM.isEmpty();
-			});
-		}
+		return Commands.startEnd(() ->
+		{
+			END_EFFECTOR_SUBSYSTEM.setState(EndEffectorStates.SCORE_L4);
+		}, () -> {
+			LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+			INTAKE_SUBSYSTEM.startIntake();
+			END_EFFECTOR_SUBSYSTEM.requestIntake();
+		},
+		END_EFFECTOR_SUBSYSTEM)
+		.until(() -> {
+			return END_EFFECTOR_SUBSYSTEM.isEmpty();
+		});
 	}
-
+ }
 }

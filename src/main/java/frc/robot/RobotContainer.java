@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -23,6 +25,8 @@ public class RobotContainer {
   private final IntakeSubsystem INTAKE_SUBSYSTEM = IntakeSubsystem.getInstance(IntakeSubsystem.initializeHardware());
   private final EndEffectorSubsystem END_EFFECTOR_SUBSYSTEM = EndEffectorSubsystem.getInstance(EndEffectorSubsystem.initializeHardware());
   private final HeadHoncho HEAD_HONCHO = new HeadHoncho(DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM);
+  private final AutoHoncho AUTO_HONCHO = new AutoHoncho(DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM);
+  private static SendableChooser<Command> m_autoModeChooser = new SendableChooser<>();
 
   public RobotContainer() {
     configureBindings();
@@ -91,6 +95,10 @@ public class RobotContainer {
       })
     );
   }
+
+  //Register named commands for pathplanner
+  
+  
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
