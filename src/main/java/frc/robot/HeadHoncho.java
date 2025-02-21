@@ -48,8 +48,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_L3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L3;
         if (s_L4Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L4;
 
-        if(s_algaeL2Button.getAsBoolean()) return ALGAE_DESCORE_L2;
-        if(s_algaeL3Button.getAsBoolean()) return ALGAE_DESCORE_L3;
+        if(s_algaeL2Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L2;
+        if(s_algaeL3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L3;
 
         return this;
       }
@@ -202,14 +202,15 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.A1);
+        END_EFFECTOR_SUBSYSTEM.requestScoreReverse();
       }
 
       @Override
       public SystemState nextState() {
-        if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
-        if (s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
+        // if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
+        // if (s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
 
-        if (s_algaeL2Button.getAsBoolean()) return ALGAE_DESCORE_L2;
+        // if (s_algaeL2Button.getAsBoolean()) return ALGAE_DESCORE_L2;
         if (s_algaeL3Button.getAsBoolean()) return ALGAE_DESCORE_L3;
 
         if (s_cancelButton.getAsBoolean()) return STOW;
@@ -222,15 +223,16 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.A2);
+        END_EFFECTOR_SUBSYSTEM.requestScoreReverse();
       }
 
       @Override
       public SystemState nextState() {
-        if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
-        if (s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
+        // if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
+        // if (s_scoreButton.getAsBoolean()) return SCORE_REVERSE;
 
         if (s_algaeL2Button.getAsBoolean()) return ALGAE_DESCORE_L2;
-        if (s_algaeL3Button.getAsBoolean()) return ALGAE_DESCORE_L3;
+        // if (s_algaeL3Button.getAsBoolean()) return ALGAE_DESCORE_L3;
 
         if (s_cancelButton.getAsBoolean()) return STOW;
 
