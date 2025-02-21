@@ -173,7 +173,6 @@ public final class Constants {
     public static final String LIFT_L4_COMMAND_NAME = "lift to L4";
     public static final String SCORE_COMMAND_NAME = "score coral";
   }
-
   public static class AutoNames {
     
   }
