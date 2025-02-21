@@ -105,10 +105,8 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
       public SystemState nextState() {
         if (s_endEffectorInstance.isEmpty()) {
           return s_endEffectorInstance.nextState;
-        } else {
-          if (s_endEffectorInstance.nextState.equals(SCORE) || s_endEffectorInstance.nextState.equals(SCORE_L4) || s_endEffectorInstance.nextState.equals(REGURGITATE)) {
+        } else if (s_endEffectorInstance.nextState.equals(SCORE) || s_endEffectorInstance.nextState.equals(SCORE_L4) || s_endEffectorInstance.nextState.equals(REGURGITATE)) {
             return s_endEffectorInstance.nextState;
-          }
         }
         return this;
       }
