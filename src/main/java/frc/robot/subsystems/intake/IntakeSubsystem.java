@@ -216,9 +216,8 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/state", getState().toString());
     Logger.recordOutput(getName() + "/firstBeamBreak", firstIntakeBeamBreak());
     Logger.recordOutput(getName() + "/secondBeamBreak", secondIntakeBeamBreak());
-
   }
-
+  
   /**
    * Closes all the motors, makes intake instance null
    */

@@ -167,4 +167,18 @@ public final class Constants {
     public static final Resolution CAMERA_C_RESOLUTION = Resolution.RES_1280_720;
     public static final Rotation2d CAMERA_C_FOV = Rotation2d.fromDegrees(79.7);
   }
+  public static class SmartDashboard {
+    public static final String SMARTDASHBOARD_DEFAULT_TAB = "SmartDashboard";
+    public static final String SMARTDASHBOARD_AUTO_MODE = "Auto mode";
+  }
+  public static class NamedCommands {
+    public static final String LIFT_STOW_COMMAND_NAME = "lift to stow";
+    public static final String INTAKE_COMMAND_NAME = "intake";
+    public static final String LIFT_L4_COMMAND_NAME = "lift to L4";
+    public static final String SCORE_COMMAND_NAME = "score coral";
+  }
+
+  public static class AutoNames {
+    
+  }
 }
