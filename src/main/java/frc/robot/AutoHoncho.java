@@ -83,7 +83,10 @@ public class AutoHoncho implements Subsystem {
 	 * @return Command that tells the robot to score coral during autononomous
 	 */
 	private Command autonomousScoreCommand() { {
-		return Commands.startEnd(() ->
+		return 
+		Commands.sequence(
+			autononomousL4Command(),
+		Commands.startEnd(() ->
 		{
 			END_EFFECTOR_SUBSYSTEM.setState(EndEffectorStates.SCORE_L4);
 		}, () -> {
@@ -94,7 +97,7 @@ public class AutoHoncho implements Subsystem {
 		END_EFFECTOR_SUBSYSTEM)
 		.until(() -> {
 			return END_EFFECTOR_SUBSYSTEM.isEmpty();
-		});
+		}));
 	}
  }
 }

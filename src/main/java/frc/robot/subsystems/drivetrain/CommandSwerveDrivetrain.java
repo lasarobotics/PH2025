@@ -10,6 +10,10 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -39,6 +43,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
+	/** Swerve request to apply during robot-centric path following */
+	private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -125,6 +132,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+		configureAutoBuilder();
     }
 
     /**
@@ -149,7 +157,36 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+		configureAutoBuilder();
     }
+    
+    private void configureAutoBuilder() {
+        try {
+            var config = RobotConfig.fromGUISettings();
+			AutoBuilder.configure(
+				() -> getState().Pose,
+				this::resetPose,
+				() -> getState().Speeds,
+				//Consumer of ChassisSpeeds and feedforwards to drive the robot
+				(speeds, feedforwards) -> setControl(
+					m_pathApplyRobotSpeeds.withSpeeds(speeds)
+					.withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+					.withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+				),
+			new PPHolonomicDriveController(
+				//translation
+				new PIDConstants(0, 0, 0), 
+				//rotation
+				new PIDConstants(0 ,0 ,0)
+			),
+			config,
+			() -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+			this
+			);
+		} catch (Exception ex) {
+			DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
+		}
+	  }
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -181,6 +218,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+		configureAutoBuilder();
     }
 
 
