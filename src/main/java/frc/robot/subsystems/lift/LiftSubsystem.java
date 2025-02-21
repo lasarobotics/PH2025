@@ -50,7 +50,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L1,
     L2,
     L3,
-    L4
+    L4,
+    A1,
+    A2
   }
 
   private static TargetLiftStates nextState;
@@ -71,6 +73,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Angle SCORING_L2_ANGLE = Rotations.of(-0.27002);
   static final Angle SCORING_L3_ANGLE = Rotations.of(0.328125);
   static final Angle SCORING_L4_ANGLE = Rotations.of(0.326172-0.027777777777).plus(Degrees.of(10));
+  static final Angle SCORING_A1_ANGLE = Rotations.of(0);
+  static final Angle SCORING_A2_ANGLE = Rotations.of(0);
 
   static final Angle SAFE_REEF_ANGLE_BOTTOM = Rotations.of(-0.256836);
   static final Angle SAFE_REEF_ANGLE_TOP = Rotations.of(0.287598-0.0278);
@@ -85,6 +89,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Distance CLEAR_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(3.824));
   static final Distance L3_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
   static final Distance L4_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(4.49));
+
+  static final Distance A1_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
+  static final Distance A2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
 
   static final Distance BEAM_BREAK_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
 
@@ -187,6 +194,122 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         }
         if (nextState == TargetLiftStates.L4) {
           return STOW_L4_S0;
+        }
+        if (nextState == TargetLiftStates.A1) {
+          return STOW_A1_S1;
+        }
+        if (nextState == TargetLiftStates.A2) {
+          return STOW_A2_S1;
+        }
+        return this;
+      }
+    },
+    STOW_A1_S1 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
+          return A1;
+        }
+        return this;
+      }
+    },
+    A1 {
+      @Override
+      public void initialize() {
+        s_liftinstance.setElevatorHeight(A1_HEIGHT);
+        s_liftinstance.setArmAngle(SCORING_A1_ANGLE);
+      }
+
+      @Override
+      public void execute() {
+        if (s_liftinstance.armAt(SCORING_A1_ANGLE) && s_liftinstance.elevatorAt(A1_HEIGHT)) {
+          isLiftReady = true;
+        } else {
+          isLiftReady = false;
+        }
+      }
+
+      @Override
+      public SystemState nextState() {
+        curState = TargetLiftStates.A1;
+        if (nextState == TargetLiftStates.STOW) {
+          return A1_STOW_S1;
+        }
+        return this;
+      }
+    },
+    A1_STOW_S1 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
+          return STOW;
+        }
+        return this;
+      }
+    },
+    STOW_A2_S1 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
+          return STOW;
+        }
+        return this;
+      }
+    },
+    A2 {
+      @Override
+      public void initialize() {
+        s_liftinstance.setElevatorHeight(A2_HEIGHT);
+        s_liftinstance.setArmAngle(SCORING_A2_ANGLE);
+      }
+
+      @Override
+      public void execute() {
+        if (s_liftinstance.armAt(SCORING_A2_ANGLE) && s_liftinstance.elevatorAt(A2_HEIGHT)) {
+          isLiftReady = true;
+        } else {
+          isLiftReady = false;
+        }
+      }
+
+      @Override
+      public SystemState nextState() {
+        curState = TargetLiftStates.A2;
+        if (nextState == TargetLiftStates.STOW) {
+          return A2_STOW_S1;
+        }
+        return this;
+      }
+    },
+    A2_STOW_S1 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
+          return STOW;
         }
         return this;
       }
