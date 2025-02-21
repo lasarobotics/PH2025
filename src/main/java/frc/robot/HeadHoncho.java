@@ -202,7 +202,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.A1);
-        END_EFFECTOR_SUBSYSTEM.requestScoreReverse();
+        END_EFFECTOR_SUBSYSTEM.requestScore();
       }
 
       @Override
@@ -223,7 +223,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.A2);
-        END_EFFECTOR_SUBSYSTEM.requestScoreReverse();
+        END_EFFECTOR_SUBSYSTEM.requestScore();
       }
 
       @Override

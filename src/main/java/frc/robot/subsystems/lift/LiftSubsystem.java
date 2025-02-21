@@ -73,8 +73,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Angle SCORING_L2_ANGLE = Rotations.of(-0.27002);
   static final Angle SCORING_L3_ANGLE = Rotations.of(0.328125);
   static final Angle SCORING_L4_ANGLE = Rotations.of(0.326172-0.027777777777).plus(Degrees.of(10));
-  static final Angle SCORING_A1_ANGLE = Rotations.of(0);
-  static final Angle SCORING_A2_ANGLE = Rotations.of(0);
+  static final Angle SCORING_A1_ANGLE = Rotations.of(-0.375);
+  static final Angle SCORING_A2_ANGLE = Rotations.of(-0.375);
 
   static final Angle SAFE_REEF_ANGLE_BOTTOM = Rotations.of(-0.256836);
   static final Angle SAFE_REEF_ANGLE_TOP = Rotations.of(0.287598-0.0278);
@@ -90,8 +90,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Distance L3_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
   static final Distance L4_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(4.49));
 
-  static final Distance A1_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
-  static final Distance A2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
+  static final Distance A1_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0.45));
+  static final Distance A2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(2.65678));
 
   static final Distance BEAM_BREAK_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
 
@@ -1101,11 +1101,11 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 4.5;
     elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
-    elevatorConfig.Slot0.kP = 10;
+    elevatorConfig.Slot0.kP = 18;
     elevatorConfig.Slot0.kI = 0;
     elevatorConfig.Slot0.kD = 0.065999999776482582;
     elevatorConfig.Slot0.kA = 0;
-    elevatorConfig.Slot0.kV = 0.5008880257606506;
+    elevatorConfig.Slot0.kV = 0.4508880257606506;
     elevatorConfig.Slot0.kG = 0.9;
     elevatorConfig.Slot0.kS = 0.099609375;
     elevatorConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
