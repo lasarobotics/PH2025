@@ -7,11 +7,8 @@ package frc.robot.subsystems.endeffector;
 import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Value;
 
-import java.util.function.BiConsumer;
-
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
-import org.lasarobotics.hardware.generic.LimitSwitch.SwitchPolarity;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 import org.littletonrobotics.junction.Logger;
@@ -138,7 +135,6 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   private final DigitalInput m_reverseBeamBreak;
   private final AsynchronousInterrupt m_Interrupt;
   private EndEffectorStates nextState;
-  
 
   /**
    * Returns an instance of EndEffectorSubsystem
