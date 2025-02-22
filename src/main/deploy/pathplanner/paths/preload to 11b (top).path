@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.5,
-        "y": 5.0
+        "x": 7.254769736842105,
+        "y": 4.96
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.184692599981393,
-        "y": 5.106402876434161
+        "x": 6.939462336823498,
+        "y": 5.066402876434161
       },
       "isLocked": false,
       "linkedName": "reefscape top start point"
@@ -34,7 +34,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.633,
-    "maxAcceleration": 7.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

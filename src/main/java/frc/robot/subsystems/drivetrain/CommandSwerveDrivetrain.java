@@ -5,9 +5,13 @@ import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -168,16 +172,32 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 				this::resetPose,
 				() -> getState().Speeds,
 				//Consumer of ChassisSpeeds and feedforwards to drive the robot
-				(speeds, feedforwards) -> setControl(
-					m_pathApplyRobotSpeeds.withSpeeds(speeds)
-					.withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-					.withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
-				),
+				(speeds, feedforwards) -> {
+                    Logger.recordOutput(getName() + "PathPlanner/Mod0/XNewtons", feedforwards.robotRelativeForcesXNewtons()[0]);
+                    Logger.recordOutput(getName() + "PathPlanner/Mod1/XNewtons", feedforwards.robotRelativeForcesXNewtons()[1]);
+                    Logger.recordOutput(getName() + "PathPlanner/Mod2/XNewtons", feedforwards.robotRelativeForcesXNewtons()[2]);
+                    Logger.recordOutput(getName() + "PathPlanner/Mod3/XNewtons", feedforwards.robotRelativeForcesXNewtons()[3]);
+                    Logger.recordOutput(getName() + "PathPlanner/Mod0/YNewtons", feedforwards.robotRelativeForcesYNewtons()[0]);
+                    Logger.recordOutput(getName() + "PathPlanner/Mod1/YNewtons", feedforwards.robotRelativeForcesYNewtons()[1]);
+                    Logger.recordOutput(getName() + "PathPlanner/Mod2/YNewtons", feedforwards.robotRelativeForcesYNewtons()[2]);
+                    Logger.recordOutput(getName() + "PathPlanner/Mod3/YNewtons", feedforwards.robotRelativeForcesYNewtons()[3]);
+                    Logger.recordOutput(getName() + "PathPlanner/Mod0/MagNewtons", Math.sqrt(Math.pow(feedforwards.robotRelativeForcesXNewtons()[0], 2.0) + Math.pow(feedforwards.robotRelativeForcesYNewtons()[0], 2.0)));
+                    Logger.recordOutput(getName() + "PathPlanner/Mod1/MagNewtons", Math.sqrt(Math.pow(feedforwards.robotRelativeForcesXNewtons()[1], 2.0) + Math.pow(feedforwards.robotRelativeForcesYNewtons()[1], 2.0)));
+                    Logger.recordOutput(getName() + "PathPlanner/Mod2/MagNewtons", Math.sqrt(Math.pow(feedforwards.robotRelativeForcesXNewtons()[2], 2.0) + Math.pow(feedforwards.robotRelativeForcesYNewtons()[2], 2.0)));
+                    Logger.recordOutput(getName() + "PathPlanner/Mod3/MagNewtons", Math.sqrt(Math.pow(feedforwards.robotRelativeForcesXNewtons()[3], 2.0) + Math.pow(feedforwards.robotRelativeForcesYNewtons()[3], 2.0)));
+                    setControl(
+                        m_pathApplyRobotSpeeds.withSpeeds(speeds)
+                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+                        .withDriveRequestType(DriveRequestType.Velocity)
+                        .withSteerRequestType(SteerRequestType.MotionMagicExpo)
+                    );
+				},
 			new PPHolonomicDriveController(
 				//translation
-				new PIDConstants(0, 0, 0), 
+				new PIDConstants(10, 0, 0), 
 				//rotation
-				new PIDConstants(0 ,0 ,0)
+				new PIDConstants(7 ,0 ,0)
 			),
 			config,
 			() -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,

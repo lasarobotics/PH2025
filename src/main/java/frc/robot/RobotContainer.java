@@ -8,7 +8,9 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -35,6 +37,7 @@ public class RobotContainer {
     configureBindings();
     m_autoModeChooser = AutoBuilder.buildAutoChooser("Test");
     SmartDashboard.putData("Auto Mode", m_autoModeChooser);
+
   }
 
   private void configureBindings() {
@@ -104,10 +107,27 @@ public class RobotContainer {
     );
   }
 
+  /**
+   * Add auto modes to chooser
+   */
+  private void autoModeChooser() {
+    m_autoModeChooser.setDefaultOption("Do nothing", Commands.none());
+    m_autoModeChooser.setDefaultOption(Constants.AutoNames.TEST_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.TEST_AUTO_NAME.getSecond()));
+  }
+
   //Register named commands for pathplanner
   
 
   public Command getAutonomousCommand() {
     return m_autoModeChooser.getSelected();
+  }
+
+  /**
+   * Configure default Shuffleboard tab
+   */
+  public void defaultShuffleboardTab() {
+    Shuffleboard.selectTab(Constants.SmartDashboard.SMARTDASHBOARD_DEFAULT_TAB);
+    autoModeChooser();
+    SmartDashboard.putData(Constants.SmartDashboard.SMARTDASHBOARD_AUTO_MODE, m_autoModeChooser);
   }
 }

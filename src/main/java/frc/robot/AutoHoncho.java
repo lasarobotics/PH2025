@@ -1,5 +1,9 @@
 package frc.robot;
 
+import org.littletonrobotics.junction.Logger;
+
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -12,10 +16,10 @@ import frc.robot.subsystems.lift.LiftSubsystem.TargetLiftStates;
 
 public class AutoHoncho implements Subsystem {
 	// Subsystems
-  private static DriveSubsystem DRIVE_SUBSYSTEM;
-  private static IntakeSubsystem INTAKE_SUBSYSTEM;
-  private static LiftSubsystem LIFT_SUBSYSTEM;
-  private static EndEffectorSubsystem END_EFFECTOR_SUBSYSTEM;
+  public static DriveSubsystem DRIVE_SUBSYSTEM;
+  public static IntakeSubsystem INTAKE_SUBSYSTEM;
+  public static LiftSubsystem LIFT_SUBSYSTEM;
+  public static EndEffectorSubsystem END_EFFECTOR_SUBSYSTEM;
 
 	public AutoHoncho(
 		DriveSubsystem driveSubsystem,
@@ -27,6 +31,7 @@ public class AutoHoncho implements Subsystem {
 		INTAKE_SUBSYSTEM = intakeSubsystem;
 		LIFT_SUBSYSTEM = liftSubsystem;
 		END_EFFECTOR_SUBSYSTEM = endEffectorSubsystem;
+    	NamedCommands.registerCommand(Constants.NamedCommands.LIFT_L4_COMMAND_NAME, this.autononomousL4Command());
 	}
 
 	/**
@@ -66,15 +71,16 @@ public class AutoHoncho implements Subsystem {
 	 * Tells the robot to move the lift to the L4 state during autonomous
 	 * @return Command which tells the robot to move the lift to the L4 state during autonomous
 	 */
-	private Command autononomousL4Command() {
+	public Command autononomousL4Command() {
 		return Commands.startEnd(() -> 
 		{
-			LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
+			AutoHoncho.LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
+			Logger.recordOutput("Auto/Lift/State", "Send Lift to L4");
 		}, () -> {},
-		LIFT_SUBSYSTEM
+		AutoHoncho.LIFT_SUBSYSTEM
 		)
 		.until(() -> {
-			return LIFT_SUBSYSTEM.isAtState(TargetLiftStates.L4);
+			return AutoHoncho.LIFT_SUBSYSTEM.isAtState(TargetLiftStates.L4);
 		});
 	}
 
@@ -82,7 +88,7 @@ public class AutoHoncho implements Subsystem {
 	 * Tells the robot to score the coral during autonomous
 	 * @return Command that tells the robot to score coral during autononomous
 	 */
-	private Command autonomousScoreCommand() { {
+	public Command autonomousScoreCommand() { {
 		return 
 		Commands.sequence(
 			autononomousL4Command(),

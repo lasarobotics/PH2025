@@ -22,6 +22,7 @@ import org.lasarobotics.vision.AprilTagCamera.Resolution;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -178,6 +179,6 @@ public final class Constants {
     public static final String SCORE_COMMAND_NAME = "score coral";
   }
   public static class AutoNames {
-    
+    public static final Pair<String, String> TEST_AUTO_NAME = new Pair<String, String>("test auto", "test auto");
   }
 }

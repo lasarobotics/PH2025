@@ -49,6 +49,17 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       }
 
     },
+    AUTO {
+      @Override
+      public SystemState nextState() {
+        if (s_shouldAutoAlign)
+          return AUTO_ALIGN;
+        if(!DriverStation.isAutonomous())
+          return DRIVER_CONTROL;
+        return this;
+      }
+
+    },
     DRIVER_CONTROL {
       @Override
       public void execute() {
@@ -61,7 +72,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public State nextState() {
         if (s_shouldAutoAlign)
-        return AUTO_ALIGN;
+          return AUTO_ALIGN;
+        if (DriverStation.isAutonomous())
+          return AUTO;
         return this;
       }
     },
@@ -166,8 +179,12 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public State nextState() {
-        if (!s_shouldAutoAlign)
-          return DRIVER_CONTROL;
+        if (!s_shouldAutoAlign) {
+          if (DriverStation.isAutonomous())
+            return AUTO;
+          else
+            return DRIVER_CONTROL;
+        }
         return this;
       }
 
@@ -477,6 +494,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/isNearSource", isNearSource());
     Logger.recordOutput(getName() + "/robotPose", s_drivetrain.getState().Pose);
     Logger.recordOutput("temp", new Pose2d(new Translation2d(5.994174, 4.0259), new Rotation2d(Math.toRadians(180))));
+    i = 0;
+    for (i = 0; i < 4; i++) {
+      Logger.recordOutput(getName() + "/Mod" + i + "/torqueCurrent", s_drivetrain.getModule(i).getDriveMotor().getTorqueCurrent().getValue());
+      Logger.recordOutput(getName() + "/Mod" + i + "/motorVoltage", s_drivetrain.getModule(i).getDriveMotor().getMotorVoltage().getValue());
+    }
   }
 
   @Override

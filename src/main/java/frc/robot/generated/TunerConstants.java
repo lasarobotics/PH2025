@@ -23,21 +23,21 @@ public class TunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     private static final Slot0Configs steerGains = new Slot0Configs()
-        .withKP(100).withKI(0).withKD(0.0)
+        .withKP(100.0).withKI(0).withKD(0.0)
         .withKS(0.37867).withKV(1.5082).withKA(0.039947)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs driveGains = new Slot0Configs()
-        .withKP(0.3).withKI(0).withKD(0)
-        .withKS(0.00024047).withKV(0.1229).withKA(0.031962);
+        .withKP(10.0).withKI(0).withKD(0)
+        .withKS(0.0).withKV(0.0).withKA(0.0);
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
     private static final ClosedLoopOutputType kSteerClosedLoopOutput = ClosedLoopOutputType.Voltage;
     // The closed-loop output type to use for the drive motors;
     // This affects the PID/FF gains for the drive motors
-    private static final ClosedLoopOutputType kDriveClosedLoopOutput = ClosedLoopOutputType.Voltage;
+    private static final ClosedLoopOutputType kDriveClosedLoopOutput = ClosedLoopOutputType.TorqueCurrentFOC;
 
     // The type of motor used for the drive motor
     private static final DriveMotorArrangement kDriveMotorType = DriveMotorArrangement.TalonFX_Integrated;
@@ -77,9 +77,12 @@ public class TunerConstants {
     // All swerve devices must share the same CAN bus
     public static final CANBus kCANBus = new CANBus("canivore", "./logs/example.hoot");
 
+    
+    private static final Distance kWheelRadius = Inches.of(2);
+
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
-    public static final LinearVelocity kSpeedAt12Volts = InchesPerSecond.of(219.2296688060675);
+    public static final LinearVelocity kSpeedAt12Volts = InchesPerSecond.of(RotationsPerSecond.of(15.7639718572).in(RotationsPerSecond) * 2 * Math.PI * kWheelRadius.in(Inches));
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
@@ -87,7 +90,6 @@ public class TunerConstants {
 
     private static final double kDriveGearRatio = 6.2009569377990434;
     private static final double kSteerGearRatio = 12.1;
-    private static final Distance kWheelRadius = Inches.of(2);
 
     private static final boolean kInvertLeftSide = false;
     private static final boolean kInvertRightSide = true;
