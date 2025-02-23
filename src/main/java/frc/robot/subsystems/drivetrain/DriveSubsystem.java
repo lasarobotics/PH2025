@@ -31,6 +31,7 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants;
 public class DriveSubsystem extends StateMachine implements AutoCloseable {
@@ -171,7 +172,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         double distance = s_drivetrain.getState().Pose.getTranslation().getDistance(s_autoAlignTarget.getTranslation());
         // double heading = Math.abs((s_drivetrain.getState().Pose.getRotation().getDegrees() + 360) - (s_autoAlignTargetTurn.position + 360));
         double heading = Math.abs((s_drivetrain.getState().Pose.getRotation().getRadians() - s_autoAlignTargetTurn.position)) % 360;
-        System.out.println(distance + "," + heading);
+        Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/distanceError", distance);
+        Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/headingError", heading);
         if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN || heading > (Math.PI * 2 - Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN))) {
           s_isAligned = true;
         }
@@ -184,6 +186,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             return AUTO;
           else
             return DRIVER_CONTROL;
+        }
+        if (s_isAligned && DriverStation.isTeleop()) {
+          return DRIVER_CONTROL;
         }
         return this;
       }
@@ -309,8 +314,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_autoDrive.HeadingController.setPID(5, 0, 0);
     s_autoDrive.HeadingController.enableContinuousInput(0, Math.PI * 2);
 
-    s_autoDrive.XController.setPID(3, 0, 0);
-    s_autoDrive.YController.setPID(3, 0, 0);
+    s_autoDrive.XController.setPID(1, 0, 0);
+    s_autoDrive.YController.setPID(1, 0, 0);
 
     s_drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -493,7 +498,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/autoAlign/autotarget", findAutoAlignTarget());
     Logger.recordOutput(getName() + "/isNearSource", isNearSource());
     Logger.recordOutput(getName() + "/robotPose", s_drivetrain.getState().Pose);
-    Logger.recordOutput("temp", new Pose2d(new Translation2d(5.994174, 4.0259), new Rotation2d(Math.toRadians(180))));
+    Logger.recordOutput("temp", new Pose2d(new Translation2d(3.175, 4.0159), new Rotation2d(Math.toRadians(0))));
+    Logger.recordOutput(getName() + "/autoAlign/isAligned", s_isAligned);
     i = 0;
     for (i = 0; i < 4; i++) {
       Logger.recordOutput(getName() + "/Mod" + i + "/torqueCurrent", s_drivetrain.getModule(i).getDriveMotor().getTorqueCurrent().getValue());

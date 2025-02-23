@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.5997037760416655,
-        "y": 7.226889829282408
+        "x": 1.202054794520548,
+        "y": 7.0151113013698625
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.9634316558212919,
-        "y": 6.874154269510088
+        "x": 1.8335793152608728,
+        "y": 6.554429060352256
       },
       "isLocked": false,
       "linkedName": "top intake point"
     },
     {
       "anchor": {
-        "x": 3.88,
-        "y": 5.17
+        "x": 3.7864726027397264,
+        "y": 5.136900684931507
       },
       "prevControl": {
-        "x": 3.652787266756181,
-        "y": 5.412803606602234
+        "x": 3.171357555553192,
+        "y": 5.6038780516034565
       },
       "nextControl": null,
       "isLocked": false,
@@ -34,7 +34,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.633,
-    "maxAcceleration": 2.0,
+    "maxAcceleration": 1.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -59.2324886353447
+    "rotation": -59.232
   },
   "reversed": false,
   "folder": "top paths",

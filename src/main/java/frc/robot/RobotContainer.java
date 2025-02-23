@@ -23,14 +23,14 @@ import frc.robot.subsystems.lift.LiftSubsystem;
 
 public class RobotContainer {
   private final CommandXboxController PRIMARY_CONTROLLER = new CommandXboxController(0);
-  private final Telemetry LOGGER = new Telemetry(Constants.Drive.MAX_SPEED.in(MetersPerSecond));
+  private static final Telemetry LOGGER = new Telemetry(Constants.Drive.MAX_SPEED.in(MetersPerSecond));
 
-  private final DriveSubsystem DRIVE_SUBSYSTEM = new DriveSubsystem(DriveSubsystem.initializeHardware(), LOGGER);
+  public static final DriveSubsystem DRIVE_SUBSYSTEM = new DriveSubsystem(DriveSubsystem.initializeHardware(), LOGGER);
   private final LiftSubsystem LIFT_SUBSYSTEM = LiftSubsystem.getInstance(LiftSubsystem.initializeHardware());
   private final IntakeSubsystem INTAKE_SUBSYSTEM = IntakeSubsystem.getInstance(IntakeSubsystem.initializeHardware());
   private final EndEffectorSubsystem END_EFFECTOR_SUBSYSTEM = EndEffectorSubsystem.getInstance(EndEffectorSubsystem.initializeHardware());
   private final HeadHoncho HEAD_HONCHO = new HeadHoncho(DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM);
-  private final AutoHoncho AUTO_HONCHO = new AutoHoncho(DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM);
+  // private final AutoHoncho AUTO_HONCHO = new AutoHoncho(DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM);
   private static SendableChooser<Command> m_autoModeChooser = new SendableChooser<>();
 
   public RobotContainer() {
@@ -50,38 +50,19 @@ public class RobotContainer {
      PRIMARY_CONTROLLER.a(), // L1
      PRIMARY_CONTROLLER.b(), // L2
      PRIMARY_CONTROLLER.y(), // L3
-     PRIMARY_CONTROLLER.rightTrigger(), // L4
+     PRIMARY_CONTROLLER.rightBumper(), // L4
      PRIMARY_CONTROLLER.povDown(), //L2 Algae Descore
      PRIMARY_CONTROLLER.povUp(), //L3 Algae Descore
-     PRIMARY_CONTROLLER.rightBumper(), // score
+     PRIMARY_CONTROLLER.rightTrigger(), // score
      PRIMARY_CONTROLLER.x() // cancel
-    );
+    );      
 
-    // PRIMARY_CONTROLLER.x().whileTrue(DRIVE_SUBSYSTEM.m_sysIdRoutineToApply.dynamic(SysIdRoutine.Direction.kForward));
-
-    // PRIMARY_CONTROLLER.y().onTrue(Commands.runOnce(() -> {
-    //   LIFT_SUBSYSTEM.setState(TargetLiftStates.L1);
-    // }));
-
-    // PRIMARY_CONTROLLER.b().onTrue(Commands.runOnce(() -> {
-    //   LIFT_SUBSYSTEM.setState(TargetLiftStates.L2);
-    // }));
-
-    // PRIMARY_CONTROLLER.a().onTrue(Commands.runOnce(() -> {
-    //   LIFT_SUBSYSTEM.setState(TargetLiftStates.L3);
-    // }));
-
-    // PRIMARY_CONTROLLER.rightTrigger().onTrue(Commands.runOnce(() -> {
-    //   LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
-    // }));
-      
-
-    // PRIMARY_CONTROLLER.povLeft().onTrue(Commands.runOnce(() -> {
-    //   DRIVE_SUBSYSTEM.requestAutoAlign();
-    // }));
-    // PRIMARY_CONTROLLER.povRight().onTrue(Commands.runOnce(() -> {
-    //   DRIVE_SUBSYSTEM.cancelAutoAlign();
-    // }));
+    PRIMARY_CONTROLLER.povLeft().onTrue(Commands.runOnce(() -> {
+      DRIVE_SUBSYSTEM.requestAutoAlign();
+    }));
+    PRIMARY_CONTROLLER.povRight().onTrue(Commands.runOnce(() -> {
+      DRIVE_SUBSYSTEM.cancelAutoAlign();
+    }));
 
     // PRIMARY_CONTROLLER.a().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().dynamic(SysIdRoutine.Direction.kForward));
     // PRIMARY_CONTROLLER.b().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().dynamic(SysIdRoutine.Direction.kReverse));
@@ -100,7 +81,7 @@ public class RobotContainer {
     //   INTAKE_SUBSYSTEM.stop();
     // }));
 
-    PRIMARY_CONTROLLER.povLeft().onTrue(
+    PRIMARY_CONTROLLER.back().onTrue(
       Commands.runOnce(() -> {
         DRIVE_SUBSYSTEM.resetPose();
       })
@@ -113,6 +94,8 @@ public class RobotContainer {
   private void autoModeChooser() {
     m_autoModeChooser.setDefaultOption("Do nothing", Commands.none());
     m_autoModeChooser.setDefaultOption(Constants.AutoNames.TEST_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.TEST_AUTO_NAME.getSecond()));
+    m_autoModeChooser.setDefaultOption(Constants.AutoNames.PRELOAD_1A_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.PRELOAD_1A_AUTO_NAME.getSecond()));
+
   }
 
   //Register named commands for pathplanner

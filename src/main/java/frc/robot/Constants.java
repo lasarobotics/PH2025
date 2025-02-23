@@ -74,7 +74,7 @@ public final class Constants {
     );
 
     public static final double AUTO_ALIGN_TOLERANCE = 0.05;
-    public static final double AUTO_ALIGN_TOLERANCE_TURN = 0.05;
+    public static final double AUTO_ALIGN_TOLERANCE_TURN = 0.075;
 
     public static final double TURN_P = 0.01;
     public static final double TURN_I = 0;
@@ -174,11 +174,13 @@ public final class Constants {
   }
   public static class NamedCommands {
     public static final String LIFT_STOW_COMMAND_NAME = "lift to stow";
-    public static final String INTAKE_COMMAND_NAME = "intake";
     public static final String LIFT_L4_COMMAND_NAME = "lift to L4";
-    public static final String SCORE_COMMAND_NAME = "score coral";
+    public static final String AUTO_ALIGN_COMMAND_NAME = "auto align";
+    public static final String AUTO_SCORE_COMMAND_NAME = "score coral";
+    public static final String WAIT_FOR_INTAKE_COMMAND_NAME = "wait for intake";
   }
   public static class AutoNames {
     public static final Pair<String, String> TEST_AUTO_NAME = new Pair<String, String>("test auto", "test auto");
+    public static final Pair<String, String> PRELOAD_1A_AUTO_NAME = new Pair<String, String>("preload to 1a", "preload to 1a");
   }
 }

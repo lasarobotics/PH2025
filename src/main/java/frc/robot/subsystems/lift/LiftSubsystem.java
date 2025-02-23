@@ -1126,7 +1126,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     pivotConfig.Feedback.FeedbackRemoteSensorID = m_armCANcoder.getID().deviceID;
     pivotConfig.Audio.AllowMusicDurDisable = true;
     pivotConfig.MotionMagic.MotionMagicCruiseVelocity = 1.5;
-    pivotConfig.MotionMagic.MotionMagicAcceleration = 5;
+    pivotConfig.MotionMagic.MotionMagicAcceleration = 3;
     pivotConfig.MotionMagic.MotionMagicJerk = 20;
     pivotConfig.MotionMagic.MotionMagicExpo_kV = 0.12;
     pivotConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
@@ -1370,6 +1370,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/currentArmAngle", getArmAngle().in(Rotations));
     Logger.recordOutput(getName() + "/currentElevatorHeight", getElevatorHeight());
     Logger.recordOutput(getName() + "/currentElevatorAngle", m_elevatorMotor.getPosition().getValue().in(Rotations));
+    Logger.recordOutput(getName() + "/isLiftReady", this.isLiftReady());
   }
 
   /**

@@ -60,7 +60,10 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    PurpleManager.update();
+    CommandScheduler.getInstance().run();
+  }
 
   @Override
   public void autonomousExit() {}

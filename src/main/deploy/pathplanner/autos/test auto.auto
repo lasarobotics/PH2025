@@ -22,6 +22,55 @@
               }
             ]
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "score coral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "11b to intake (top)"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "wait for intake"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "intake to 9a (top)"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "lift to L4"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "score coral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "9a to intake (top)"
+          }
         }
       ]
     }

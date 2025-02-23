@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.3179823869784575,
-        "y": 6.708244022317532
+        "x": 1.5657826743001744,
+        "y": 6.662375741597542
       },
       "isLocked": false,
       "linkedName": "top intake point"
     },
     {
       "anchor": {
-        "x": 3.19,
-        "y": 4.07
+        "x": 3.1553938356164384,
+        "y": 5.302183219178082
       },
       "prevControl": {
-        "x": 3.0752572170609738,
-        "y": 4.328235955588943
+        "x": 2.9281811023726196,
+        "y": 5.544986825780316
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "7a"
+      "linkedName": "9A (AA)"
     }
   ],
   "rotationTargets": [],
@@ -41,8 +41,8 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 0.0
+    "velocity": 0.5,
+    "rotation": -59.232
   },
   "reversed": false,
   "folder": "top paths",

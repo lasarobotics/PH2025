@@ -27,13 +27,12 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
   static final Dimensionless INTAKE_MOTOR_SPEED = Percent.of(100);
   static final Dimensionless REGURGITATE_MOTOR_SPEED = Percent.of(-50);
-  static final Dimensionless SCORE_MOTOR_SPEED = Percent.of(60);
+  static final Dimensionless SCORE_MOTOR_SPEED = Percent.of(80);
   static final Dimensionless CENTER_CORAL_MOTOR_SPEED = Percent.of(-10);
   static final Dimensionless DESCORE_ALGAE_MOTOR_SPEED = Percent.of(10);
 
   public enum EndEffectorStates implements SystemState {
     NOTHING {
-
       @Override
       public SystemState nextState() {
         return this;
@@ -87,7 +86,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
       @Override
       public SystemState nextState() {
-        if(s_endEffectorInstance.forwardBeamBreakBroken()) {
+        if(s_endEffectorInstance.reverseBeamBreakBroken()) {
           s_endEffectorInstance.nextState = HOLD;
           return HOLD;
         }
@@ -103,12 +102,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
       @Override
       public SystemState nextState() {
-        if (s_endEffectorInstance.isEmpty()) {
-          return s_endEffectorInstance.nextState;
-        } else if (s_endEffectorInstance.nextState.equals(SCORE) || s_endEffectorInstance.nextState.equals(SCORE_L4) || s_endEffectorInstance.nextState.equals(REGURGITATE)) {
-            return s_endEffectorInstance.nextState;
-        }
-        return this;
+        return s_endEffectorInstance.nextState;
       }
 
     },
@@ -121,8 +115,8 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
       @Override
       public SystemState nextState() {
         if(s_endEffectorInstance.isEmpty()) {
-          s_endEffectorInstance.nextState = IDLE;
-          return IDLE;
+          s_endEffectorInstance.nextState = HOLD;
+          return HOLD;
         }
         return s_endEffectorInstance.nextState;
       }
@@ -152,8 +146,8 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
   /** Creates a new endEffectorSubsystem. */
   private EndEffectorSubsystem(Hardware endEffectorHardware) {
-    super(EndEffectorStates.IDLE);
-    this.nextState = EndEffectorStates.IDLE;
+    super(EndEffectorStates.HOLD);
+    this.nextState = EndEffectorStates.HOLD;
     this.m_endEffectorMotor = endEffectorHardware.endEffectorMotor;
     this.m_forwardBeamBreak = endEffectorHardware.forwardBeamBreak;
     this.m_reverseBeamBreak = endEffectorHardware.reverseBeamBreak;
@@ -284,7 +278,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * Go to idle state, or stay in HOLD if there's a coral in the end effector.
    */
   public void requestStop() {
-    setState(EndEffectorStates.IDLE);
+    setState(EndEffectorStates.HOLD);
   }
 
   public void requestIntake() {

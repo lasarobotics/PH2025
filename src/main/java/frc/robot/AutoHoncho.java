@@ -38,7 +38,7 @@ public class AutoHoncho implements Subsystem {
 	 * Tells the robot to move the lift to the intake state during autonomous
 	 * @return Command which tells the robot to move the lift to the intake state during autonomous
 	 */
-	private Command autononomousMoveLiftToStowCommand() {
+	public Command autononomousMoveLiftToStowCommand() {
 		return Commands.startEnd(() -> 
 		{
 			LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
@@ -54,7 +54,7 @@ public class AutoHoncho implements Subsystem {
 	 * Sets the intake and end effector subsystems to intake state in autonomous
 	 * @return Command which sets the intake and end-effector to the intake state in autonomous
 	 */
-	private Command autonomousWaitForIntakeCommand() {
+	public Command autonomousWaitForIntakeCommand() {
 		return Commands.startEnd(() -> 
 		{}, () -> {
 			LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
@@ -77,7 +77,7 @@ public class AutoHoncho implements Subsystem {
 			AutoHoncho.LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
 			Logger.recordOutput("Auto/Lift/State", "Send Lift to L4");
 		}, () -> {},
-		AutoHoncho.LIFT_SUBSYSTEM
+		this
 		)
 		.until(() -> {
 			return AutoHoncho.LIFT_SUBSYSTEM.isAtState(TargetLiftStates.L4);
