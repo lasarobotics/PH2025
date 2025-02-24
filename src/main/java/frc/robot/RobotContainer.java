@@ -7,7 +7,6 @@ package frc.robot;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -44,8 +43,8 @@ public class RobotContainer {
     HEAD_HONCHO.bindControls(
     () -> PRIMARY_CONTROLLER.getLeftX(), // drive x
      () -> PRIMARY_CONTROLLER.getLeftY(), // drive y
-     () -> PRIMARY_CONTROLLER.getRightX(), // drive rotate 
-     PRIMARY_CONTROLLER.leftTrigger(), // intake 
+     () -> PRIMARY_CONTROLLER.getRightX(), // drive rotate
+     PRIMARY_CONTROLLER.leftTrigger(), // intake
      PRIMARY_CONTROLLER.leftBumper(), // regurgitate
      PRIMARY_CONTROLLER.a(), // L1
      PRIMARY_CONTROLLER.b(), // L2
@@ -55,7 +54,7 @@ public class RobotContainer {
      PRIMARY_CONTROLLER.povUp(), //L3 Algae Descore
      PRIMARY_CONTROLLER.rightTrigger(), // score
      PRIMARY_CONTROLLER.x() // cancel
-    );      
+    );
 
     PRIMARY_CONTROLLER.povLeft().onTrue(Commands.runOnce(() -> {
       DRIVE_SUBSYSTEM.requestAutoAlign();
@@ -99,7 +98,7 @@ public class RobotContainer {
   }
 
   //Register named commands for pathplanner
-  
+
 
   public Command getAutonomousCommand() {
     return m_autoModeChooser.getSelected();

@@ -405,13 +405,13 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 	 * @return Command that tells the robot to score the preload coral during autononomous
 	 */
 	public Command autonomousScoreCommand() { {
-		return 
+		return
 		Commands.startEnd(
       () -> {
         Logger.recordOutput("Auto/Command", Constants.NamedCommands.AUTO_SCORE_COMMAND_NAME);
         END_EFFECTOR_SUBSYSTEM.setState(EndEffectorStates.SCORE_L4);
         DRIVE_SUBSYSTEM.cancelAutoAlign();
-      }, 
+      },
       () -> {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
         INTAKE_SUBSYSTEM.startIntake();
@@ -430,7 +430,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 	 * @return Command which sets the intake and end-effector to the intake state in autonomous
 	 */
 	public Command autonomousWaitForIntakeCommand() {
-		return Commands.startEnd(() -> 
+		return Commands.startEnd(() ->
 		{}, () -> {
 			LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
 		},
