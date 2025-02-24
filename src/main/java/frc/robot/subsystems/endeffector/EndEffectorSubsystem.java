@@ -5,6 +5,7 @@
 package frc.robot.subsystems.endeffector;
 
 import static edu.wpi.first.units.Units.Percent;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Value;
 
 import org.lasarobotics.fsm.StateMachine;
@@ -17,6 +18,7 @@ import edu.wpi.first.units.measure.Dimensionless;
 import edu.wpi.first.wpilibj.AsynchronousInterrupt;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
+import frc.robot.subsystems.lift.LiftSubsystem;
 
 public class EndEffectorSubsystem extends StateMachine implements AutoCloseable {
   public static record Hardware (
@@ -127,6 +129,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   private final Spark m_endEffectorMotor;
   private final DigitalInput m_forwardBeamBreak;
   private final DigitalInput m_reverseBeamBreak;
+  private static LiftSubsystem LIFT_SUBSYSTEM;
   private final AsynchronousInterrupt m_Interrupt;
   private EndEffectorStates nextState;
 
@@ -136,21 +139,25 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * @param endEffectorHardware Hardware for the system
    * @return Subsystem Instance
    */
-  public static EndEffectorSubsystem getInstance(Hardware endEffectorHardware) {
+  public static EndEffectorSubsystem getInstance(Hardware endEffectorHardware, LiftSubsystem liftSubsystem) {
     if (s_endEffectorInstance == null) {
-      s_endEffectorInstance = new EndEffectorSubsystem(endEffectorHardware);
+      s_endEffectorInstance = new EndEffectorSubsystem(endEffectorHardware, liftSubsystem);
       return s_endEffectorInstance;
     } else
       return null;
   }
 
   /** Creates a new endEffectorSubsystem. */
-  private EndEffectorSubsystem(Hardware endEffectorHardware) {
+  private EndEffectorSubsystem(
+    Hardware endEffectorHardware,
+    LiftSubsystem liftSubsystem
+    ) {
     super(EndEffectorStates.HOLD);
     this.nextState = EndEffectorStates.HOLD;
     this.m_endEffectorMotor = endEffectorHardware.endEffectorMotor;
     this.m_forwardBeamBreak = endEffectorHardware.forwardBeamBreak;
     this.m_reverseBeamBreak = endEffectorHardware.reverseBeamBreak;
+    LIFT_SUBSYSTEM = liftSubsystem;
     this.m_Interrupt = new AsynchronousInterrupt(m_forwardBeamBreak, (rising, falling) -> {
       if(falling) {
         s_endEffectorInstance.stopMotor();
@@ -231,7 +238,9 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * Centers coral in end effector
    */
   private void centerCoral() {
-    if(forwardBeamBreakBroken() && !reverseBeamBreakBroken()) {
+    if (LIFT_SUBSYSTEM.getArmVelocity().gte(RotationsPerSecond.of(1))) {
+      s_endEffectorInstance.centerReverse();
+    } else if(forwardBeamBreakBroken() && !reverseBeamBreakBroken()) {
       s_endEffectorInstance.centerForward();
     } else if (reverseBeamBreakBroken() && !forwardBeamBreakBroken()) {
       s_endEffectorInstance.centerReverse();

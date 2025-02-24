@@ -54,7 +54,13 @@ public class TunerConstants {
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
-    private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration();
+    private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration()
+        .withOpenLoopRamps(
+            new OpenLoopRampsConfigs()
+                .withVoltageOpenLoopRampPeriod(Seconds.of(1.0))
+                .withDutyCycleOpenLoopRampPeriod(Seconds.of(1.0))
+                .withTorqueOpenLoopRampPeriod(Seconds.of(1.0))
+        );
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
         .withCurrentLimits(
             new CurrentLimitsConfigs()
