@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.Logger;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drivetrain.DriveSubsystem;
@@ -362,7 +363,6 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_ALIGN_COMMAND_NAME, this.autononomousAlignCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_SCORE_COMMAND_NAME, this.autonomousScoreCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.WAIT_FOR_INTAKE_COMMAND_NAME, this.autonomousWaitForIntakeCommand());
-
   }
 	/**
 	 * Tells the robot to move the lift to the L4 state during autonomous
@@ -398,7 +398,6 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         return DRIVE_SUBSYSTEM.isAligned() && LIFT_SUBSYSTEM.isLiftReady();
       });
   }
-
 
  /**
 	 * Tells the robot to score the preload coral during autonomous

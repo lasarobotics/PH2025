@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -38,13 +39,13 @@ public class RobotContainer {
   public RobotContainer() {
     configureBindings();
     m_autoModeChooser = AutoBuilder.buildAutoChooser("Test");
+    SmartDashboard.putBoolean("Is Ready", DRIVE_SUBSYSTEM.isAligned() && LIFT_SUBSYSTEM.isLiftReady());
     SmartDashboard.putData("Auto Mode", m_autoModeChooser);
-
   }
 
   private void configureBindings() {
     HEAD_HONCHO.bindControls(
-    () -> PRIMARY_CONTROLLER.getLeftX(), // drive x
+     () -> PRIMARY_CONTROLLER.getLeftX(), // drive x
      () -> PRIMARY_CONTROLLER.getLeftY(), // drive y
      () -> PRIMARY_CONTROLLER.getRightX(), // drive rotate
      PRIMARY_CONTROLLER.leftTrigger(), // intake
@@ -94,17 +95,23 @@ public class RobotContainer {
   }
 
   /**
+   * Rumble the controller if the drivetrain is aligned and the lift is ready
+   */
+  public void checkRumble() {
+    if (DRIVE_SUBSYSTEM.isAligned() && LIFT_SUBSYSTEM.isLiftReady())
+      PRIMARY_CONTROLLER.getHID().setRumble(RumbleType.kRightRumble, 1.0);
+    else
+      PRIMARY_CONTROLLER.getHID().setRumble(RumbleType.kRightRumble, 0.0);
+  }
+
+  /**
    * Add auto modes to chooser
    */
   private void autoModeChooser() {
     m_autoModeChooser.setDefaultOption("Do nothing", Commands.none());
     m_autoModeChooser.setDefaultOption(Constants.AutoNames.TEST_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.TEST_AUTO_NAME.getSecond()));
     m_autoModeChooser.setDefaultOption(Constants.AutoNames.PRELOAD_1A_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.PRELOAD_1A_AUTO_NAME.getSecond()));
-
   }
-
-  //Register named commands for pathplanner
-
 
   public Command getAutonomousCommand() {
     return m_autoModeChooser.getSelected();
