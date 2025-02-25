@@ -4,99 +4,28 @@
 
 package frc.robot.subsystems.climb;
 
-import org.lasarobotics.fsm.StateMachine;
-import org.lasarobotics.fsm.SystemState;
+import static edu.wpi.first.units.Units.Percent;
+import static edu.wpi.first.units.Units.Value;
+
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 
+import edu.wpi.first.units.measure.Dimensionless;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class ClimbSubsystem extends StateMachine implements AutoCloseable {
-
-  static final double CLIMB_SPEED = 0.5;
-
+public class ClimbSubsystem extends SubsystemBase implements AutoCloseable {
+  static final Dimensionless CLIMB_MOTOR_SPEED = Percent.of(50);
   public static record Hardware (
     Spark climbMotor
   ) {}
 
-  public enum ClimbStates implements SystemState {
-    IDLE {
-      @Override
-      public void initialize() {
-        s_climbInstance.stopMotor();
-      }
-
-      @Override
-      public ClimbStates nextState() {
-        if(s_climbInstance.nextState == null || s_climbInstance.nextState == IDLE) {
-          return this;
-        } else {
-          return s_climbInstance.nextState;
-        }
-      }
-    },
-    CLIMB {
-      @Override
-      public void initialize() {
-        s_climbInstance.climb();
-
-      }
-
-      @Override
-      public ClimbStates nextState() {
-        if(s_climbInstance.nextState != CLIMB) {
-          return IDLE;
-        }
-        return this;
-      }
-    },
-    RELEASE {
-      @Override
-      public void initialize() {
-        s_climbInstance.release();
-
-      }
-
-      @Override
-      public ClimbStates nextState() {
-        if(s_climbInstance.nextState != CLIMB) {
-          return IDLE;
-        }
-        return this;
-      }
-    }
-  }
-
-  private static ClimbSubsystem s_climbInstance;
   private final Spark m_climbMotor;
-  private ClimbStates nextState;
 
   /** Creates a new ClimbSubsystem. */
-  private ClimbSubsystem(Hardware ClimbHardware) {
-    super(ClimbStates.IDLE);
-
+  public ClimbSubsystem(Hardware ClimbHardware) {
     this.m_climbMotor = ClimbHardware.climbMotor;
-  }
-
-  /**
-   * Stops motor
-   */
-  private void stopMotor() {
-    m_climbMotor.stopMotor();
-  }
-
-  /**
-   * Sets the motor output for climbing
-   */
-  private void climb() {
-    m_climbMotor.set(CLIMB_SPEED);
-  }
-
-  /**
-   * Sets the motor output for releasing
-   */
-  private void release() {
-    m_climbMotor.set(-CLIMB_SPEED);
   }
 
   /**
@@ -107,41 +36,44 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
     Hardware climbHardware = new Hardware(
       new Spark(Constants.ClimbHardware.CLIMB_MOTOR_ID, MotorKind.NEO)
     );
-
     return climbHardware;
   }
 
   /**
-   * Gets new instance of Climb Subsystem
-   * @param ClimbHardware contains hardware for climb subsystem
-   * @return ClimbSubsystem object
+   * Stops motor
    */
-  public static ClimbSubsystem getInstance(Hardware ClimbHardware) {
-    if(s_climbInstance == null){
-      s_climbInstance = new ClimbSubsystem(ClimbHardware);
-      return s_climbInstance;
-    } else return null;
+  private void stop() {
+    m_climbMotor.stopMotor();
   }
 
   /**
-   * Sets next state instance variable to CLIMB state
+   * Sets the motor output for climbing
    */
-  public void climbState() {
-    this.nextState = ClimbStates.CLIMB;
+  private void raiseClimber() {
+    m_climbMotor.set(CLIMB_MOTOR_SPEED.in(Value));
   }
 
   /**
-   * Sets next state instance variable to RELEASE state
+   * Sets the motor output for releasing
    */
-  public void releaseState() {
-    this.nextState = ClimbStates.RELEASE;
+  private void lowerClimber() {
+    m_climbMotor.set(-CLIMB_MOTOR_SPEED.in(Value));
   }
 
   /**
-   * Sets next state instance variable to IDLE state
+   * Runs climber
+   * @return Command to run the climber motors
    */
-  public void idleState() {
-    this.nextState = ClimbStates.IDLE;
+  public Command raiseClimberCommand() {
+    return runEnd(() -> raiseClimber(), () -> stop());
+  }
+
+  /**
+   * Runs climber backward
+   * @return Command to run the climber motors
+   */
+  public Command lowerClimberCommand() {
+    return runEnd(() -> lowerClimber(), () -> stop());
   }
 
   @Override
@@ -152,6 +84,5 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   @Override
   public void close() {
     m_climbMotor.close();
-    s_climbInstance = null;
   }
 }
