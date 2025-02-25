@@ -145,20 +145,20 @@ public final class Constants {
 
   public static class VisionHardware {
     public static final String CAMERA_A_NAME = "Left";
-    public static final Transform3d CAMERA_A_LOCATION = new Transform3d(
-      new Translation3d(0.22, 0.31, 0.2),
-      new Rotation3d(Math.toRadians(0.7), Math.toRadians(-9.5), Math.toRadians(-41))
+    public static Transform3d CAMERA_A_LOCATION = new Transform3d(
+      new Translation3d(0.217-0.0508, 0.32, 0.203),
+      new Rotation3d(Math.toRadians(0.7), Math.toRadians(-13.9), Math.toRadians(-40 - 1.6))
     );
-    public static final Resolution CAMERA_A_RESOLUTION = Resolution.RES_1280_720;
-    public static final Rotation2d CAMERA_A_FOV = Rotation2d.fromDegrees(0);
+    public static final Resolution CAMERA_A_RESOLUTION = Resolution.RES_1280_800;
+    public static final Rotation2d CAMERA_A_FOV = Rotation2d.fromDegrees(70);
 
     public static final String CAMERA_B_NAME = "Right";
-    public static final Transform3d CAMERA_B_LOCATION = new Transform3d(
-      new Translation3d(0.22, -0.3, 0.2),
-      new Rotation3d(Math.toRadians(-1.2), Math.toRadians(-10.8), Math.toRadians(39.6))
+    public static Transform3d CAMERA_B_LOCATION = new Transform3d(
+      new Translation3d(0.227-0.0508, -0.30, 0.203),
+      new Rotation3d(Math.toRadians(1.25), Math.toRadians(-7), Math.toRadians(40 - 0.35))
     );
-    public static final Resolution CAMERA_B_RESOLUTION = Resolution.RES_1280_720;
-    public static final Rotation2d CAMERA_B_FOV = Rotation2d.fromDegrees(0);
+    public static final Resolution CAMERA_B_RESOLUTION = Resolution.RES_1280_800;
+    public static final Rotation2d CAMERA_B_FOV = Rotation2d.fromDegrees(70);
 
     public static final String CAMERA_C_NAME = "Arducam_OV9782_USB_Camera_C";
     public static final Transform3d CAMERA_C_LOCATION = new Transform3d(

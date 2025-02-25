@@ -1158,7 +1158,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     // Apply configs for TalonFX motors
     m_elevatorMotor.getConfigurator().apply(elevatorConfig);
     m_pivotMotor.getConfigurator().apply(pivotConfig);
-    m_armCANcoder.getConfigurator().apply(armCANCoderConfig);
+    m_armCANcoder.applyConfigs(armCANCoderConfig);
   }
 
   /**
