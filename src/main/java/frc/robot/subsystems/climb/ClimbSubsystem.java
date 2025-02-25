@@ -10,6 +10,8 @@ import static edu.wpi.first.units.Units.Value;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
 import edu.wpi.first.units.measure.Dimensionless;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,8 +35,10 @@ public class ClimbSubsystem extends SubsystemBase implements AutoCloseable {
    * @return Hardware object with required hardware for Climb Subsystem
    */
   public static Hardware initializeHardware() {
+    Spark climbMotor = new Spark(Constants.ClimbHardware.CLIMB_MOTOR_ID, MotorKind.NEO);
+    climbMotor.setIdleMode(IdleMode.kBrake);
     Hardware climbHardware = new Hardware(
-      new Spark(Constants.ClimbHardware.CLIMB_MOTOR_ID, MotorKind.NEO)
+      climbMotor
     );
     return climbHardware;
   }

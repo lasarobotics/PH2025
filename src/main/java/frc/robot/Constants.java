@@ -134,7 +134,7 @@ public final class Constants {
   }
 
   public static class ClimbHardware {
-    public static final Spark.ID CLIMB_MOTOR_ID = new Spark.ID("endEffecterMotor", 9);
+    public static final Spark.ID CLIMB_MOTOR_ID = new Spark.ID("climberMotor", 51);
   }
 
   public static class EndEffectorHardware {
