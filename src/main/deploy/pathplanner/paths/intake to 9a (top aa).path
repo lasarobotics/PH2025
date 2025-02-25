@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5657826743001744,
-        "y": 6.662375741597542
+        "x": 1.4558038919535692,
+        "y": 6.818777721198323
       },
       "isLocked": false,
       "linkedName": "top intake point"
     },
     {
       "anchor": {
-        "x": 3.1553938356164384,
-        "y": 5.302183219178082
+        "x": 2.8814285506063437,
+        "y": 5.740103559351678
       },
       "prevControl": {
-        "x": 2.9281811023726196,
-        "y": 5.544986825780316
+        "x": 2.683654403416662,
+        "y": 5.8930263722456155
       },
       "nextControl": null,
       "isLocked": false,
@@ -41,7 +41,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.5,
+    "velocity": 1.0,
     "rotation": -59.232
   },
   "reversed": false,

@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.25,
-        "y": 3.0
+        "x": 7.562673449160448,
+        "y": 0.5247886543843276
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.82076104884432,
-        "y": 2.882483989176887
+        "x": 6.692899448369106,
+        "y": 1.0327499069348245
       },
       "isLocked": false,
       "linkedName": "reefscape start point"
     },
     {
       "anchor": {
-        "x": 5.1,
-        "y": 2.87
+        "x": 5.614577746035447,
+        "y": 2.127254474696828
       },
       "prevControl": {
-        "x": 5.343508382059088,
-        "y": 2.9266009528803636
+        "x": 5.911397978331489,
+        "y": 1.793754355766478
       },
       "nextControl": null,
       "isLocked": false,
@@ -41,7 +41,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 1.0,
     "rotation": 122.55090136867133
   },
   "reversed": false,
