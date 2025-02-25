@@ -133,6 +133,10 @@ public final class Constants {
     );
   }
 
+  public static class ClimbHardware {
+    public static final Spark.ID CLIMB_MOTOR_ID = new Spark.ID("endEffecterMotor", 9);
+  }
+
   public static class EndEffectorHardware {
     public static final Spark.ID OUTTAKE_MOTOR_ID = new Spark.ID("EndEffectorHardware/EndEffectorMotor", 52);
     public static final int FORWARD_BEAM_BREAK = 2;

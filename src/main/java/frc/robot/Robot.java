@@ -10,6 +10,7 @@ import org.lasarobotics.hardware.PurpleManager;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -51,7 +52,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-			Logger.recordOutput("Auto/Lift/State", "starting");
+		Logger.recordOutput("Auto/Lift/State", "starting");
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
@@ -76,7 +77,9 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    m_robotContainer.checkRumble();
+  }
 
   @Override
   public void teleopExit() {}

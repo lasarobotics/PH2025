@@ -26,6 +26,12 @@
         {
           "type": "named",
           "data": {
+            "name": "auto align"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "score coral"
           }
         },
@@ -42,22 +48,15 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "intake to 9a (top)"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "lift to L4"
-                }
-              }
-            ]
+            "pathName": "intake to 9a (top aa)"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "auto align"
           }
         },
         {
@@ -76,6 +75,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "top autos",
+  "folder": null,
   "choreoAuto": false
 }

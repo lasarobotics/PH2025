@@ -358,7 +358,6 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_ALIGN_COMMAND_NAME, this.autononomousAlignCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_SCORE_COMMAND_NAME, this.autonomousScoreCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.WAIT_FOR_INTAKE_COMMAND_NAME, this.autonomousWaitForIntakeCommand());
-
   }
 	/**
 	 * Tells the robot to move the lift to the L4 state during autonomous
@@ -395,19 +394,18 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       });
   }
 
-
  /**
 	 * Tells the robot to score the preload coral during autonomous
 	 * @return Command that tells the robot to score the preload coral during autononomous
 	 */
 	public Command autonomousScoreCommand() { {
-		return 
+		return
 		Commands.startEnd(
       () -> {
         Logger.recordOutput("Auto/Command", Constants.NamedCommands.AUTO_SCORE_COMMAND_NAME);
         END_EFFECTOR_SUBSYSTEM.setState(EndEffectorStates.SCORE_L4);
         DRIVE_SUBSYSTEM.cancelAutoAlign();
-      }, 
+      },
       () -> {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
         INTAKE_SUBSYSTEM.startIntake();
@@ -426,7 +424,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 	 * @return Command which sets the intake and end-effector to the intake state in autonomous
 	 */
 	public Command autonomousWaitForIntakeCommand() {
-		return Commands.startEnd(() -> 
+		return Commands.startEnd(() ->
 		{}, () -> {
 			LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
 		},
