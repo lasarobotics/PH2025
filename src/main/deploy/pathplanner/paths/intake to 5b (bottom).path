@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.5943647540983608,
-        "y": 0.842264344262295
+        "x": 1.5365544105643658,
+        "y": 0.774194700326492
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.118501533072244,
-        "y": 1.3572140642590362
+        "x": 2.019469709778831,
+        "y": 1.2981266843941437
       },
       "isLocked": false,
       "linkedName": "intake coral"
     },
     {
       "anchor": {
-        "x": 3.52,
-        "y": 3.08
+        "x": 2.93642578125,
+        "y": 2.296680051888992
       },
       "prevControl": {
-        "x": 3.1162441322360332,
-        "y": 2.699822999502576
+        "x": 2.6500845764134295,
+        "y": 1.983371277015262
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "5b"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -41,14 +41,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 1.0,
     "rotation": 55.26164890171472
   },
   "reversed": false,
   "folder": "bottom paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 50.042451069170895
+    "rotation": 53.74587639398703
   },
   "useDefaultConstraints": true
 }

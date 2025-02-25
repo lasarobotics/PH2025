@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.1327505111782035,
-        "y": 7.329078444090208
+        "x": 6.833730914327311,
+        "y": 6.743477564179253
       },
       "isLocked": false,
       "linkedName": "reefscape top start point"
     },
     {
       "anchor": {
-        "x": 5.529452054794521,
-        "y": 4.911515410958904
+        "x": 5.965408917327426,
+        "y": 5.7213874475279844
       },
       "prevControl": {
-        "x": 5.752597032191423,
-        "y": 5.024237720474528
+        "x": 6.1487692118157256,
+        "y": 5.973553971541978
       },
       "nextControl": null,
       "isLocked": false,
@@ -41,7 +41,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
+    "velocity": 1.0,
     "rotation": -121.61038784035551
   },
   "reversed": false,

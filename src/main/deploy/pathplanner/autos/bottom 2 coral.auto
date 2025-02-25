@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "preload to 11b (top)"
+                  "pathName": "preload to 3a (bottom)"
                 }
               },
               {
@@ -26,13 +26,19 @@
         {
           "type": "named",
           "data": {
+            "name": "auto align"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "score coral"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "11b to intake (top)"
+            "pathName": "3a to intake (bottom)"
           }
         },
         {
@@ -42,22 +48,15 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "intake to 9a (top)"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "lift to L4"
-                }
-              }
-            ]
+            "pathName": "intake to 5b (bottom)"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "auto align"
           }
         },
         {
@@ -69,13 +68,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "9a to intake (top)"
+            "pathName": "5b to intake (bottom)"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "top autos",
+  "folder": null,
   "choreoAuto": false
 }
