@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ClimbSubsystem extends SubsystemBase implements AutoCloseable {
-  static final Dimensionless CLIMB_MOTOR_SPEED = Percent.of(50);
+  static final Dimensionless CLIMB_MOTOR_SPEED = Percent.of(100);
   public static record Hardware (
     Spark climbMotor
   ) {}

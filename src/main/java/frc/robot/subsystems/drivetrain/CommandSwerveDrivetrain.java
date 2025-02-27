@@ -20,6 +20,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -42,9 +43,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private double m_lastSimTime;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
-    private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
+    public static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
-    private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
+    public static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
 	/** Swerve request to apply during robot-centric path following */
@@ -195,9 +196,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 				},
 			new PPHolonomicDriveController(
 				//translation
-				new PIDConstants(10, 0, 0), 
+				new PIDConstants(2, 0, 0), 
 				//rotation
-				new PIDConstants(7 ,0 ,0)
+				new PIDConstants(1 ,0 ,0)
 			),
 			config,
 			() -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
@@ -283,16 +284,25 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
          * Otherwise, only check and apply the operator perspective if the DS is disabled.
          * This ensures driving behavior doesn't change until an explicit disable event occurs during testing.
          */
-        if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
-            DriverStation.getAlliance().ifPresent(allianceColor -> {
-                setOperatorPerspectiveForward(
-                    allianceColor == Alliance.Red
-                        ? kRedAlliancePerspectiveRotation
-                        : kBlueAlliancePerspectiveRotation
-                );
-                m_hasAppliedOperatorPerspective = true;
-            });
-        }
+        // if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
+        //     Logger.recordOutput("CommandSwerve/settingOperatorPerspective", true);
+        //     if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == Alliance.Red) {
+        //         setOperatorPerspectiveForward(kRedAlliancePerspectiveRotation);
+        //     } else {
+        //         setOperatorPerspectiveForward(kBlueAlliancePerspectiveRotation);
+        //     }
+        // }
+        // else {
+        //     Logger.recordOutput("CommandSwerve/settingOperatorPerspective", false);
+        // }
+    }
+    
+    public void resetPose() {
+        var current_pose = this.getState().Pose;
+        if(DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red)
+            this.resetPose(new Pose2d(current_pose.getX(), current_pose.getY(), kRedAlliancePerspectiveRotation));
+        else
+            this.resetPose(new Pose2d(current_pose.getX(), current_pose.getY(), kBlueAlliancePerspectiveRotation));
     }
 
     private void startSimThread() {

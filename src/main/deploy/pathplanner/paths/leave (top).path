@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.497816780821918,
-        "y": 7.525984589041096
+        "x": 7.2740131578947365,
+        "y": 7.508059210526316
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.342959417095958,
-        "y": 7.329721508203548
+        "x": 7.119155794168777,
+        "y": 7.3117961296887675
       },
       "isLocked": false,
       "linkedName": "reefscape top start point"

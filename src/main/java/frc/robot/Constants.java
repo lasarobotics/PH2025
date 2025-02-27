@@ -47,7 +47,7 @@ public final class Constants {
       Rotation2d.fromDegrees(-145.305)
     );
 
-    public static final Translation2d REEF_LOCATION_RED = new Translation2d(16+4.489337, 4.02);
+    public static final Translation2d REEF_LOCATION_RED = new Translation2d(8.56958+4.489337, 4.02);
     public static final Translation2d REEF_LOCATION_BLUE = new Translation2d(4.489337, 4.02);
 
   }
@@ -81,8 +81,8 @@ public final class Constants {
     public static final double TURN_D = 0;
 
     // Offsets from the center of the reef to the bottom (-x direction) branches
-    public static final Translation2d LEFT_BRANCH_OFFSET = new Translation2d(1.29885805, -0.375);
-    public static final Translation2d RIGHT_BRANCH_OFFSET = new Translation2d(1.29885805, -0.05);
+    public static final Translation2d LEFT_BRANCH_OFFSET = new Translation2d(1.29885805 + 0.0154, -0.375 + 0.04);
+    public static final Translation2d RIGHT_BRANCH_OFFSET = new Translation2d(1.29885805 + 0.0154, -0.05 + 0.0454);
 
     public static List<Pose2d> AUTO_ALIGN_LOCATIONS_RED = Arrays.asList(
       new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(180))),
@@ -150,7 +150,7 @@ public final class Constants {
   public static class VisionHardware {
     public static final String CAMERA_A_NAME = "Left";
     public static Transform3d CAMERA_A_LOCATION = new Transform3d(
-      new Translation3d(0.217-0.0508, 0.32, 0.203),
+      new Translation3d(0.217-0.0508, 0.32, 0.203 - 0.098425),
       new Rotation3d(Math.toRadians(0.7), Math.toRadians(-13.9), Math.toRadians(-40 - 1.6))
     );
     public static final Resolution CAMERA_A_RESOLUTION = Resolution.RES_1280_800;
@@ -158,7 +158,7 @@ public final class Constants {
 
     public static final String CAMERA_B_NAME = "Right";
     public static Transform3d CAMERA_B_LOCATION = new Transform3d(
-      new Translation3d(0.227-0.0508, -0.30, 0.203),
+      new Translation3d(0.227-0.0508, -0.30, 0.203-0.098425),
       new Rotation3d(Math.toRadians(1.25), Math.toRadians(-7), Math.toRadians(40 - 0.35))
     );
     public static final Resolution CAMERA_B_RESOLUTION = Resolution.RES_1280_800;
