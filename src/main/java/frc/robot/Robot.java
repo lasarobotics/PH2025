@@ -37,8 +37,11 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
+    long sTime = System.currentTimeMillis();
     PurpleManager.update();
+    Logger.recordOutput("purpleLibMs", System.currentTimeMillis() - sTime);
     CommandScheduler.getInstance().run();
+    Logger.recordOutput("totalMs", System.currentTimeMillis() - sTime);
   }
 
   @Override

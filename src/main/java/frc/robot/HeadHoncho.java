@@ -116,6 +116,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.FAST_SPEED_SCALAR);
       }
 
       @Override
@@ -129,6 +130,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.L1);
         DRIVE_SUBSYSTEM.requestAutoAlign();
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
       }
 
       @Override
@@ -150,6 +152,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.L2);
         DRIVE_SUBSYSTEM.requestAutoAlign();
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
       }
 
       @Override
@@ -171,6 +174,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.L3);
         DRIVE_SUBSYSTEM.requestAutoAlign();
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
       }
 
       @Override
@@ -192,6 +196,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
         DRIVE_SUBSYSTEM.requestAutoAlign();
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
       }
 
       @Override
@@ -213,6 +218,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.A1);
         END_EFFECTOR_SUBSYSTEM.requestScore();
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
       }
 
       @Override
@@ -234,6 +240,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.A2);
         END_EFFECTOR_SUBSYSTEM.requestScore();
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
       }
 
       @Override
@@ -267,6 +274,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
         END_EFFECTOR_SUBSYSTEM.requestStop();
         DRIVE_SUBSYSTEM.cancelAutoAlign();
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.FAST_SPEED_SCALAR);
       }
     },
     SCORE_REVERSE {
@@ -287,6 +295,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
         END_EFFECTOR_SUBSYSTEM.requestStop();
         DRIVE_SUBSYSTEM.cancelAutoAlign();
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.FAST_SPEED_SCALAR);
       }
     }
   }
@@ -415,7 +424,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     )
 		.until(() -> {
 			return END_EFFECTOR_SUBSYSTEM.isEmpty();
-		});
+		})
+    .withTimeout(2);
 	}
  }
 
