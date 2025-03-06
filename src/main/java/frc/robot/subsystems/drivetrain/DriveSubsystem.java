@@ -199,6 +199,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
           //             .withTargetY(m_currentDriveYState.position)
           //             .withFeedforwardY(m_currentDriveYState.velocity));
           //     Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/alliance", "red");
+          // sigma boy
           //   }
           // }
           Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
