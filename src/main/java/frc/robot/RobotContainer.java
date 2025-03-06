@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
@@ -114,6 +116,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
+    Logger.recordOutput("Autos/selectedAuto", m_autoModeChooser.getSelected().getName());
     return m_autoModeChooser.getSelected();
   }
 

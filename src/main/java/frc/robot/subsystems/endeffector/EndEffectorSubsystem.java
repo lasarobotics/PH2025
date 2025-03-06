@@ -159,7 +159,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     this.m_reverseBeamBreak = endEffectorHardware.reverseBeamBreak;
     LIFT_SUBSYSTEM = liftSubsystem;
     this.m_Interrupt = new AsynchronousInterrupt(m_forwardBeamBreak, (rising, falling) -> {
-      if(falling) {
+      if (falling) {
         s_endEffectorInstance.stopMotor();
       }
     });

@@ -67,8 +67,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public void execute() {
         s_drivetrain.setControl(s_drive
-            .withVelocityX(Constants.Drive.MAX_SPEED.times(-Math.pow(s_strafeRequest.getAsDouble(), 1)))
-            .withVelocityY(Constants.Drive.MAX_SPEED.times(-Math.pow(s_driveRequest.getAsDouble(), 1)))
+            .withVelocityX(Constants.Drive.MAX_SPEED.times(-Math.pow(s_strafeRequest.getAsDouble(), 1)).times(s_driveSpeedScalar))
+            .withVelocityY(Constants.Drive.MAX_SPEED.times(-Math.pow(s_driveRequest.getAsDouble(), 1)).times(s_driveSpeedScalar))
             .withRotationalRate(Constants.Drive.MAX_ANGULAR_RATE.times(-s_rotateRequest.getAsDouble())));
       }
 
@@ -259,6 +259,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   private static boolean s_isAligned;
 
   private static ArrayList<AprilTagCamera> m_cameras;
+
+  private static double s_driveSpeedScalar = Constants.Drive.FAST_SPEED_SCALAR;
 
   /* Swerve requests to apply during SysId characterization */
   private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -451,6 +453,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/autoAlign/targetBranch", index % 2 == 0);
 
     return new Pose2d(position, autoAlignLocations.get(index).getRotation());
+  }
+
+  public void setDriveSpeed(double newSpeed) {
+    s_driveSpeedScalar = newSpeed;
   }
 
   /**
