@@ -10,6 +10,11 @@ import static edu.wpi.first.units.Units.Value;
 import org.ejml.equation.IntegerSequence.For;
 import org.lasarobotics.hardware.generic.LimitSwitch;
 import org.lasarobotics.hardware.revrobotics.Spark;
+import org.lasarobotics.hardware.revrobotics.Spark.SparkInputs;
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.wpilibj2.command.Command;
+
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -23,14 +28,79 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.lift.LiftSubsystem;
 
-public class ClimbSubsystem extends SubsystemBase implements AutoCloseable {
-  static final Dimensionless CLIMB_MOTOR_SPEED = Percent.of(100);
+public class ClimbSubsystem extends StateMachine implements AutoCloseable {
+
+  static final double CLIMB_SPEED = 1.0;
+  static final double MOUNT_ANGLE = 0.448;
+  static final double CLIMB_ANGLE = 0.143;
+
   public static record Hardware (
-    Spark climbMotor,
-    LimitSwitch forwardLimitSwitch,
-    LimitSwitch reverseLimitSwitch
+    Spark climbMotor
+    
   ) {}
 
+  public enum ClimbStates implements SystemState {
+    NOTHING {
+      @Override
+      public ClimbStates nextState() {
+        return ClimbStates.NOTHING;
+      }
+    },
+    IDLE {
+      @Override
+      public void initialize() {
+        s_climbInstance.stopMotor();
+      }
+
+      @Override
+      public ClimbStates nextState() {
+        return s_climbInstance.nextState;
+      }
+    },
+    MOUNT {
+      @Override
+      public void initialize() {
+        s_climbInstance.mount();
+      }
+      
+      @Override
+      public void execute() {
+        if(!s_climbInstance.inMountPosition()){
+          s_climbInstance.mount();
+        } else {
+          s_climbInstance.stopMotor();
+        }
+      }
+
+      @Override
+      public ClimbStates nextState() {
+        return s_climbInstance.nextState;
+      }
+    },
+    CLIMB {
+      @Override
+      public void initialize() {
+        s_climbInstance.climb();
+
+      }
+
+      @Override
+      public void execute() {
+        if(!s_climbInstance.inClimbPosition()){
+          s_climbInstance.climb();
+        } else {
+          s_climbInstance.stopMotor();
+        }
+      }
+
+      @Override
+      public ClimbStates nextState() {
+        return s_climbInstance.nextState;
+      }
+    }
+  }
+
+  private static ClimbSubsystem s_climbInstance;
   private final Spark m_climbMotor;
   private final LimitSwitch m_forwardLimitSwitch;
   private final LimitSwitch m_reverseLimitSwitch;
@@ -38,21 +108,48 @@ public class ClimbSubsystem extends SubsystemBase implements AutoCloseable {
   // private final AsynchronousInterrupt m_reverseInterrupt;
 
   /** Creates a new ClimbSubsystem. */
-  public ClimbSubsystem(Hardware ClimbHardware) {
+  private ClimbSubsystem(Hardware ClimbHardware) {
+    super(ClimbStates.IDLE);
+    nextState =  ClimbStates.IDLE;
+
     this.m_climbMotor = ClimbHardware.climbMotor;
-    this.m_forwardLimitSwitch = ClimbHardware.forwardLimitSwitch;
-    this.m_reverseLimitSwitch = ClimbHardware.reverseLimitSwitch;
-    
-    // m_forwardInterrupt = m_forwardLimitSwitch.bindInterrupt((rising, falling) -> {
-    //   if (rising)
-    //     m_climbMotor.stopMotor();
-    //   }, true, false
-    // );
-    // m_reverseInterrupt = m_reverseLimitSwitch.bindInterrupt((rising, falling) -> {
-    //   if (rising)
-    //     m_climbMotor.stopMotor();
-    //   }, true, false
-    // );
+  }
+
+  /**
+   * Stops motor
+   */
+  private void stopMotor() {
+    m_climbMotor.stopMotor();
+  }
+
+  /**
+   * Sets the motor output for climbing
+   */
+  private void climb() {
+    m_climbMotor.set(CLIMB_SPEED);
+  }
+
+  /**
+   * Sets the motor output for releasing
+   */
+  private void mount() {
+    m_climbMotor.set(-CLIMB_SPEED);
+  }
+
+  /**
+   * Runs climber
+   * @return Command to run the climber motors
+   */
+  public Command raiseClimberCommand() {
+    return runEnd(() -> climb(), () -> stopMotor());
+  }
+
+  /**
+   * Runs climber backward
+   * @return Command to run the climber motors
+   */
+  public Command lowerClimberCommand() {
+    return runEnd(() -> mount(), () -> stopMotor());
   }
 
   /**
@@ -116,7 +213,8 @@ public class ClimbSubsystem extends SubsystemBase implements AutoCloseable {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putBoolean("Climber Forward Limit", !m_forwardLimitSwitch.getInputs().value);
+    Logger.recordOutput(getName() + "/absoluteEncoderValue", s_climbInstance.getInputs().absoluteEncoderPosition);
+    Logger.recordOutput(getName() + "/state", getState().toString());
   }
 
   @Override

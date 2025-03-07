@@ -60,6 +60,36 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_L3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L3;
         if (s_L4Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L4;
 
+        if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) return CLIMB;
+        if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) return MOUNT;
+
+        return this;
+      }
+    },
+    MOUNT {
+      @Override
+      public void initialize() {
+        CLIMB_SUBSYSTEM.mountState();
+      }
+
+      @Override 
+      public SystemState nextState() {
+        if(s_climbButtonRising) return CLIMB;
+        if(s_cancelButton.getAsBoolean()) return REST;
+
+        return this;
+      }
+    },
+    CLIMB {
+      @Override
+      public void initialize() {
+        CLIMB_SUBSYSTEM.climbState();
+      }
+
+      @Override
+      public SystemState nextState() {
+        if(s_climbButtonRising) return MOUNT;
+        if(s_cancelButton.getAsBoolean()) return REST;
         if(s_algaeL2Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L2;
         if(s_algaeL3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L3;
 
@@ -319,6 +349,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
   private static BooleanSupplier s_algaeL2Button;
   private static BooleanSupplier s_algaeL3Button;
+  private static Boolean s_lastClimbBoolean = false;
+  private static Boolean s_climbButtonRising = false;
 
   public HeadHoncho(
     DriveSubsystem driveSubsystem,
@@ -462,6 +494,11 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     super.periodic();
 
     Logger.recordOutput(getName() + "/state", getState().toString());
+    if (!s_lastClimbBoolean && s_climbButton.getAsBoolean())
+      s_climbButtonRising = true;
+    else
+      s_climbButtonRising = false;
+    s_lastClimbBoolean = s_climbButton.getAsBoolean();
 
     Logger.recordOutput(getName() + "/buttons/L1", s_L1Button);
     Logger.recordOutput(getName() + "/buttons/L2", s_L2Button);
