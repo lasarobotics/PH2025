@@ -112,28 +112,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         m_lastTime = System.currentTimeMillis();
         Logger.recordOutput("Drive/dt", dt);
 
-        /*
-         * // if we're too far from the drivetrain target...
-         * if (Math.abs(m_currentDriveXState.position -
-         * s_drivetrain.getState().Pose.getX()) > 0.25
-         * || Math.abs(m_currentDriveYState.position -
-         * s_drivetrain.getState().Pose.getY()) > 0.25
-         * || Math.abs(m_currentTurnState.position -
-         * s_drivetrain.getState().Pose.getRotation().getRadians()) > 0.1
-         * ) {
-         * // move the drivetrain target so the profile can correct for the error
-         * m_currentDriveXState = new
-         * TrapezoidProfile.State(s_drivetrain.getState().Pose.getX(),
-         * s_drivetrain.getState().Speeds.vxMetersPerSecond);
-         * m_currentDriveYState = new
-         * TrapezoidProfile.State(s_drivetrain.getState().Pose.getY(),
-         * s_drivetrain.getState().Speeds.vyMetersPerSecond);
-         * m_currentTurnState = new
-         * TrapezoidProfile.State(s_drivetrain.getState().Pose.getRotation().getRadians(
-         * ), s_drivetrain.getState().Speeds.omegaRadiansPerSecond);
-         * }
-         */
-
         // Get error which is the smallest distance between goal and measurement
         double errorBound = Math.PI;
         double measurement = s_drivetrain.getState().Pose.getRotation().getRadians();
@@ -179,31 +157,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 .withFeedforwardX(newVelocity.getX())
                 .withTargetY(newPosition.getY())
                 .withFeedforwardY(newVelocity.getY()));
-          // if (DriverStation.getAlliance().isEmpty()) {
-          //   Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/alliance", "none");
-          // } else {
-          //   if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue) {
-          //     s_drivetrain.setControl(
-          //         s_autoDrive
-          //             .withTargetDirection(new Rotation2d(m_currentTurnState.position))
-          //             .withTargetRateFeedforward(Units.RadiansPerSecond.of(m_currentTurnState.velocity))
-          //             .withTargetX(m_currentDriveXState.position)
-          //             .withFeedforwardX(m_currentDriveXState.velocity)
-          //             .withTargetY(m_currentDriveYState.position)
-          //             .withFeedforwardY(m_currentDriveYState.velocity));
-          //     Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/alliance", "blue");
-          //   } else if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red) {
-          //     s_drivetrain.setControl(
-          //         s_autoDrive
-          //             .withTargetDirection(new Rotation2d(m_currentTurnState.position))
-          //             .withTargetRateFeedforward(Units.RadiansPerSecond.of(m_currentTurnState.velocity))
-          //             .withTargetX(-m_currentDriveXState.position)
-          //             .withFeedforwardX(-m_currentDriveXState.velocity)
-          //             .withTargetY(m_currentDriveYState.position)
-          //             .withFeedforwardY(m_currentDriveYState.velocity));
-          //     Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/alliance", "red");
-          //   }
-          // }
           Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
         }
 
