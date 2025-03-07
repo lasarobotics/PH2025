@@ -13,10 +13,14 @@ import org.lasarobotics.fsm.SystemState;
 import org.lasarobotics.vision.AprilTagCamera;
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -25,22 +29,14 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
-import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
-
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
 import frc.robot.RobotContainer;
 import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants;
 
 public class DriveSubsystem extends StateMachine implements AutoCloseable {
-  public static record Hardware(
-      AprilTagCamera frontLeftCamera,
-      AprilTagCamera frontRightCamera,
-      AprilTagCamera rearCamera) {
+  public static record Hardware() {
   }
 
   public enum State implements SystemState {
@@ -199,7 +195,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
           //             .withTargetY(m_currentDriveYState.position)
           //             .withFeedforwardY(m_currentDriveYState.velocity));
           //     Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/alliance", "red");
-          // sigma boy
+          //sigma boy
           //   }
           // }
           Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
@@ -330,11 +326,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   public DriveSubsystem(Hardware driveHardware, Telemetry logger) {
     super(State.DRIVER_CONTROL);
 
-    m_cameras = new ArrayList<AprilTagCamera>();
-    m_cameras.add(driveHardware.frontLeftCamera);
-    m_cameras.add(driveHardware.frontRightCamera);
-    m_cameras.add(driveHardware.rearCamera);
-
     s_drivetrain = TunerConstants.createDrivetrain();
     /* Setting up bindings for necessary control of the swerve drive platform */
     s_drive = new SwerveRequest.FieldCentric()
@@ -456,40 +447,26 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Initialize hardware devices for drive subsystem
-   * 
    * @return Hardware object containing all necessary devices for this subsystem
    */
   public static Hardware initializeHardware() {
-    AprilTagCamera frontLeftCamera = new AprilTagCamera(
-        Constants.VisionHardware.CAMERA_A_NAME,
-        Constants.VisionHardware.CAMERA_A_LOCATION,
-        Constants.VisionHardware.CAMERA_A_RESOLUTION,
-        Constants.VisionHardware.CAMERA_A_FOV,
-        Constants.Field.FIELD_LAYOUT);
-
-    AprilTagCamera frontRightCamera = new AprilTagCamera(
-        Constants.VisionHardware.CAMERA_B_NAME,
-        Constants.VisionHardware.CAMERA_B_LOCATION,
-        Constants.VisionHardware.CAMERA_B_RESOLUTION,
-        Constants.VisionHardware.CAMERA_B_FOV,
-        Constants.Field.FIELD_LAYOUT);
-
-    AprilTagCamera rearCamera = new AprilTagCamera(
-        Constants.VisionHardware.CAMERA_C_NAME,
-        Constants.VisionHardware.CAMERA_C_LOCATION,
-        Constants.VisionHardware.CAMERA_C_RESOLUTION,
-        Constants.VisionHardware.CAMERA_C_FOV,
-        Constants.Field.FIELD_LAYOUT);
-
-    Hardware driveHardware = new Hardware(
-        frontLeftCamera,
-        frontRightCamera,
-        rearCamera);
+    Hardware driveHardware = new Hardware();
     return driveHardware;
   }
 
   /* Keep track if we've ever applied the operator perspective before or not */
   private boolean m_hasAppliedOperatorPerspective = false;
+
+  /**
+   * Set up stuff for limelight
+   */
+  public void limeLightSetup() {
+    LimelightHelpers.SetRobotOrientation("limelight1", s_drivetrain.getState().Pose.getRotation().getDegrees(), 
+    0, 0, 0, 0, 0);
+
+    LimelightHelpers.SetRobotOrientation("limelight1", s_drivetrain.getState().Pose.getRotation().getDegrees(), 
+    0, 0, 0, 0, 0);
+  }
 
   @Override
   public void periodic() {
@@ -514,24 +491,36 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         Logger.recordOutput(getName() + "/settingOperatorPerspective", false);
     }
 
-    // Add AprilTag pose estimates if available
-    int i = 0;
-    for (var camera : m_cameras) {
-      i++;
-      var result = camera.getLatestEstimatedPose();
+    LimelightHelpers.PoseEstimate firstmt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight1");
+    LimelightHelpers.PoseEstimate secondmt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight2");
+    boolean doRejectUpdate = true;
 
-      // If no updated vision pose estimate, continue
-      if (result == null)
-        continue;
+    if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red)) { 
+      int[] validIds = {1,2,3,4,5,6,7,8,9,10,11};
+      LimelightHelpers.SetFiducialIDFiltersOverride("limelight1", validIds);
+      LimelightHelpers.SetFiducialIDFiltersOverride("limelight2", validIds);
+    } 
 
-      // Add vision measurement
-      s_drivetrain.addVisionMeasurement(
-          result.estimatedRobotPose.estimatedPose.toPose2d(),
-          Utils.fpgaToCurrentTime(result.estimatedRobotPose.timestampSeconds),
-          result.standardDeviation);
-
-      Logger.recordOutput(getName() + "/cameraPose_" + i, result.estimatedRobotPose.estimatedPose);
+    if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue)) {
+      int[] validIds = {12,13,14,15,16,17,18,19,20,21,22};
+      LimelightHelpers.SetFiducialIDFiltersOverride("limelight1", validIds);
+      LimelightHelpers.SetFiducialIDFiltersOverride("limelight2", validIds);
     }
+
+    if (s_drivetrain.getState().Speeds.omegaRadiansPerSecond > 360) {
+      doRejectUpdate = true;
+    }
+    
+    if (firstmt2.tagCount == 0 && secondmt2.tagCount == 0) {
+      doRejectUpdate = true;
+    }
+
+    if (!doRejectUpdate) { 
+      s_drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
+      s_drivetrain.addVisionMeasurement(firstmt2.pose, firstmt2.timestampSeconds);
+      s_drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
+      s_drivetrain.addVisionMeasurement(secondmt2.pose, secondmt2.timestampSeconds);
+  }
 
     Logger.recordOutput(getName() + "/state", getState().toString());
     Logger.recordOutput(getName() + "/autoAlign/autotarget", findAutoAlignTarget());
@@ -539,7 +528,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/robotPose", s_drivetrain.getState().Pose);
     Logger.recordOutput("temp", new Pose2d(new Translation2d(3.175, 4.0159), new Rotation2d(Math.toRadians(0))));
     Logger.recordOutput(getName() + "/autoAlign/isAligned", s_isAligned);
-    i = 0;
+    int i = 0;
     for (i = 0; i < 4; i++) {
       Logger.recordOutput(getName() + "/Mod" + i + "/torqueCurrent",
           s_drivetrain.getModule(i).getDriveMotor().getTorqueCurrent().getValue());
