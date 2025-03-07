@@ -96,11 +96,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             0);
 
         m_currentDriveXState = new TrapezoidProfile.State(
-            s_drivetrain.getState().Pose.getX(),
+            s_drivetrain.getState().Pose.rotateAround(s_autoAlignTarget.getTranslation(), s_autoAlignTarget.getRotation().times(-1)).getX(),
             0);
 
         m_currentDriveYState = new TrapezoidProfile.State(
-            s_drivetrain.getState().Pose.getY(),
+            s_drivetrain.getState().Pose.rotateAround(s_autoAlignTarget.getTranslation(), s_autoAlignTarget.getRotation().times(-1)).getY(),
             0);
 
         s_isAligned = false;
@@ -160,6 +160,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         double distance = s_drivetrain.getState().Pose.getTranslation().getDistance(s_autoAlignTarget.getTranslation());
         double heading = Math
             .abs((s_drivetrain.getState().Pose.getRotation().getRadians() - s_autoAlignTargetTurn.position)) % 360;
+          
+        Translation2d newPosition = new Translation2d(m_currentDriveXState.position, m_currentDriveYState.position).rotateAround(s_autoAlignTarget.getTranslation(), s_autoAlignTarget.getRotation().times(1));
+        Translation2d newVelocity = new Translation2d(m_currentDriveXState.velocity, m_currentDriveYState.velocity).rotateBy(s_autoAlignTarget.getRotation().times(1));
 
         // if the robot is _very_ close to the target, turn off the drivetrain
         if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE / 2
@@ -172,10 +175,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             s_autoDrive
                 .withTargetDirection(new Rotation2d(m_currentTurnState.position))
                 .withTargetRateFeedforward(Units.RadiansPerSecond.of(m_currentTurnState.velocity))
-                .withTargetX(m_currentDriveXState.position)
-                .withFeedforwardX(m_currentDriveXState.velocity)
-                .withTargetY(m_currentDriveYState.position)
-                .withFeedforwardY(m_currentDriveYState.velocity));
+                .withTargetX(newPosition.getX())
+                .withFeedforwardX(newVelocity.getX())
+                .withTargetY(newPosition.getY())
+                .withFeedforwardY(newVelocity.getY()));
           // if (DriverStation.getAlliance().isEmpty()) {
           //   Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/alliance", "none");
           // } else {
@@ -204,8 +207,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
           Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
         }
 
-        Logger.recordOutput("DriveSubsystem/autoAlign/targetPose", new Pose2d(m_currentDriveXState.position,
-            m_currentDriveYState.position, new Rotation2d(m_currentTurnState.position)));
+        Logger.recordOutput("DriveSubsystem/autoAlign/targetPose", new Pose2d(newPosition, new Rotation2d(m_currentTurnState.position)));
         Logger.recordOutput("DriveSubsystem/autoAlign/finalPose", new Pose2d(s_autoAlignTargetDriveX.position,
             s_autoAlignTargetDriveY.position, new Rotation2d(s_autoAlignTargetTurn.position)));
 
