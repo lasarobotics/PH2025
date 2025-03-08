@@ -12,6 +12,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.drivetrain.DriveSubsystem;
 import frc.robot.subsystems.endeffector.EndEffectorSubsystem;
 import frc.robot.subsystems.endeffector.EndEffectorSubsystem.EndEffectorStates;
@@ -335,6 +336,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
   private static IntakeSubsystem INTAKE_SUBSYSTEM;
   private static LiftSubsystem LIFT_SUBSYSTEM;
   private static EndEffectorSubsystem END_EFFECTOR_SUBSYSTEM;
+  private static ClimbSubsystem CLIMB_SUBSYSTEM;
 
   private static BooleanSupplier s_intakeButton;
   private static BooleanSupplier s_regurgitateButton;
@@ -349,6 +351,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
   private static BooleanSupplier s_algaeL2Button;
   private static BooleanSupplier s_algaeL3Button;
+  private static BooleanSupplier s_climbButton;
   private static Boolean s_lastClimbBoolean = false;
   private static Boolean s_climbButtonRising = false;
 
@@ -356,7 +359,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     DriveSubsystem driveSubsystem,
     IntakeSubsystem intakeSubsystem,
     LiftSubsystem liftSubsystem,
-    EndEffectorSubsystem endEffectorSubsystem
+    EndEffectorSubsystem endEffectorSubsystem,
+    ClimbSubsystem climbSubsystem
   ) {
     super(State.REST);
 
@@ -364,6 +368,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     INTAKE_SUBSYSTEM = intakeSubsystem;
     LIFT_SUBSYSTEM = liftSubsystem;
     END_EFFECTOR_SUBSYSTEM = endEffectorSubsystem;
+    CLIMB_SUBSYSTEM  = climbSubsystem;
   }
 
   public void bindControls(
@@ -379,7 +384,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     BooleanSupplier L2AlgaeButton,
     BooleanSupplier L3AlgaeButton,
     BooleanSupplier scoreButton,
-    BooleanSupplier cancelButton
+    BooleanSupplier cancelButton,
+    BooleanSupplier climbButton
   ) {
     s_intakeButton = intakeButton;
     s_regurgitateButton = regurgitateButton;
@@ -393,6 +399,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
     s_scoreButton = scoreButton;
     s_cancelButton = cancelButton;
+
+    s_climbButton = climbButton;
 
     DRIVE_SUBSYSTEM.bindControls(driveRequest, strafeRequest, rotateRequest);
     NamedCommands.registerCommand(Constants.NamedCommands.LIFT_L4_COMMAND_NAME, this.autononomousL4Command());
