@@ -73,7 +73,7 @@ public final class Constants {
     );
     public static final TrapezoidProfile.Constraints DRIVE_CONSTRAINTS = new TrapezoidProfile.Constraints(
       MAX_SPEED.in(MetersPerSecond) * 0.2,
-      MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.8
+      MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.2
     );
 
     public static final double AUTO_ALIGN_TOLERANCE = 0.05;
@@ -84,9 +84,9 @@ public final class Constants {
     public static final double TURN_D = 0;
 
     // Offsets from the center of the reef to the bottom (-x direction) branches
-    // y+ is robot right
-    public static final Translation2d LEFT_BRANCH_OFFSET = new Translation2d(1.29885805 + 0.0054 - 0.1016, -0.375 - 0.02 + 0.0508);
-    public static final Translation2d RIGHT_BRANCH_OFFSET = new Translation2d(1.29885805 + 0.0054 - 0.1016, -0.05 + 0.0054 + 0.0508);
+    // y+ is robot moves right
+    public static final Translation2d LEFT_BRANCH_OFFSET = new Translation2d(1.29885805 + 0.0054 - 0.1016 + 0.03, -0.375 - 0.02 + 0.0508 - 0.03);
+    public static final Translation2d RIGHT_BRANCH_OFFSET = new Translation2d(1.29885805 + 0.0054 - 0.1016 + 0.03, -0.05 + 0.0054 + 0.0508 - 0.03);
 
     public static List<Pose2d> AUTO_ALIGN_LOCATIONS_RED = Arrays.asList(
       new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(180))),
@@ -169,7 +169,7 @@ public final class Constants {
     public static final String CAMERA_B_NAME = "Right";
     public static Transform3d CAMERA_B_LOCATION = new Transform3d(
       new Translation3d(0.227-0.0508, -0.30, 0.203-0.098425),
-      new Rotation3d(Math.toRadians(1.25), Math.toRadians(-7), Math.toRadians(40 - 0.35))
+      new Rotation3d(Math.toRadians(1.25), Math.toRadians(-7), Math.toRadians(-10 - 0.35))
     );
     public static final Resolution CAMERA_B_RESOLUTION = Resolution.RES_1280_800;
     public static final Rotation2d CAMERA_B_FOV = Rotation2d.fromDegrees(70);
@@ -189,6 +189,7 @@ public final class Constants {
   public static class NamedCommands {
     public static final String LIFT_STOW_COMMAND_NAME = "lift to stow";
     public static final String LIFT_L4_COMMAND_NAME = "lift to L4";
+    public static final String LIFT_L4_NO_WAIT_COMMAND_NAME = "lift to L4 no wait";
     public static final String AUTO_ALIGN_COMMAND_NAME = "auto align";
     public static final String AUTO_SCORE_COMMAND_NAME = "score coral";
     public static final String WAIT_FOR_INTAKE_COMMAND_NAME = "wait for intake";

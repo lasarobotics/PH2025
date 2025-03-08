@@ -170,6 +170,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             || heading > (Math.PI * 2 - Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN))) {
           s_isAligned = true;
         }
+
+        Logger.recordOutput("DriveSubsystem/autoAlign/error/x", s_drivetrain.getState().Pose.getX() - m_currentDriveXState.position);
+        Logger.recordOutput("DriveSubsystem/autoAlign/error/y", s_drivetrain.getState().Pose.getY() - m_currentDriveYState.position);
       }
 
       @Override
@@ -309,8 +312,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_autoDrive.HeadingController.setPID(5, 0, 0);
     s_autoDrive.HeadingController.enableContinuousInput(0, Math.PI * 2);
 
-    s_autoDrive.XController.setPID(2, 0, 0);
-    s_autoDrive.YController.setPID(2, 0, 0);
+    s_autoDrive.XController.setPID(1.5, 0, 0);
+    s_autoDrive.YController.setPID(1.5, 0, 0);
 
     s_drivetrain.registerTelemetry(logger::telemeterize);
 

@@ -364,6 +364,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
     DRIVE_SUBSYSTEM.bindControls(driveRequest, strafeRequest, rotateRequest);
     NamedCommands.registerCommand(Constants.NamedCommands.LIFT_L4_COMMAND_NAME, this.autononomousL4Command());
+    NamedCommands.registerCommand(Constants.NamedCommands.LIFT_L4_NO_WAIT_COMMAND_NAME, this.autononomousL4CommandNoWait());
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_ALIGN_COMMAND_NAME, this.autononomousAlignCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_SCORE_COMMAND_NAME, this.autonomousScoreCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.WAIT_FOR_INTAKE_COMMAND_NAME, this.autonomousWaitForIntakeCommand());
@@ -385,6 +386,17 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         return LIFT_SUBSYSTEM.isLiftReady();
       });
 	}
+
+  public Command autononomousL4CommandNoWait() {
+    return Commands.startEnd(
+        () -> {
+          Logger.recordOutput("Auto/Command", Constants.NamedCommands.LIFT_L4_COMMAND_NAME);
+          LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
+        },
+        () -> {},
+        this
+      ).until(() -> true);
+  }
 
   /**
    * Allgns the robot to the reef in auto
@@ -450,6 +462,19 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     super.periodic();
 
     Logger.recordOutput(getName() + "/state", getState().toString());
+
+    Logger.recordOutput(getName() + "/buttons/L1", s_L1Button);
+    Logger.recordOutput(getName() + "/buttons/L2", s_L2Button);
+    Logger.recordOutput(getName() + "/buttons/L3", s_L3Button);
+    Logger.recordOutput(getName() + "/buttons/L4", s_L4Button);
+
+    Logger.recordOutput(getName() + "/buttons/score", s_scoreButton);
+    Logger.recordOutput(getName() + "/buttons/cancel", s_cancelButton);
+
+    Logger.recordOutput(getName() + "/buttons/algaeL2", s_algaeL2Button);
+    Logger.recordOutput(getName() + "/buttons/algaeL3", s_algaeL3Button);
+
+    Logger.recordOutput(getName() + "/buttons/intake", s_intakeButton);
   }
 
   @Override

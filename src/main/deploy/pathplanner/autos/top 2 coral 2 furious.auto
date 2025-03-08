@@ -5,22 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "preload to 11b (top)"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "lift to L4"
-                }
-              }
-            ]
+            "name": "lift to L4 no wait"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "preload to 11b (top)"
           }
         },
         {
