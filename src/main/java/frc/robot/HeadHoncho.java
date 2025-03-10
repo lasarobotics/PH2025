@@ -64,6 +64,11 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) return CLIMB;
         if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) return MOUNT;
 
+        if(s_algaeL2Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L2;
+        if(s_algaeL3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L3;
+
+        if(DriverStation.isAutonomous()) return AUTO;
+
         return this;
       }
     },
@@ -71,12 +76,13 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         CLIMB_SUBSYSTEM.mountState();
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
       }
 
       @Override 
       public SystemState nextState() {
         if(s_climbButtonRising) return CLIMB;
-        if(s_cancelButton.getAsBoolean()) return REST;
+        if(s_cancelButton.getAsBoolean()) return STOW;
 
         return this;
       }
@@ -85,16 +91,13 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         CLIMB_SUBSYSTEM.climbState();
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
       }
 
       @Override
       public SystemState nextState() {
         if(s_climbButtonRising) return MOUNT;
-        if(s_cancelButton.getAsBoolean()) return REST;
-        if(s_algaeL2Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L2;
-        if(s_algaeL3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L3;
-
-        if(DriverStation.isAutonomous()) return AUTO;
+        if(s_cancelButton.getAsBoolean()) return STOW;
 
         return this;
       }
