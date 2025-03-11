@@ -83,6 +83,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     },
     AUTO_ALIGN {
       long m_lastTime;
+      long m_closeTime;
+
       TrapezoidProfile.State m_currentTurnState;
       TrapezoidProfile.State m_currentDriveXState;
       TrapezoidProfile.State m_currentDriveYState;
@@ -90,7 +92,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         m_lastTime = System.currentTimeMillis();
-        System.out.println(s_drivetrain.getState().Pose.getRotation().getRadians() + "\n");
+        m_closeTime = System.currentTimeMillis();
+
         m_currentTurnState = new TrapezoidProfile.State(
             s_drivetrain.getState().Pose.getRotation().getRadians(),
             0);
@@ -171,6 +174,23 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
           s_isAligned = true;
         }
 
+        if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE * 2 && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN * 2 
+            || heading > (Math.PI * 2 - Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN * 2))) {
+          s_isClose = true;
+        } else {
+          s_isClose = false;
+        }
+
+        if (!s_isClose) {
+          m_closeTime = System.currentTimeMillis();
+        }
+        if (System.currentTimeMillis() - m_closeTime > 1000) {
+          s_isAligned = true;
+        }
+
+        Logger.recordOutput("DriveSubsystem/autoAlign/isClose", s_isClose);
+        Logger.recordOutput("DriveSubsystem/autoAlign/closeTime", System.currentTimeMillis() - m_closeTime);
+
         Logger.recordOutput("DriveSubsystem/autoAlign/error/x", s_drivetrain.getState().Pose.getX() - m_currentDriveXState.position);
         Logger.recordOutput("DriveSubsystem/autoAlign/error/y", s_drivetrain.getState().Pose.getY() - m_currentDriveYState.position);
       }
@@ -214,7 +234,15 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   private static TrapezoidProfile s_turnProfile;
   private static TrapezoidProfile s_driveProfile;
 
+  /**
+   * Robot is within the auto align tolerance of the target point
+   */
   private static boolean s_isAligned;
+  
+    /**
+    * Robot is within auto align tolerance * 2 of the target point
+    */
+  private static boolean s_isClose;
 
   private static ArrayList<AprilTagCamera> m_cameras;
 
