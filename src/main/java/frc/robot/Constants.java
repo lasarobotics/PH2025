@@ -138,13 +138,7 @@ public final class Constants {
   }
 
   public static class ClimbHardware {
-    public static final Spark.ID CLIMB_MOTOR_ID = new Spark.ID("climberMotor", 51);
-    public static final LimitSwitch.ID FORWARD_LIMIT_SWITCH_ID = new LimitSwitch.ID(
-      "ClimberHardware/ForwardLimitSwitch", 5
-    );
-    public static final LimitSwitch.ID REVERSE_LIMIT_SWITCH_ID = new LimitSwitch.ID(
-      "ClimberHardware/ReverseLimitSwitch", 6
-    );
+    public static final Spark.ID CLIMB_MOTOR_ID = new Spark.ID("endEffecterMotor", 51);
   }
 
   public static class EndEffectorHardware {

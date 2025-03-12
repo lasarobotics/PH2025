@@ -33,8 +33,8 @@ public class RobotContainer {
   private final LiftSubsystem LIFT_SUBSYSTEM = LiftSubsystem.getInstance(LiftSubsystem.initializeHardware());
   private final IntakeSubsystem INTAKE_SUBSYSTEM = IntakeSubsystem.getInstance(IntakeSubsystem.initializeHardware());
   private final EndEffectorSubsystem END_EFFECTOR_SUBSYSTEM = EndEffectorSubsystem.getInstance(EndEffectorSubsystem.initializeHardware(), LIFT_SUBSYSTEM);
-  private final ClimbSubsystem CLIMB_SUBSYSTEM = new ClimbSubsystem(ClimbSubsystem.initializeHardware());
-  private final HeadHoncho HEAD_HONCHO = new HeadHoncho(DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM);
+  private final ClimbSubsystem CLIMB_SUBSYSTEM = ClimbSubsystem.getInstance(ClimbSubsystem.initializeHardware());
+  private final HeadHoncho HEAD_HONCHO = new HeadHoncho(DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM, CLIMB_SUBSYSTEM);
   // private final AutoHoncho AUTO_HONCHO = new AutoHoncho(DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM);
   private static SendableChooser<Command> m_autoModeChooser = new SendableChooser<>();
 
@@ -59,7 +59,8 @@ public class RobotContainer {
      PRIMARY_CONTROLLER.povDown(), //L2 Algae Descore
      PRIMARY_CONTROLLER.povUp(), //L3 Algae Descore
      PRIMARY_CONTROLLER.rightTrigger(), // score
-     PRIMARY_CONTROLLER.x() // cancel
+     PRIMARY_CONTROLLER.x(), // cancel
+     PRIMARY_CONTROLLER.rightStick() //climb
     );
 
     PRIMARY_CONTROLLER.povLeft().onTrue(Commands.runOnce(() -> {
