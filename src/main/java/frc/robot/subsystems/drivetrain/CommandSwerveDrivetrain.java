@@ -164,13 +164,23 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 		configureAutoBuilder();
     }
+
+    private void resetPoseNotGyro(Pose2d pose) {
+        this.resetPose(
+            new Pose2d(
+                pose.getX(), 
+                pose.getY(), 
+                Rotation2d.fromDegrees(this.getPigeon2().getYaw().getValueAsDouble())
+            )
+        );
+    }
     
     private void configureAutoBuilder() {
         try {
             var config = RobotConfig.fromGUISettings();
 			AutoBuilder.configure(
 				() -> getState().Pose,
-				this::resetPose,
+				this::resetPoseNotGyro,
 				() -> getState().Speeds,
 				//Consumer of ChassisSpeeds and feedforwards to drive the robot
 				(speeds, feedforwards) -> {

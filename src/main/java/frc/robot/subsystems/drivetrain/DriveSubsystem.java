@@ -491,36 +491,35 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         Logger.recordOutput(getName() + "/settingOperatorPerspective", false);
     }
 
-    LimelightHelpers.PoseEstimate firstmt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight1");
-    LimelightHelpers.PoseEstimate secondmt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight2");
-    boolean doRejectUpdate = true;
+    String[] limelights = {"limelight1", "limelight2"};
 
-    if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Red)) { 
-      int[] validIds = {1,2,3,4,5,6,7,8,9,10,11};
-      LimelightHelpers.SetFiducialIDFiltersOverride("limelight1", validIds);
-      LimelightHelpers.SetFiducialIDFiltersOverride("limelight2", validIds);
-    } 
+    for (String limelight : limelights) {
+      LimelightHelpers.SetIMUMode(limelight, DriverStation.isDisabled() ? 1 : 2);
+      LimelightHelpers.setLimelightNTDouble(limelight, "throttle_set", DriverStation.isDisabled() ? 100 : 0);
+      LimelightHelpers.SetRobotOrientation(limelight, s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+      LimelightHelpers.PoseEstimate pose_estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
+      boolean doRejectUpdate = false;
+      if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == Alliance.Red) { 
+        int[] validIds = {6,7,8,9,10,11};
+        LimelightHelpers.SetFiducialIDFiltersOverride(limelight, validIds);
+      } 
+      else {
+        int[] validIds = {17,18,19,20,21,22};
+        LimelightHelpers.SetFiducialIDFiltersOverride(limelight, validIds);
+      }
+      if (s_drivetrain.getState().Speeds.omegaRadiansPerSecond > 2 * Math.PI) {
+        doRejectUpdate = true;
+      }
+      
+      if (pose_estimate.tagCount == 0) {
+        doRejectUpdate = true;
+      }
 
-    if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue)) {
-      int[] validIds = {12,13,14,15,16,17,18,19,20,21,22};
-      LimelightHelpers.SetFiducialIDFiltersOverride("limelight1", validIds);
-      LimelightHelpers.SetFiducialIDFiltersOverride("limelight2", validIds);
+      if (!doRejectUpdate) { 
+        s_drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
+        s_drivetrain.addVisionMeasurement(pose_estimate.pose, pose_estimate.timestampSeconds);
+      }
     }
-
-    if (s_drivetrain.getState().Speeds.omegaRadiansPerSecond > 360) {
-      doRejectUpdate = true;
-    }
-    
-    if (firstmt2.tagCount == 0 && secondmt2.tagCount == 0) {
-      doRejectUpdate = true;
-    }
-
-    if (!doRejectUpdate) { 
-      s_drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
-      s_drivetrain.addVisionMeasurement(firstmt2.pose, firstmt2.timestampSeconds);
-      s_drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
-      s_drivetrain.addVisionMeasurement(secondmt2.pose, secondmt2.timestampSeconds);
-  }
 
     Logger.recordOutput(getName() + "/state", getState().toString());
     Logger.recordOutput(getName() + "/autoAlign/autotarget", findAutoAlignTarget());
