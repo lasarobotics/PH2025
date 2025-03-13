@@ -19,8 +19,8 @@ import frc.robot.Constants;
 public class ClimbSubsystem extends StateMachine implements AutoCloseable {
 
   static final double CLIMB_SPEED = 1.0;
-  static final double MOUNT_ANGLE = 0.448;
-  static final double CLIMB_ANGLE = 0.143;
+  static final double MOUNT_ANGLE = 0.946;
+  static final double CLIMB_ANGLE = 0.692;
 
   public static record Hardware (
     Spark climbMotor
