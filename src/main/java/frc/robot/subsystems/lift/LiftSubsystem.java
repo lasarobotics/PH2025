@@ -73,7 +73,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Angle SCORING_L1_ANGLE = Rotations.of(-0.263184);
   static final Angle SCORING_L2_ANGLE = Rotations.of(-0.27002);
   static final Angle SCORING_L3_ANGLE = Rotations.of(0.328125);
-  static final Angle SCORING_L4_ANGLE = Rotations.of(0.326172-0.027777777777).plus(Degrees.of(10));
+  static final Angle SCORING_L4_ANGLE = Rotations.of(0.326172-0.027777777777).plus(Degrees.of(7));
   static final Angle SCORING_A1_ANGLE = Rotations.of(-0.375);
   static final Angle SCORING_A2_ANGLE = Rotations.of(-0.375);
 
