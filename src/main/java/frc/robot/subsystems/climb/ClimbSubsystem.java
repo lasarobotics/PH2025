@@ -53,7 +53,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
       
       @Override
       public void execute() {
-        if(!s_climbInstance.inMountPosition() && s_climbInstance.m_mounted == true){
+        if(!s_climbInstance.inMountPosition() && s_climbInstance.m_mounted == false){
           s_climbInstance.mount();
         } else {
           s_climbInstance.setIsMounted(true);
