@@ -482,13 +482,15 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         Logger.recordOutput(getName() + "/settingOperatorPerspective", false);
     }
 
-    String[] limelights = {"limelight1", "limelight2"};
+    String[] limelights = {"limelight-left", "limelight-right"};
 
     for (String limelight : limelights) {
       LimelightHelpers.SetIMUMode(limelight, DriverStation.isDisabled() ? 1 : 2);
       LimelightHelpers.setLimelightNTDouble(limelight, "throttle_set", DriverStation.isDisabled() ? 100 : 0);
       LimelightHelpers.SetRobotOrientation(limelight, s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+      Logger.recordOutput(getName() + "/" + limelight + "/botpose", LimelightHelpers.getBotPose3d_wpiBlue(limelight));
       LimelightHelpers.PoseEstimate pose_estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
+      if (pose_estimate == null) continue;
       boolean doRejectUpdate = false;
       if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == Alliance.Red) { 
         int[] validIds = {6,7,8,9,10,11};
@@ -509,6 +511,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       if (!doRejectUpdate) { 
         s_drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
         s_drivetrain.addVisionMeasurement(pose_estimate.pose, pose_estimate.timestampSeconds);
+        Logger.recordOutput(getName() + "/" + limelight + "/botpose_orb", pose_estimate.pose);
       }
     }
 

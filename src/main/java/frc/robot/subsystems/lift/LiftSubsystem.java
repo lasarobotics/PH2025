@@ -73,7 +73,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Angle SCORING_L1_ANGLE = Rotations.of(-0.263184);
   static final Angle SCORING_L2_ANGLE = Rotations.of(-0.27002);
   static final Angle SCORING_L3_ANGLE = Rotations.of(0.328125);
-  static final Angle SCORING_L4_ANGLE = Rotations.of(0.326172-0.027777777777).plus(Degrees.of(10));
+  static final Angle SCORING_L4_ANGLE = Rotations.of(0.326172-0.027777777777).plus(Degrees.of(7));
   static final Angle SCORING_A1_ANGLE = Rotations.of(-0.375);
   static final Angle SCORING_A2_ANGLE = Rotations.of(-0.375);
 
@@ -83,16 +83,16 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Angle SAFE_INTAKE_ANGLE_TOP = Rotations.of(0.109375);
 
   static final Angle STOW_ANGLE = Rotations.of(-0.215333);
-  static final Distance STOW_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0.2)).minus(Inches.of(1/2));
+  static final Distance STOW_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0.05));
 
-  static final Distance L1_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(1.167969));
-  static final Distance L2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(2.55246)).plus(Inches.of(1));
-  static final Distance CLEAR_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(3.824));
+  static final Distance L1_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(1.167969)).minus(Inches.of(1.375));
+  static final Distance L2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(2.55246)).plus(Inches.of(1)).minus(Inches.of(1.375));
+  static final Distance CLEAR_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(3.824)).minus(Inches.of(1.375));
   static final Distance L3_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
-  static final Distance L4_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(4.49));
+  static final Distance L4_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(4.49)).minus(Inches.of(1.125));
 
-  static final Distance A1_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0.45));
-  static final Distance A2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(2.65678));
+  static final Distance A1_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0.45)).minus(Inches.of(0.375));
+  static final Distance A2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(2.65678)).minus(Inches.of(0.375));
 
   static final Distance BEAM_BREAK_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
 
