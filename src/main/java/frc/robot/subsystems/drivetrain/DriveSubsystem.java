@@ -14,6 +14,7 @@ import org.lasarobotics.vision.AprilTagCamera;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -508,9 +509,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         doRejectUpdate = true;
       }
 
-      if (!doRejectUpdate) { 
+      if (!doRejectUpdate) {
         s_drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
-        s_drivetrain.addVisionMeasurement(pose_estimate.pose, pose_estimate.timestampSeconds);
+        s_drivetrain.addVisionMeasurement(pose_estimate.pose, Utils.fpgaToCurrentTime(pose_estimate.timestampSeconds));
         Logger.recordOutput(getName() + "/" + limelight + "/botpose_orb", pose_estimate.pose);
       }
     }
