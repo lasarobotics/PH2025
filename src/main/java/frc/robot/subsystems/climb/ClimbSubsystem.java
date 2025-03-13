@@ -56,7 +56,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
         if(!s_climbInstance.inMountPosition() && s_climbInstance.m_mounted == true){
           s_climbInstance.mount();
         } else {
-          s_climbInstance.m_mounted = true;
+          s_climbInstance.setIsMounted(true);
           s_climbInstance.stopMotor();
         }
       }
@@ -70,7 +70,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         s_climbInstance.climb();
-        s_climbInstance.m_mounted = false;
+        s_climbInstance.setIsMounted(false);
 
       }
 
@@ -179,6 +179,13 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
    */
   public void mountState() {
     this.nextState = ClimbStates.MOUNT;
+  }
+
+  /**
+   * Sets mounted variable
+   */
+  public void setIsMounted(boolean mounted) {
+    this.m_mounted = mounted;
   }
 
   /**
