@@ -170,7 +170,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             new Pose2d(
                 pose.getX(), 
                 pose.getY(), 
-                Rotation2d.fromDegrees(this.getPigeon2().getYaw().getValueAsDouble())
+                this.getState().Pose.getRotation()
             )
         );
     }

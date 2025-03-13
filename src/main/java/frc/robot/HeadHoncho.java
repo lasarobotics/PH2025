@@ -185,7 +185,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.L2);
-        // DRIVE_SUBSYSTEM.requestAutoAlign();
+        DRIVE_SUBSYSTEM.requestAutoAlign();
         DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
       }
 
@@ -207,7 +207,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.L3);
-        // DRIVE_SUBSYSTEM.requestAutoAlign();
+        DRIVE_SUBSYSTEM.requestAutoAlign();
         DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
       }
 
@@ -229,7 +229,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
-        // DRIVE_SUBSYSTEM.requestAutoAlign();
+        DRIVE_SUBSYSTEM.requestAutoAlign();
         DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
       }
 

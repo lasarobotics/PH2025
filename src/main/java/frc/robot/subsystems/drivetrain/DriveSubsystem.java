@@ -181,7 +181,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         if (!s_isClose) {
           m_closeTime = System.currentTimeMillis();
         }
-        if (System.currentTimeMillis() - m_closeTime > 1000) {
+        if (System.currentTimeMillis() - m_closeTime > 250) {
           s_isAligned = true;
         }
 
