@@ -49,13 +49,17 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         s_climbInstance.mount();
+        if((s_climbInstance.inMountPosition())){
+          s_climbInstance.setIsMounted(true);
+        }
       }
       
       @Override
       public void execute() {
-        if(!s_climbInstance.inMountPosition()){
+        if(!s_climbInstance.inMountPosition() && s_climbInstance.m_mounted == false){
           s_climbInstance.mount();
         } else {
+          s_climbInstance.setIsMounted(true);
           s_climbInstance.stopMotor();
         }
       }
@@ -69,6 +73,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         s_climbInstance.climb();
+        s_climbInstance.setIsMounted(false);
 
       }
 
@@ -91,6 +96,8 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   private static ClimbSubsystem s_climbInstance;
   private final Spark m_climbMotor;
   private ClimbStates nextState;
+  private boolean m_mounted;
+
 
   /** Creates a new ClimbSubsystem. */
   private ClimbSubsystem(Hardware ClimbHardware) {
@@ -98,6 +105,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
     nextState =  ClimbStates.IDLE;
 
     this.m_climbMotor = ClimbHardware.climbMotor;
+    this.m_mounted = false;
   }
 
   /**
@@ -145,6 +153,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
     Hardware climbHardware = new Hardware(
       new Spark(Constants.ClimbHardware.CLIMB_MOTOR_ID, MotorKind.NEO)
     );
+    
 
     return climbHardware;
   }
@@ -173,6 +182,13 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
    */
   public void mountState() {
     this.nextState = ClimbStates.MOUNT;
+  }
+
+  /**
+   * Sets mounted variable
+   */
+  public void setIsMounted(boolean mounted) {
+    this.m_mounted = mounted;
   }
 
   /**
