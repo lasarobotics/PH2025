@@ -20,7 +20,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
 
   static final double CLIMB_SPEED = 1.0;
   static final double MOUNT_ANGLE = 0.946;
-  static final double CLIMB_ANGLE = 0.692;
+  static final double CLIMB_ANGLE = 0.6837;
 
   public static record Hardware (
     Spark climbMotor
