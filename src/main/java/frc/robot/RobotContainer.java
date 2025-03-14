@@ -11,6 +11,8 @@ import org.littletonrobotics.junction.Logger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -43,6 +45,7 @@ public class RobotContainer {
     m_autoModeChooser = AutoBuilder.buildAutoChooser("Test");
     SmartDashboard.putBoolean("Is Ready", DRIVE_SUBSYSTEM.isAligned() && LIFT_SUBSYSTEM.isLiftReady());
     SmartDashboard.putData("Auto Mode", m_autoModeChooser);
+    DRIVE_SUBSYSTEM.resetPose(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
   }
 
   private void configureBindings() {

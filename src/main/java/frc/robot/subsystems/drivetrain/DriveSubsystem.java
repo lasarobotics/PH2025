@@ -389,6 +389,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_drivetrain.resetPose();
   }
 
+  public void resetPose(Pose2d pose) {
+    s_drivetrain.resetPose(pose);
+  }
+
   /**
    * Returns the location the robot should go to in order to align to the nearest
    * reef pole

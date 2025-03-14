@@ -116,6 +116,9 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return REST;
         if (s_cancelButton.getAsBoolean()) return REST;
 
+        if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) return CLIMB;
+        if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) return MOUNT;
+
         return this;
       }
 

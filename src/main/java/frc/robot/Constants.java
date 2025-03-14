@@ -64,7 +64,7 @@ public final class Constants {
     public static final AngularAcceleration MAX_ANGULAR_ACCELERATION = RotationsPerSecondPerSecond.of(1); // TODO
                                                                                                           // measure
 
-    public static final double SLOW_SPEED_SCALAR = 0.5;
+    public static final double SLOW_SPEED_SCALAR = 0.3;
     public static final double FAST_SPEED_SCALAR = 1.0;
 
     public static final TrapezoidProfile.Constraints TURN_CONSTRAINTS = new TrapezoidProfile.Constraints(
