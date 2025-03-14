@@ -5,15 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "lift to L4 no wait"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "preload to 11b (top)"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "preload to 3a (bottom)"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "lift to L4"
+                }
+              }
+            ]
           }
         },
         {
@@ -31,7 +38,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "11b to intake (top)"
+            "pathName": "3a to intake (bottom)"
           }
         },
         {
@@ -43,7 +50,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "intake to 9a (top aa)"
+            "pathName": "intake to 5b (bottom)"
           }
         },
         {
@@ -61,7 +68,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "9a to intake (top)"
+            "pathName": "5b to intake (bottom)"
           }
         }
       ]

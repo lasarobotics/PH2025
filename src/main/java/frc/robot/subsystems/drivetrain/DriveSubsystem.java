@@ -487,6 +487,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         Logger.recordOutput(getName() + "/settingOperatorPerspective", false);
     }
 
+    long cameraTime = System.currentTimeMillis();
+
     String[] limelights = {"limelight-left", "limelight-right"};
 
     for (String limelight : limelights) {
@@ -519,6 +521,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         Logger.recordOutput(getName() + "/" + limelight + "/botpose_orb", pose_estimate.pose);
       }
     }
+
+    Logger.recordOutput(getName() + "/cameraMS", System.currentTimeMillis() - cameraTime);
 
     Logger.recordOutput(getName() + "/state", getState().toString());
     Logger.recordOutput(getName() + "/autoAlign/autotarget", findAutoAlignTarget());

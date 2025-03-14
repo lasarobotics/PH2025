@@ -107,8 +107,17 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
         DRIVE_SUBSYSTEM.cancelAutoAlign();
-        INTAKE_SUBSYSTEM.startIntake();
-        END_EFFECTOR_SUBSYSTEM.requestIntake();
+      }
+
+      @Override
+      public void execute() {
+        if (LIFT_SUBSYSTEM.isLiftReady()) {
+          INTAKE_SUBSYSTEM.startIntake();
+          END_EFFECTOR_SUBSYSTEM.requestIntake();
+        } else {
+          INTAKE_SUBSYSTEM.stop();
+          END_EFFECTOR_SUBSYSTEM.requestStop();
+        }
       }
 
       @Override
@@ -118,6 +127,9 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
         if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) return CLIMB;
         if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) return MOUNT;
+
+        if (s_algaeL2Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L2;
+        if (s_algaeL3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L3;
 
         return this;
       }
