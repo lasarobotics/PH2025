@@ -487,16 +487,29 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         Logger.recordOutput(getName() + "/settingOperatorPerspective", false);
     }
 
-    long cameraTime = System.currentTimeMillis();
+    double cameraTime = 0;
+    double configTime = 0;
+    double getPoseEstimateTime = 0;
+    double rejectTagsTime = 0;
+    double addMeasurementTime = 0;
 
     String[] limelights = {"limelight-left", "limelight-right"};
 
     for (String limelight : limelights) {
+      cameraTime = Utils.getSystemTimeSeconds();
       LimelightHelpers.SetIMUMode(limelight, DriverStation.isDisabled() ? 1 : 2);
       LimelightHelpers.setLimelightNTDouble(limelight, "throttle_set", DriverStation.isDisabled() ? 100 : 0);
       LimelightHelpers.SetRobotOrientation(limelight, s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+
+      configTime += Utils.getSystemTimeSeconds() - cameraTime;
+      cameraTime = Utils.getSystemTimeSeconds();
+
       Logger.recordOutput(getName() + "/" + limelight + "/botpose", LimelightHelpers.getBotPose3d_wpiBlue(limelight));
       LimelightHelpers.PoseEstimate pose_estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
+
+      getPoseEstimateTime += Utils.getSystemTimeSeconds() - cameraTime;
+      cameraTime = Utils.getSystemTimeSeconds();
+
       if (pose_estimate == null) continue;
       boolean doRejectUpdate = false;
       if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == Alliance.Red) { 
@@ -515,14 +528,22 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         doRejectUpdate = true;
       }
 
+      rejectTagsTime += Utils.getSystemTimeSeconds() - cameraTime;
+      cameraTime = Utils.getSystemTimeSeconds();
+
       if (!doRejectUpdate) {
         s_drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
         s_drivetrain.addVisionMeasurement(pose_estimate.pose, Utils.fpgaToCurrentTime(pose_estimate.timestampSeconds));
         Logger.recordOutput(getName() + "/" + limelight + "/botpose_orb", pose_estimate.pose);
       }
+
+      addMeasurementTime += Utils.getSystemTimeSeconds() - cameraTime;
     }
 
-    Logger.recordOutput(getName() + "/cameraMS", System.currentTimeMillis() - cameraTime);
+    Logger.recordOutput(getName() + "/cameraTimes/config", configTime);
+    Logger.recordOutput(getName() + "/cameraTimes/getPoseEstimate", getPoseEstimateTime);
+    Logger.recordOutput(getName() + "/cameraTimes/rejectTags", rejectTagsTime);
+    Logger.recordOutput(getName() + "/cameraTimes/addMeasurement", addMeasurementTime);
 
     Logger.recordOutput(getName() + "/state", getState().toString());
     Logger.recordOutput(getName() + "/autoAlign/autotarget", findAutoAlignTarget());
