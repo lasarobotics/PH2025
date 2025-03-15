@@ -76,7 +76,7 @@ public final class Constants {
       MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.2
     );
 
-    public static final double AUTO_ALIGN_TOLERANCE = 0.05;
+    public static final double AUTO_ALIGN_TOLERANCE = 0.06;
     public static final double AUTO_ALIGN_TOLERANCE_TURN = 0.075;
 
     public static final double TURN_P = 0.01;
@@ -85,8 +85,8 @@ public final class Constants {
 
     // Offsets from the center of the reef to the bottom (-x direction) branches
     // y+ is robot moves right
-    public static final Translation2d LEFT_BRANCH_OFFSET = new Translation2d(1.29885805 + 0.0054 - 0.1016 + 0.03, -0.375 - 0.02 - 0.03 - 0.015);
-    public static final Translation2d RIGHT_BRANCH_OFFSET = new Translation2d(1.29885805 + 0.0054 - 0.1016 + 0.03, -0.05 + 0.0054 - 0.03 - 0.015);
+    public static final Translation2d LEFT_BRANCH_OFFSET = new Translation2d(1.29885805 + 0.0054 - 0.1016 + 0.01, -0.375 - 0.02 - 0.03 + 0.015);
+    public static final Translation2d RIGHT_BRANCH_OFFSET = new Translation2d(1.29885805 + 0.0054 - 0.1016 + 0.01, -0.05 + 0.0054 - 0.03 - 0.015);
 
     public static List<Pose2d> AUTO_ALIGN_LOCATIONS_RED = Arrays.asList(
       new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(180))),

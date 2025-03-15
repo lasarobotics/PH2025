@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.3072345890410957,
-        "y": 0.5991438356164384
+        "x": 7.2740131578947365,
+        "y": 7.508059210526316
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.4495370837486723,
-        "y": 0.8046918835273834
+        "x": 6.60992729140013,
+        "y": 6.725552185664473
       },
       "isLocked": false,
-      "linkedName": "intake coral"
+      "linkedName": "reefscape top start point"
     },
     {
       "anchor": {
-        "x": 3.19,
-        "y": 4.07
+        "x": 5.168835616438356,
+        "y": 5.993364726027397
       },
       "prevControl": {
-        "x": 2.9974360133877247,
-        "y": 3.9105662800409293
+        "x": 5.352195910926656,
+        "y": 6.245531250041391
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "7a"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -41,14 +41,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 0.0
+    "velocity": 1.0,
+    "rotation": -121.61038784035551
   },
   "reversed": false,
-  "folder": "bottom paths",
+  "folder": "top paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 53.74587639398703
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

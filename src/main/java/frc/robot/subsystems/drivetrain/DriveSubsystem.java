@@ -1,6 +1,8 @@
 package frc.robot.subsystems.drivetrain;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -181,7 +183,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         if (!s_isClose) {
           m_closeTime = System.currentTimeMillis();
         }
-        if (System.currentTimeMillis() - m_closeTime > 250) {
+        if (System.currentTimeMillis() - m_closeTime > 300) {
           s_isAligned = true;
         }
 
@@ -549,7 +551,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/autoAlign/autotarget", findAutoAlignTarget());
     Logger.recordOutput(getName() + "/isNearSource", isNearSource());
     Logger.recordOutput(getName() + "/robotPose", s_drivetrain.getState().Pose);
-    Logger.recordOutput("temp", new Pose2d(new Translation2d(3.175, 4.0159), new Rotation2d(Math.toRadians(0))));
+    Logger.recordOutput("temp", new Pose2d(new Translation2d(Meters.of(10.94), Meters.of(4.03)), new Rotation2d(Math.toRadians(0))));
     Logger.recordOutput(getName() + "/autoAlign/isAligned", s_isAligned);
     int i = 0;
     for (i = 0; i < 4; i++) {

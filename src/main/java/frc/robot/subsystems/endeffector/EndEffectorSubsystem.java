@@ -88,7 +88,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
       @Override
       public SystemState nextState() {
-        if(s_endEffectorInstance.reverseBeamBreakBroken()) {
+        if(s_endEffectorInstance.reverseBeamBreakBroken() || s_endEffectorInstance.forwardBeamBreakBroken()) {
           s_endEffectorInstance.nextState = HOLD;
           return HOLD;
         }

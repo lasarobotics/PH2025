@@ -28,7 +28,7 @@ import frc.robot.subsystems.lift.LiftSubsystem;
 
 public class RobotContainer {
   private final CommandXboxController PRIMARY_CONTROLLER = new CommandXboxController(0);
-  private final CommandXboxController SECONDARY_CONTROLLER = new CommandXboxController(1);
+  // private final CommandXboxController SECONDARY_CONTROLLER = new CommandXboxController(1);
   private static final Telemetry LOGGER = new Telemetry(Constants.Drive.MAX_SPEED.in(MetersPerSecond));
 
   public static final DriveSubsystem DRIVE_SUBSYSTEM = new DriveSubsystem(DriveSubsystem.initializeHardware(), LOGGER);
@@ -73,8 +73,8 @@ public class RobotContainer {
       DRIVE_SUBSYSTEM.cancelAutoAlign();
     }));
 
-    SECONDARY_CONTROLLER.povUp().whileTrue(CLIMB_SUBSYSTEM.raiseClimberCommand());
-    SECONDARY_CONTROLLER.povDown().whileTrue(CLIMB_SUBSYSTEM.lowerClimberCommand());
+    // SECONDARY_CONTROLLER.povUp().whileTrue(CLIMB_SUBSYSTEM.raiseClimberCommand());
+    // SECONDARY_CONTROLLER.povDown().whileTrue(CLIMB_SUBSYSTEM.lowerClimberCommand());
 
     // PRIMARY_CONTROLLER.a().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().dynamic(SysIdRoutine.Direction.kForward));
     // PRIMARY_CONTROLLER.b().whileTrue(LIFT_SUBSYSTEM.getElevatorSysIDRoutine().dynamic(SysIdRoutine.Direction.kReverse));
