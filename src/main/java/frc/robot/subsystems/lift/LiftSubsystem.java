@@ -129,6 +129,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         if (nextState == TargetLiftStates.STOW) {
           return STOW;
         }
+        if (nextState == TargetLiftStates.READY) {
+          return STOW_READY_S1;
+        }
         return this;
       }
     },
@@ -1459,6 +1462,10 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   public boolean isLiftReady() {
     return isLiftReady;
+  }
+
+  public boolean isInReadyPosition() {
+    return s_liftinstance.elevatorAt(READY_HEIGHT) && s_liftinstance.armAt(READY_ANGLE);
   }
 
   private boolean elevatorHomingBeamBreak() {
