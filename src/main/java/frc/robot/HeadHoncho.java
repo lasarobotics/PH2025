@@ -156,6 +156,28 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         END_EFFECTOR_SUBSYSTEM.requestStop();
       }
     },
+    READY {
+      @Override
+      public void initialize() {
+        CLIMB_SUBSYSTEM.setIsMounted(false);
+        LIFT_SUBSYSTEM.setState(TargetLiftStates.READY);
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.FAST_SPEED_SCALAR); 
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (LIFT_SUBSYSTEM.isInReadyPosition()) {
+          if (s_L1Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L1;
+          if (s_L2Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L2;
+          if (s_L3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L3;
+          if (s_L4Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L4;
+        }
+
+        if (s_cancelButton.getAsBoolean()) return STOW;
+
+        return this;
+      }
+    },
     STOW {
       @Override
       public void initialize() {
@@ -186,7 +208,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_L3Button.getAsBoolean()) return L3;
         if (s_L4Button.getAsBoolean()) return L4;
 
-        if (s_cancelButton.getAsBoolean()) return STOW;
+        if (s_cancelButton.getAsBoolean()) return READY;
 
         return this;
       }
@@ -208,7 +230,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_L3Button.getAsBoolean()) return L3;
         if (s_L4Button.getAsBoolean()) return L4;
 
-        if (s_cancelButton.getAsBoolean()) return STOW;
+        if (s_cancelButton.getAsBoolean()) return READY;
 
         return this;
       }
@@ -230,7 +252,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_L3Button.getAsBoolean()) return L3;
         if (s_L4Button.getAsBoolean()) return L4;
 
-        if (s_cancelButton.getAsBoolean()) return STOW;
+        if (s_cancelButton.getAsBoolean()) return READY;
 
         return this;
       }
@@ -252,7 +274,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_L3Button.getAsBoolean()) return L3;
         if (s_L4Button.getAsBoolean()) return L4;
 
-        if (s_cancelButton.getAsBoolean()) return STOW;
+        if (s_cancelButton.getAsBoolean()) return READY;
 
         return this;
       }
@@ -315,7 +337,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public void end(boolean interrupted) {
-        LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+        LIFT_SUBSYSTEM.setState(TargetLiftStates.READY);
         END_EFFECTOR_SUBSYSTEM.requestStop();
         DRIVE_SUBSYSTEM.cancelAutoAlign();
         DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.FAST_SPEED_SCALAR);

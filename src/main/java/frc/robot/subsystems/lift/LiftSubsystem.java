@@ -48,6 +48,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   public static enum TargetLiftStates {
     NOTHING,
+    READY,
     STOW,
     L1,
     L2,
@@ -71,17 +72,18 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   // Tolerance in degrees of arm
   static final Angle ARM_TOLERANCE = Degrees.of(2.0);
 
+  static final Angle SAFE_REEF_ANGLE_BOTTOM = Rotations.of(-0.256836);
+  static final Angle SAFE_REEF_ANGLE_TOP = Rotations.of(0.287598-0.0278);
+  static final Angle SAFE_INTAKE_ANGLE_BOTTOM =  Rotations.of(-0.24469);
+  static final Angle SAFE_INTAKE_ANGLE_TOP = Rotations.of(0.109375);
+
   static final Angle SCORING_L1_ANGLE = Rotations.of(-0.263184);
   static final Angle SCORING_L2_ANGLE = Rotations.of(-0.27002);
   static final Angle SCORING_L3_ANGLE = Rotations.of(0.328125);
   static final Angle SCORING_L4_ANGLE = Rotations.of(0.326172-0.027777777777).plus(Degrees.of(7));
   static final Angle SCORING_A1_ANGLE = Rotations.of(-0.375);
   static final Angle SCORING_A2_ANGLE = Rotations.of(-0.375);
-
-  static final Angle SAFE_REEF_ANGLE_BOTTOM = Rotations.of(-0.256836);
-  static final Angle SAFE_REEF_ANGLE_TOP = Rotations.of(0.287598-0.0278);
-  static final Angle SAFE_INTAKE_ANGLE_BOTTOM =  Rotations.of(-0.24469);
-  static final Angle SAFE_INTAKE_ANGLE_TOP = Rotations.of(0.109375);
+  static final Angle READY_ANGLE = SAFE_REEF_ANGLE_BOTTOM;
 
   static final Angle STOW_ANGLE = Rotations.of(-0.215333);
   static final Distance STOW_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0.05));
@@ -91,7 +93,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Distance CLEAR_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(3.824)).minus(Inches.of(1.375));
   static final Distance L3_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
   static final Distance L4_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(4.49)).minus(Inches.of(1.125));
-
+  static final Distance READY_HEIGHT = L4_HEIGHT;
   static final Distance A1_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0.45)).minus(Inches.of(0.375));
   static final Distance A2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(2.65678)).minus(Inches.of(0.375));
 
@@ -125,6 +127,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       public LiftStates nextState() {
         if (nextState == TargetLiftStates.STOW) {
           return STOW;
+        }
+        if (nextState == TargetLiftStates.READY) {
+          return STOW_READY_S1;
         }
         return this;
       }
@@ -202,6 +207,48 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         }
         if (nextState == TargetLiftStates.A2) {
           return STOW_A2_S1;
+        }
+        return this;
+      }
+    },
+    STOW_READY_S1 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(READY_ANGLE);
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getArmAngle().lte(READY_ANGLE.plus(ARM_TOLERANCE))) {
+          return READY;
+        }
+        return this;
+      }
+    },
+    READY {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setElevatorHeight(READY_HEIGHT);
+        s_liftinstance.setArmAngle(READY_ANGLE);
+      }
+
+      @Override
+      public SystemState nextState() {
+        if(s_liftinstance.elevatorAt(READY_HEIGHT) && s_liftinstance.armAt(READY_ANGLE)){
+          if (nextState == TargetLiftStates.L1) {
+            return STOW_L1_S1;
+          }
+          if (nextState == TargetLiftStates.L2) {
+            return STOW_L2_S1;
+          }
+          if (nextState == TargetLiftStates.L3) {
+            return STOW_L3_S3;
+          }
+          if (nextState == TargetLiftStates.L4) {
+            return STOW_L4_S1;
+          }
         }
         return this;
       }
@@ -1299,6 +1346,10 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   public boolean isLiftReady() {
     return isLiftReady;
+  }
+
+  public boolean isInReadyPosition() {
+    return s_liftinstance.elevatorAt(READY_HEIGHT) && s_liftinstance.armAt(READY_ANGLE);
   }
 
   private boolean elevatorHomingBeamBreak() {
