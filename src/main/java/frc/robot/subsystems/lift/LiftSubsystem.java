@@ -250,7 +250,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public void execute() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_INTAKE_ANGLE_TOP) && s_liftinstance.elevatorAt(TURBO_HEIGHT)) {
+        if (s_liftinstance.armAt(TURBO_ANGLE) && s_liftinstance.elevatorAt(TURBO_HEIGHT)) {
           isLiftReady = true;
         } else {
           isLiftReady = false;
@@ -267,7 +267,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
           return L4_L2_S1;
         }
         if (nextState == TargetLiftStates.L3) {
-          return L4_L3_S1;
+          return STOW_L3_S2;
         }
         if (nextState == TargetLiftStates.L4) {
           return L4;
