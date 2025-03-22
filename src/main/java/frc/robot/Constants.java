@@ -168,6 +168,10 @@ public final class Constants {
         new LimitSwitch.ID("EndEffectorHardware/ReverseBeamBreak", 3);
   }
 
+  public static class LedHardware {
+    public static final int PWM_PORT = 4;
+  }
+
   public static class VisionHardware {
     public static final String CAMERA_A_NAME = "Left";
     public static Transform3d CAMERA_A_LOCATION =
