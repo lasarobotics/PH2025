@@ -658,6 +658,18 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     //   LoopTimer.addTimestamp(limelight);
     // }
 
+    /*
+     * Testing code, delete when confirmed that led subsys works as intended
+     */
+    List<Pose2d> autoAlignLocations = Constants.Drive.AUTO_ALIGN_LOCATIONS_BLUE;
+    if(findAutoAlignTarget().getRotation() == autoAlignLocations.get(0).getRotation()){
+      RobotContainer.setViolet();
+    } else if (findAutoAlignTarget().getRotation() == autoAlignLocations.get(3).getRotation()){
+      RobotContainer.setAqua();
+    } else {
+      RobotContainer.setWhite();
+    }
+
     Logger.recordOutput(getName() + "/cameraTimes/config", configTime);
     Logger.recordOutput(getName() + "/cameraTimes/getPoseEstimate", getPoseEstimateTime);
     Logger.recordOutput(getName() + "/cameraTimes/rejectTags", rejectTagsTime);

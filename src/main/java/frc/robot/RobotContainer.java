@@ -36,7 +36,7 @@ public class RobotContainer {
   private final IntakeSubsystem INTAKE_SUBSYSTEM = IntakeSubsystem.getInstance(IntakeSubsystem.initializeHardware());
   private final EndEffectorSubsystem END_EFFECTOR_SUBSYSTEM = EndEffectorSubsystem.getInstance(EndEffectorSubsystem.initializeHardware(), LIFT_SUBSYSTEM);
   private final ClimbSubsystem CLIMB_SUBSYSTEM = ClimbSubsystem.getInstance(ClimbSubsystem.initializeHardware());
-  private final Led LED_SUBSYSTEM = Led.getInstance(Led.initializHardware());
+  private final static Led LED_SUBSYSTEM = Led.getInstance(Led.initializHardware());
   private final HeadHoncho HEAD_HONCHO = new HeadHoncho(DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM, CLIMB_SUBSYSTEM);
   // private final AutoHoncho AUTO_HONCHO = new AutoHoncho(DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM);
   private static SendableChooser<Command> m_autoModeChooser = new SendableChooser<>();
@@ -110,6 +110,27 @@ public class RobotContainer {
       PRIMARY_CONTROLLER.getHID().setRumble(RumbleType.kRightRumble, 1.0);
     else
       PRIMARY_CONTROLLER.getHID().setRumble(RumbleType.kRightRumble, 0.0);
+  }
+
+  /**
+   * Testing for led class
+   */
+  public static void setViolet() {
+    LED_SUBSYSTEM.setViolet();
+  }
+
+  /**
+   * Testing for led class
+   */
+  public static void setAqua() {
+    LED_SUBSYSTEM.setAqua();
+  }
+
+  /**
+   * Testing for led class
+   */
+  public static void setWhite() {
+    LED_SUBSYSTEM.setWhite();
   }
 
   /**

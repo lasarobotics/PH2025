@@ -34,4 +34,12 @@ public class Led {
     public void setViolet() {
         m_pwm.setSpeed(0.91);
     }
+
+    public void setAqua() {
+        m_pwm.setSpeed(0.81);
+    }
+
+    public void setWhite() {
+        m_pwm.setSpeed(0.93);
+    }
 }
