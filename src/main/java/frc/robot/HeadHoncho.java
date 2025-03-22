@@ -24,17 +24,17 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
   public enum State implements SystemState {
 
     NOTHING {
-        @Override
-        public SystemState nextState() {
-            return this;
-        }
+      @Override
+      public SystemState nextState() {
+        return this;
+      }
     },
     AUTO {
-        @Override
-        public SystemState nextState() {
+      @Override
+      public SystemState nextState() {
             if(!DriverStation.isAutonomous()) return REST;
-            return this;
-        }
+        return this;
+      }
     },
     REST {
       @Override
@@ -50,10 +50,6 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public SystemState nextState() {
         if (s_intakeButton.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty() && LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW)) {
           return INTAKE;
-        }
-
-        if (s_regurgitateButton.getAsBoolean() && LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW)) {
-          return REGURGITATE;
         }
 
         if (s_L1Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L1;
@@ -79,7 +75,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
       }
 
-      @Override 
+      @Override
       public SystemState nextState() {
         if(s_climbButtonRising) return CLIMB;
         if(s_cancelButton.getAsBoolean()) return STOW;
@@ -151,10 +147,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (s_cancelButton.getAsBoolean() && (INTAKE_SUBSYSTEM.coralFullyInIntake() || END_EFFECTOR_SUBSYSTEM.isCoralCentered())) return REST;
-        // TODO algae
-
-        return this;
+        return REST;
       }
 
       @Override
@@ -175,7 +168,6 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public SystemState nextState() {
         return REST;
       }
-
     },
     L1 {
       @Override
@@ -377,10 +369,10 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
   private static Boolean s_climbButtonRising = false;
 
   public HeadHoncho(
-    DriveSubsystem driveSubsystem,
-    IntakeSubsystem intakeSubsystem,
-    LiftSubsystem liftSubsystem,
-    EndEffectorSubsystem endEffectorSubsystem,
+      DriveSubsystem driveSubsystem,
+      IntakeSubsystem intakeSubsystem,
+      LiftSubsystem liftSubsystem,
+      EndEffectorSubsystem endEffectorSubsystem,
     ClimbSubsystem climbSubsystem
   ) {
     super(State.REST);
@@ -393,19 +385,19 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
   }
 
   public void bindControls(
-    DoubleSupplier driveRequest,
-    DoubleSupplier strafeRequest,
-    DoubleSupplier rotateRequest,
-    BooleanSupplier intakeButton,
-    BooleanSupplier regurgitateButton,
-    BooleanSupplier L1Button,
-    BooleanSupplier L2Button,
-    BooleanSupplier L3Button,
-    BooleanSupplier L4Button,
-    BooleanSupplier L2AlgaeButton,
-    BooleanSupplier L3AlgaeButton,
-    BooleanSupplier scoreButton,
-    BooleanSupplier cancelButton,
+      DoubleSupplier driveRequest,
+      DoubleSupplier strafeRequest,
+      DoubleSupplier rotateRequest,
+      BooleanSupplier intakeButton,
+      BooleanSupplier regurgitateButton,
+      BooleanSupplier L1Button,
+      BooleanSupplier L2Button,
+      BooleanSupplier L3Button,
+      BooleanSupplier L4Button,
+      BooleanSupplier L2AlgaeButton,
+      BooleanSupplier L3AlgaeButton,
+      BooleanSupplier scoreButton,
+      BooleanSupplier cancelButton,
     BooleanSupplier climbButton
   ) {
     s_intakeButton = intakeButton;
@@ -430,31 +422,31 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_SCORE_COMMAND_NAME, this.autonomousScoreCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.WAIT_FOR_INTAKE_COMMAND_NAME, this.autonomousWaitForIntakeCommand());
   }
-	/**
-	 * Tells the robot to move the lift to the L4 state during autonomous
-	 * @return Command which tells the robot to move the lift to the L4 state during autonomous
-	 */
-	public Command autononomousL4Command() {
-		return Commands.startEnd(
-        () -> {
-          Logger.recordOutput("Auto/Command", Constants.NamedCommands.LIFT_L4_COMMAND_NAME);
-          LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
-        },
-        () -> {},
+  /**
+   * Tells the robot to move the lift to the L4 state during autonomous
+   * @return Command which tells the robot to move the lift to the L4 state during autonomous
+   */
+  public Command autononomousL4Command() {
+    return Commands.startEnd(
+            () -> {
+              Logger.recordOutput("Auto/Command", Constants.NamedCommands.LIFT_L4_COMMAND_NAME);
+              LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
+            },
+            () -> {},
         this
       )
       .until(() -> {
-        return LIFT_SUBSYSTEM.isLiftReady();
-      });
-	}
+              return LIFT_SUBSYSTEM.isLiftReady();
+            });
+  }
 
   public Command autononomousL4CommandNoWait() {
     return Commands.startEnd(
-        () -> {
-          Logger.recordOutput("Auto/Command", Constants.NamedCommands.LIFT_L4_COMMAND_NAME);
-          LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
-        },
-        () -> {},
+            () -> {
+              Logger.recordOutput("Auto/Command", Constants.NamedCommands.LIFT_L4_COMMAND_NAME);
+              LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
+            },
+            () -> {},
         this
       ).until(() -> true);
   }
@@ -464,59 +456,59 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
    */
   public Command autononomousAlignCommand() {
     return Commands.startEnd(
-        () -> {
-          Logger.recordOutput("Auto/Command", Constants.NamedCommands.AUTO_ALIGN_COMMAND_NAME);
-          DRIVE_SUBSYSTEM.requestAutoAlign();
-        },
-        () -> {},
+            () -> {
+              Logger.recordOutput("Auto/Command", Constants.NamedCommands.AUTO_ALIGN_COMMAND_NAME);
+              DRIVE_SUBSYSTEM.requestAutoAlign();
+            },
+            () -> {},
         this
       )
       .until(() -> {
-        return DRIVE_SUBSYSTEM.isAligned() && LIFT_SUBSYSTEM.isLiftReady();
-      });
+              return DRIVE_SUBSYSTEM.isAligned() && LIFT_SUBSYSTEM.isLiftReady();
+            });
   }
 
- /**
-	 * Tells the robot to score the preload coral during autonomous
-	 * @return Command that tells the robot to score the preload coral during autononomous
-	 */
+  /**
+   * Tells the robot to score the preload coral during autonomous
+   * @return Command that tells the robot to score the preload coral during autononomous
+   */
 	public Command autonomousScoreCommand() { {
 		return
 		Commands.startEnd(
-      () -> {
+              () -> {
         Logger.recordOutput("Auto/Command", Constants.NamedCommands.AUTO_SCORE_COMMAND_NAME);
-        END_EFFECTOR_SUBSYSTEM.setState(EndEffectorStates.SCORE_L4);
-        DRIVE_SUBSYSTEM.cancelAutoAlign();
-      },
-      () -> {
-        LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
-        INTAKE_SUBSYSTEM.startIntake();
-        END_EFFECTOR_SUBSYSTEM.requestIntake();
-      },
+                END_EFFECTOR_SUBSYSTEM.setState(EndEffectorStates.SCORE_L4);
+                DRIVE_SUBSYSTEM.cancelAutoAlign();
+              },
+              () -> {
+                LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+                INTAKE_SUBSYSTEM.startIntake();
+                END_EFFECTOR_SUBSYSTEM.requestIntake();
+              },
 		  this
     )
 		.until(() -> {
-			return END_EFFECTOR_SUBSYSTEM.isEmpty();
-		})
-    .withTimeout(2);
-	}
- }
+                return END_EFFECTOR_SUBSYSTEM.isEmpty();
+              })
+          .withTimeout(2);
+    }
+  }
 
-	/**
-	 * Sets the intake and end effector subsystems to intake state in autonomous
-	 * @return Command which sets the intake and end-effector to the intake state in autonomous
-	 */
-	public Command autonomousWaitForIntakeCommand() {
+  /**
+   * Sets the intake and end effector subsystems to intake state in autonomous
+   * @return Command which sets the intake and end-effector to the intake state in autonomous
+   */
+  public Command autonomousWaitForIntakeCommand() {
 		return Commands.startEnd(() ->
 		{}, () -> {
-			LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
-		},
+              LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
+            },
 		this
 		)
 		.until(() -> {
-			return END_EFFECTOR_SUBSYSTEM.isCoralCentered();
-		});
-	}
+              return END_EFFECTOR_SUBSYSTEM.isCoralCentered();
+            });
+  }
 
   @Override
   public void periodic() {
@@ -541,6 +533,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/buttons/algaeL3", s_algaeL3Button);
 
     Logger.recordOutput(getName() + "/buttons/intake", s_intakeButton);
+    LoopTimer.addTimestamp(getName());
   }
 
   @Override

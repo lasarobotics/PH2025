@@ -1126,9 +1126,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     pivotConfig.Feedback.FeedbackRemoteSensorID = m_armCANcoder.getID().deviceID;
     pivotConfig.Audio.AllowMusicDurDisable = true;
-    pivotConfig.MotionMagic.MotionMagicCruiseVelocity = 1.5;
-    pivotConfig.MotionMagic.MotionMagicAcceleration = 3;
-    pivotConfig.MotionMagic.MotionMagicJerk = 20;
+    pivotConfig.MotionMagic.MotionMagicCruiseVelocity = 10.0;
+    pivotConfig.MotionMagic.MotionMagicAcceleration = 7.5;
+    pivotConfig.MotionMagic.MotionMagicJerk = 30.0;
     pivotConfig.MotionMagic.MotionMagicExpo_kV = 0.12;
     pivotConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
     pivotConfig.ClosedLoopGeneral.ContinuousWrap = false;
@@ -1136,7 +1136,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.5;
     pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.5;
-    pivotConfig.Slot0.kP = 35;
+    pivotConfig.Slot0.kP = 100.0;
     pivotConfig.Slot0.kI = 0;
     pivotConfig.Slot0.kD = 0;
     pivotConfig.Slot0.kA = 0;

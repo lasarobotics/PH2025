@@ -4,18 +4,15 @@
 
 package frc.robot;
 
-import java.nio.file.Path;
-
-import org.lasarobotics.hardware.PurpleManager;
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
-
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -23,16 +20,23 @@ public class Robot extends LoggedRobot {
   private final RobotContainer m_robotContainer;
 
   public Robot() {
-    PurpleManager.initialize(
-      this,
-      Constants.Field.FIELD_LAYOUT,
-      Path.of("/media/sda1"),
-      BuildConstants.MAVEN_NAME,
-      BuildConstants.GIT_SHA,
-      BuildConstants.BUILD_DATE,
-      true,
-      true
-    );
+
+    if (isReal()) {
+      Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+      Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+    } else {
+      setUseTiming(false); // Run as fast as possible
+      String logPath =
+          LogFileUtil
+              .findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+      Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+      Logger.addDataReceiver(
+          new WPILOGWriter(
+              LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+    }
+
+    Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may
+    // be added.
     m_robotContainer = new RobotContainer();
 
     CameraServer.startAutomaticCapture();
@@ -40,11 +44,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
-    long sTime = System.currentTimeMillis();
-    PurpleManager.update();
-    Logger.recordOutput("purpleLibMs", System.currentTimeMillis() - sTime);
+    LoopTimer.resetTimer();
     CommandScheduler.getInstance().run();
-    Logger.recordOutput("totalMs", System.currentTimeMillis() - sTime);
+    LoopTimer.addTimestamp("CommandScheduler");
   }
 
   @Override
@@ -58,7 +60,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-		Logger.recordOutput("Auto/Lift/State", "starting");
+    Logger.recordOutput("Auto/Lift/State", "starting");
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
@@ -68,7 +70,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    PurpleManager.update();
     CommandScheduler.getInstance().run();
   }
 
