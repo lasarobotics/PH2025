@@ -399,6 +399,12 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
           // Logger.recordOutput(getName() + "/" + limelight + "/botpose_orb", pose_estimate.pose);
         }
       }
+      try {
+        Thread.sleep(15);
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        // e.printStackTrace();
+      }
     }
   }
 
@@ -559,6 +565,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   @Override
   public void periodic() {
 
+    LoopTimer.addTimestamp(getName() + " Start");
+
     /*
      * Periodically try to apply the operator perspective.
      * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
@@ -670,7 +678,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
           getName() + "/Mod" + i + "/motorVoltage",
           s_drivetrain.getModule(i).getDriveMotor().getMotorVoltage().getValue());
     }
-    LoopTimer.addTimestamp(getName());
+    LoopTimer.addTimestamp(getName() + " End");
   }
 
   @Override

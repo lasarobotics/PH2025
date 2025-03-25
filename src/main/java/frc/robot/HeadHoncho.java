@@ -512,6 +512,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
   @Override
   public void periodic() {
+    LoopTimer.addTimestamp(getName() + " Start");
     super.periodic();
 
     Logger.recordOutput(getName() + "/state", getState().toString());
@@ -533,7 +534,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/buttons/algaeL3", s_algaeL3Button);
 
     Logger.recordOutput(getName() + "/buttons/intake", s_intakeButton);
-    LoopTimer.addTimestamp(getName());
+    LoopTimer.addTimestamp(getName() + " End");
   }
 
   @Override

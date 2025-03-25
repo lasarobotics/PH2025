@@ -15,12 +15,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 
 import frc.robot.Constants;
+import frc.robot.LoopTimer;
 
 public class ClimbSubsystem extends StateMachine implements AutoCloseable {
 
   static final double CLIMB_SPEED = 1.0;
-  static final double MOUNT_ANGLE = 0.946;
-  static final double CLIMB_ANGLE = 0.6837;
+  static final double MOUNT_ANGLE = 0.295;
+  static final double CLIMB_ANGLE = 0.058;
 
   public static record Hardware (
     Spark climbMotor
@@ -242,9 +243,12 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
 
   @Override
   public void periodic() {
+    LoopTimer.addTimestamp(getName() + " Start");
+
     // This method will be called once per scheduler run
     Logger.recordOutput(getName() + "/absoluteEncoderValue", s_climbInstance.getInputs().absoluteEncoderPosition);
     Logger.recordOutput(getName() + "/state", getState().toString());
+    LoopTimer.addTimestamp(getName() + " End");
   }
 
   @Override

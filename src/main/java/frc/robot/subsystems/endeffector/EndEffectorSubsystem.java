@@ -18,6 +18,7 @@ import edu.wpi.first.units.measure.Dimensionless;
 import edu.wpi.first.wpilibj.AsynchronousInterrupt;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
+import frc.robot.LoopTimer;
 import frc.robot.subsystems.lift.LiftSubsystem;
 
 public class EndEffectorSubsystem extends StateMachine implements AutoCloseable {
@@ -82,7 +83,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
       @Override
       public void end(boolean interrupted) {
-        s_endEffectorInstance.m_Interrupt.disable();
+        // s_endEffectorInstance.m_Interrupt.disable();
         s_endEffectorInstance.stopMotor();
       }
 
@@ -130,7 +131,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
   private final DigitalInput m_forwardBeamBreak;
   private final DigitalInput m_reverseBeamBreak;
   private static LiftSubsystem LIFT_SUBSYSTEM;
-  private final AsynchronousInterrupt m_Interrupt;
+  // private final AsynchronousInterrupt m_Interrupt;
   private EndEffectorStates nextState;
 
   /**
@@ -158,13 +159,13 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     this.m_forwardBeamBreak = endEffectorHardware.forwardBeamBreak;
     this.m_reverseBeamBreak = endEffectorHardware.reverseBeamBreak;
     LIFT_SUBSYSTEM = liftSubsystem;
-    this.m_Interrupt = new AsynchronousInterrupt(m_forwardBeamBreak, (rising, falling) -> {
-      if (falling) {
-        s_endEffectorInstance.stopMotor();
-      }
-    });
-    this.m_Interrupt.setInterruptEdges(false, true);
-    m_Interrupt.disable();
+    // this.m_Interrupt = new AsynchronousInterrupt(m_forwardBeamBreak, (rising, falling) -> {
+    //   if (falling) {
+    //     s_endEffectorInstance.stopMotor();
+    //   }
+    // });
+    // this.m_Interrupt.setInterruptEdges(false, true);
+    // m_Interrupt.disable();
   }
   /**
    * Initalizes hardware devices used by subsystem
@@ -296,12 +297,14 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
   @Override
   public void periodic() {
+    LoopTimer.addTimestamp(getName() + " Start");
     super.periodic();
 
     Logger.recordOutput(getName() + "/State", getState().toString());
     Logger.recordOutput(getName() + "/IsCoralCentered", isCoralCentered());
     Logger.recordOutput(getName() + "/forwardBeamBreak", forwardBeamBreakBroken());
     Logger.recordOutput(getName() + "/reverseBeamBreak", reverseBeamBreakBroken());
+    LoopTimer.addTimestamp(getName() + " End");
   }
 
   @Override
@@ -310,6 +313,6 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     m_forwardBeamBreak.close();
     m_forwardBeamBreak.close();
     s_endEffectorInstance = null;
-    m_Interrupt.close();
+    // m_Interrupt.close();
   }
 }

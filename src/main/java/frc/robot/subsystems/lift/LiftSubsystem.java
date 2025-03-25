@@ -36,6 +36,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.LoopTimer;
 
 public class LiftSubsystem extends StateMachine implements AutoCloseable {
   public static record Hardware (
@@ -1370,6 +1371,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   @Override
   public void periodic() {
+    LoopTimer.addTimestamp(getName() + " Start");
     super.periodic();
 
     Logger.recordOutput(getName() + "/state", getState().toString());
@@ -1379,6 +1381,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/currentElevatorHeight", getElevatorHeight());
     Logger.recordOutput(getName() + "/currentElevatorAngle", m_elevatorMotor.getPosition().getValue().in(Rotations));
     Logger.recordOutput(getName() + "/isLiftReady", this.isLiftReady());
+    LoopTimer.addTimestamp(getName() + " End");
   }
 
   /**

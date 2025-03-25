@@ -14,6 +14,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.units.measure.Dimensionless;
 import frc.robot.Constants;
+import frc.robot.LoopTimer;
 
 public class IntakeSubsystem extends StateMachine implements AutoCloseable {
   public static record Hardware (
@@ -211,11 +212,14 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
 
   @Override
   public void periodic() {
+    LoopTimer.addTimestamp(getName() + " Start");
     super.periodic();
 
     Logger.recordOutput(getName() + "/state", getState().toString());
     Logger.recordOutput(getName() + "/firstBeamBreak", firstIntakeBeamBreak());
     Logger.recordOutput(getName() + "/secondBeamBreak", secondIntakeBeamBreak());
+    
+    LoopTimer.addTimestamp(getName() + " End");
   }
   
   /**
