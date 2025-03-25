@@ -37,7 +37,7 @@ public class TunerConstants {
           .withKP(0.25)
           .withKI(0)
           .withKD(0.001)
-          .withKS(0.1)
+          .withKS(0.2)
           .withKV(0.12276)
           .withKA(0.0)
           .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign);

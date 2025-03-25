@@ -180,6 +180,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
               s_drive.withVelocityX(0.0).withVelocityY(0.0).withRotationalRate(0));
           Logger.recordOutput(
               RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", true);
+          Logger.recordOutput(
+            RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/controlMode", "deadband");
         } else if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE
             && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
                 || heading > (Math.PI * 2 - (Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN)))) {
@@ -192,6 +194,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                   .withRotationalRate(0));
           Logger.recordOutput(
               RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
+          Logger.recordOutput(
+            RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/controlMode", "lr");
         } else {
           s_drivetrain.setControl(
               s_autoDrive
@@ -203,6 +207,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                   .withFeedforwardY(m_currentDriveYState.velocity));
           Logger.recordOutput(
               RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
+          Logger.recordOutput(
+            RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/controlMode", "normal");
         }
 
         Logger.recordOutput(
@@ -341,7 +347,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_autoDrive.HeadingController.enableContinuousInput(0, Math.PI * 2);
 
     s_autoDrive.XController.setPID(1.5, 0, 0);
-    s_autoDrive.YController.setPID(1.5, 0, 0);
+    s_autoDrive.YController.setPID(6, 0, 0);
 
     s_drivetrain.registerTelemetry(logger::telemeterize);
 

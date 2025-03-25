@@ -79,11 +79,11 @@ public final class Constants {
             MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond));
     public static final TrapezoidProfile.Constraints DRIVE_CONSTRAINTS =
         new TrapezoidProfile.Constraints(
-            MAX_SPEED.in(MetersPerSecond) * 0.2,
+            MAX_SPEED.in(MetersPerSecond) * 0.5,
             MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.8);
 
     public static final double AUTO_ALIGN_TOLERANCE = Meters.of(0.075).in(Meters);
-    public static final double AUTO_ALIGN_LR_TOLERANCE = Centimeter.of(0.75).in(Meters);
+    public static final double AUTO_ALIGN_LR_TOLERANCE = Centimeter.of(0.5).in(Meters);
     public static final double AUTO_ALIGN_TOLERANCE_TURN =
         Radians.of(0.075).plus(Degrees.of(7.5)).in(Radians);
 
@@ -92,14 +92,14 @@ public final class Constants {
     public static final double TURN_D = 0;
 
     // Offsets from the center of the reef to the bottom (-x direction) branches
-    // y+ is robot moves left, x+ is robot moves fwd
+    // y+ is robot moves left, x+ is robot moves into the reef
     public static final Translation2d LEFT_BRANCH_OFFSET =
         new Translation2d(
-            Inches.of(-48.74),
+            Inches.of(-52.74),
             Inches.of(15.5));
     public static final Translation2d RIGHT_BRANCH_OFFSET =
         new Translation2d(
-            Inches.of(-48.74),
+            Inches.of(-52.74),
             Inches.of(2.5));
 
     public static List<Pose2d> AUTO_ALIGN_LOCATIONS_RED =
