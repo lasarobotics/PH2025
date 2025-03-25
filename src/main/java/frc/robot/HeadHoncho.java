@@ -166,14 +166,15 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (LIFT_SUBSYSTEM.isLiftReady()) {
-          if (s_L1Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L1;
-          if (s_L2Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L2;
-          if (s_L3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L3;
-          if (s_L4Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L4;
-        }
+        if (s_L1Button.getAsBoolean()) return L1;
+        if (s_L2Button.getAsBoolean()) return L2;
+        if (s_L3Button.getAsBoolean()) return L3;
+        if (s_L4Button.getAsBoolean()) return L4;
 
         if (s_cancelButton.getAsBoolean()) return STOW;
+
+        if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) return CLIMB;
+        if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) return MOUNT;
 
         return this;
       }
