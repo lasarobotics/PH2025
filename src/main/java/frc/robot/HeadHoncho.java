@@ -57,8 +57,14 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_L3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L3;
         if (s_L4Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L4;
 
-        if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) return CLIMB;
-        if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) return MOUNT;
+        if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) {
+          LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+          return CLIMB;
+        } 
+        if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) {
+          LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+          return MOUNT;
+        }
 
         if(s_algaeL2Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L2;
         if(s_algaeL3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L3;
@@ -86,7 +92,6 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     CLIMB {
       @Override
       public void initialize() {
-        LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
         CLIMB_SUBSYSTEM.climbState();
         DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
       }
@@ -124,9 +129,14 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return REST;
         if (s_cancelButton.getAsBoolean()) return REST;
 
-        if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) return CLIMB;
-        if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) return MOUNT;
-
+        if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) {
+          LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+          return CLIMB;
+        } 
+        if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) {
+          LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+          return MOUNT;
+        }
         if (s_algaeL2Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L2;
         if (s_algaeL3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L3;
 
