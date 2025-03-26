@@ -86,6 +86,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     CLIMB {
       @Override
       public void initialize() {
+        LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
         CLIMB_SUBSYSTEM.climbState();
         DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
       }
