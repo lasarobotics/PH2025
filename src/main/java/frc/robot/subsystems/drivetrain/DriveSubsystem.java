@@ -662,9 +662,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
      * Testing code, delete when confirmed that led subsys works as intended
      */
     List<Pose2d> autoAlignLocations = Constants.Drive.AUTO_ALIGN_LOCATIONS_BLUE;
-    if(findAutoAlignTarget().getRotation() == autoAlignLocations.get(0).getRotation()){
+    if(findAutoAlignTarget().getRotation().equals(autoAlignLocations.get(0).getRotation())){
       RobotContainer.setViolet();
-    } else if (findAutoAlignTarget().getRotation() == autoAlignLocations.get(3).getRotation()){
+    } else if (findAutoAlignTarget().getRotation().equals(autoAlignLocations.get(3).getRotation())){
       RobotContainer.setAqua();
     } else {
       RobotContainer.setWhite();
