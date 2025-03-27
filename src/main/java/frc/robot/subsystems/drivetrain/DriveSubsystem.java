@@ -347,7 +347,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_autoDrive.HeadingController.enableContinuousInput(0, Math.PI * 2);
 
     s_autoDrive.XController.setPID(1.5, 0, 0);
-    s_autoDrive.YController.setPID(6, 0, 0);
+    s_autoDrive.YController.setPID(4, 0, 0);
 
     s_drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -467,8 +467,15 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_drivetrain.resetPose(pose);
   }
 
-  /** Returns the location the robot should go to in order to align to the nearest reef pole */
   private static Pose2d findAutoAlignTarget() {
+    return findAutoAlignTarget(false);
+  }
+
+  /**
+   * Returns the location the robot should go to in order to align to the nearest reef pole
+   * flipSide will cause the robot to align to the farther pole on the same side of the reef.
+  */
+  private static Pose2d findAutoAlignTarget(boolean flipSide) {
     Translation2d reefLocation;
     List<Pose2d> autoAlignLocations;
 
@@ -539,7 +546,13 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/right_pose",
         right_pose);
 
-    return drivetrain_pose.nearest(Arrays.asList(left_pose, right_pose));
+    if (flipSide) {
+      var nearest = drivetrain_pose.nearest(Arrays.asList(left_pose, right_pose));
+      if (nearest.equals(left_pose)) return right_pose;
+      else return left_pose;
+    } else {
+      return drivetrain_pose.nearest(Arrays.asList(left_pose, right_pose));
+    }
   }
 
   public void setDriveSpeed(double newSpeed) {
