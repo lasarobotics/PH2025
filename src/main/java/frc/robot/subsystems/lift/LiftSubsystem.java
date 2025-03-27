@@ -279,6 +279,81 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         return this;
       }
     },
+    L1_TURBO_S1 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(TURBO_ANGLE.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
+          return TURBO;
+        }
+        return this;
+      }
+    },
+    L2_TURBO_S1 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(TURBO_ANGLE.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
+          return TURBO;
+        }
+        return this;
+      }
+    },
+    L3_TURBO_S1 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setElevatorHeight(TURBO_HEIGHT);
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.elevatorAt(TURBO_HEIGHT)) {
+          return L3_TURBO_S2;
+        }
+        return this;
+      }
+    },
+    L3_TURBO_S2 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(TURBO_ANGLE.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
+          return TURBO;
+        }
+        return this;
+      }
+    },
+    L4_TURBO_S1 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(TURBO_ANGLE.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
+          return TURBO;
+        }
+        return this;
+      }
+    },
     STOW_A1_S1 {
       @Override
       public void initialize() {
@@ -455,6 +530,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         if (nextState == TargetLiftStates.L4) {
           return L1_L4_S1;
         }
+        if (nextState == TargetLiftStates.TURBO) {
+          return L1_TURBO_S1;
+        }
         return this;
       }
     },
@@ -606,6 +684,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         if (nextState == TargetLiftStates.L4) {
           return L2_L4_S1;
         }
+        if (nextState == TargetLiftStates.TURBO) {
+          return L2_TURBO_S1;
+        }
         return this;
       }
     },
@@ -741,6 +822,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         }
         if (nextState == TargetLiftStates.L4) {
           return L3_L4_S1;
+        }
+        if (nextState == TargetLiftStates.TURBO) {
+          return L3_TURBO_S1;
         }
         return this;
       }
@@ -1004,6 +1088,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         }
         if (nextState == TargetLiftStates.L3) {
           return L4_L3_S1;
+        }
+        if (nextState == TargetLiftStates.TURBO) {
+          return L4_TURBO_S1;
         }
         return this;
       }
