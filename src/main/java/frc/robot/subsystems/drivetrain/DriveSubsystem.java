@@ -13,6 +13,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -91,10 +92,22 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       TrapezoidProfile.State m_currentDriveXState;
       TrapezoidProfile.State m_currentDriveYState;
 
+      boolean secondStage = false;
+
       @Override
       public void initialize() {
         m_lastTime = System.currentTimeMillis();
         m_closeTime = System.currentTimeMillis();
+
+        secondStage = false;
+        // move auto align 0.1 meters away from the reef
+        s_autoAlignTarget = s_autoAlignTarget.plus(new Transform2d(new Translation2d(-0.2, 0), new Rotation2d()));
+        s_autoAlignTargetDriveX.position -= 0.2;
+
+        // make sure the motion profiles are at normal speed
+        s_turnProfile = new TrapezoidProfile(Constants.Drive.TURN_CONSTRAINTS);
+        s_driveProfile = new TrapezoidProfile(Constants.Drive.DRIVE_CONSTRAINTS);
+        
         var drivetrain_state = s_drivetrain.getState();
         var field_speeds =
             ChassisSpeeds.fromRobotRelativeSpeeds(
@@ -177,7 +190,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
                 || heading > (Math.PI * 2 - (Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN)))) {
           s_drivetrain.setControl(
-              s_drive.withVelocityX(0.0).withVelocityY(0.0).withRotationalRate(0));
+              s_driveRobotCentric.withVelocityX(0).withVelocityY(0.0).withRotationalRate(0));
           Logger.recordOutput(
               RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", true);
           Logger.recordOutput(
@@ -190,7 +203,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                   .withVelocityX(0.0)
                   .withDeadband(0.0)
                   .withDriveRequestType(DriveRequestType.Velocity)
-                  .withVelocityY(perp_dist * 7.5)
+                  .withVelocityY(perp_dist * 2)
                   .withRotationalRate(0));
           Logger.recordOutput(
               RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
@@ -223,6 +236,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 s_autoAlignTargetDriveX.position,
                 s_autoAlignTargetDriveY.position,
                 new Rotation2d(s_autoAlignTargetTurn.position)));
+        Logger.recordOutput("DriveSubsystem/autoAlign/finalPose2", s_autoAlignTarget);
 
         Logger.recordOutput(
             RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/distanceError", distance);
@@ -231,8 +245,19 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE
             && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
                 || heading > (Math.PI * 2 - Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN))) {
-          s_isAligned = true;
+          if (secondStage) {
+            s_isAligned = true;
+          } else {
+            secondStage = true;
+
+            // move the target back to normal, and lower the constraints
+            s_turnProfile = new TrapezoidProfile(Constants.Drive.TURN_CONSTRAINTS_SLOW);
+            s_driveProfile = new TrapezoidProfile(Constants.Drive.DRIVE_CONSTRAINTS_SLOW);
+            requestAutoAlign();
+          }
         }
+
+        Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/secondStage", secondStage);
 
         if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE * 2
             && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN * 2
@@ -347,7 +372,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_autoDrive.HeadingController.enableContinuousInput(0, Math.PI * 2);
 
     s_autoDrive.XController.setPID(1.5, 0, 0);
-    s_autoDrive.YController.setPID(6, 0, 0);
+    s_autoDrive.YController.setPID(4, 0, 0);
 
     s_drivetrain.registerTelemetry(logger::telemeterize);
 
