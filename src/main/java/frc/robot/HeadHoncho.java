@@ -183,6 +183,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_L4Button.getAsBoolean()) return L4;
 
         if (s_cancelButton.getAsBoolean()) return STOW;
+        if (END_EFFECTOR_SUBSYSTEM.isEmpty()) return STOW;
 
         if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) return CLIMB;
         if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) return MOUNT;
