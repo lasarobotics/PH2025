@@ -99,9 +99,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         m_lastTime = System.currentTimeMillis();
         m_closeTime = System.currentTimeMillis();
 
+        secondStage = false;
         // move auto align 0.1 meters away from the reef
-        s_autoAlignTarget.plus(new Transform2d(new Translation2d(-0.1, 0), new Rotation2d()));
-        s_autoAlignTargetDriveX.position -= 0.1;
+        s_autoAlignTarget = s_autoAlignTarget.plus(new Transform2d(new Translation2d(-0.2, 0), new Rotation2d()));
+        s_autoAlignTargetDriveX.position -= 0.2;
 
         // make sure the motion profiles are at normal speed
         s_turnProfile = new TrapezoidProfile(Constants.Drive.TURN_CONSTRAINTS);
@@ -189,7 +190,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
                 || heading > (Math.PI * 2 - (Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN)))) {
           s_drivetrain.setControl(
-              s_drive.withVelocityX(0.0).withVelocityY(0.0).withRotationalRate(0));
+              s_driveRobotCentric.withVelocityX(0).withVelocityY(0.0).withRotationalRate(0));
           Logger.recordOutput(
               RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", true);
           Logger.recordOutput(
@@ -202,7 +203,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                   .withVelocityX(0.0)
                   .withDeadband(0.0)
                   .withDriveRequestType(DriveRequestType.Velocity)
-                  .withVelocityY(perp_dist * 7.5)
+                  .withVelocityY(perp_dist * 2)
                   .withRotationalRate(0));
           Logger.recordOutput(
               RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
@@ -235,6 +236,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 s_autoAlignTargetDriveX.position,
                 s_autoAlignTargetDriveY.position,
                 new Rotation2d(s_autoAlignTargetTurn.position)));
+        Logger.recordOutput("DriveSubsystem/autoAlign/finalPose2", s_autoAlignTarget);
 
         Logger.recordOutput(
             RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/distanceError", distance);
@@ -254,6 +256,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             requestAutoAlign();
           }
         }
+
+        Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/secondStage", secondStage);
 
         if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE * 2
             && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN * 2

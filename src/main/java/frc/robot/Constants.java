@@ -79,8 +79,8 @@ public final class Constants {
             MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond));
     public static final TrapezoidProfile.Constraints DRIVE_CONSTRAINTS =
         new TrapezoidProfile.Constraints(
-            MAX_SPEED.in(MetersPerSecond) * 0.2,
-            MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.2);
+            MAX_SPEED.in(MetersPerSecond) * 0.8,
+            MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.8);
 
     public static final TrapezoidProfile.Constraints TURN_CONSTRAINTS_SLOW =
     new TrapezoidProfile.Constraints(
