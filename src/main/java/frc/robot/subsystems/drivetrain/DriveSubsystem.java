@@ -697,6 +697,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     var poses = findAutoAlignTargets();
 
+    if(s_shouldAutoAlign) {
+      RobotContainer.setRed();
+    }
+
     if(poses.get(0).equals(findAutoAlignTarget(poses))){
       RobotContainer.setViolet();
     } else if(poses.get(1).equals(findAutoAlignTarget(poses))){

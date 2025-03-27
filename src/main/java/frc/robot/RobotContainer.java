@@ -113,22 +113,20 @@ public class RobotContainer {
   }
 
   /**
-   * Testing for led class
+   * setter methods for led colors
    */
   public static void setViolet() {
     LED_SUBSYSTEM.setViolet();
   }
 
-  /**
-   * Testing for led class
-   */
+  public static void setRed() {
+    LED_SUBSYSTEM.setRed();
+  }
+
   public static void setAqua() {
     LED_SUBSYSTEM.setAqua();
   }
 
-  /**
-   * Testing for led class
-   */
   public static void setWhite() {
     LED_SUBSYSTEM.setWhite();
   }
