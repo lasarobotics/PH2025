@@ -435,7 +435,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   }
 
   public static void requestAutoAlign() {
-    requestAutoAlign(findAutoAlignTarget());
+    requestAutoAlign(findAutoAlignTarget(findAutoAlignTargets()));
   }
 
   public void cancelAutoAlign() {
@@ -467,8 +467,16 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_drivetrain.resetPose(pose);
   }
 
+  private static Pose2d findAutoAlignTarget(List<Pose2d> pose2ds) {
+    var drivetrain_state = s_drivetrain.getState();
+    var drivetrain_pose = drivetrain_state.Pose;
+
+    return drivetrain_pose.nearest(pose2ds);
+
+  }
+
   /** Returns the location the robot should go to in order to align to the nearest reef pole */
-  private static Pose2d findAutoAlignTarget() {
+  private static List<Pose2d> findAutoAlignTargets() {
     Translation2d reefLocation;
     List<Pose2d> autoAlignLocations;
 
@@ -539,7 +547,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/right_pose",
         right_pose);
 
-    return drivetrain_pose.nearest(Arrays.asList(left_pose, right_pose));
+    return Arrays.asList(left_pose, right_pose);
   }
 
   public void setDriveSpeed(double newSpeed) {
@@ -661,10 +669,12 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     /*
      * Testing code, delete when confirmed that led subsys works as intended
      */
-    List<Pose2d> autoAlignLocations = Constants.Drive.AUTO_ALIGN_LOCATIONS_BLUE;
-    if(findAutoAlignTarget().getRotation().equals(autoAlignLocations.get(0).getRotation())){
+
+    var poses = findAutoAlignTargets();
+
+    if(poses.get(0).equals(findAutoAlignTarget(poses))){
       RobotContainer.setViolet();
-    } else if (findAutoAlignTarget().getRotation().equals(autoAlignLocations.get(3).getRotation())){
+    } else if(poses.get(1).equals(findAutoAlignTarget(poses))){
       RobotContainer.setAqua();
     } else {
       RobotContainer.setWhite();
@@ -676,7 +686,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/cameraTimes/addMeasurement", addMeasurementTime);
 
     Logger.recordOutput(getName() + "/state", getState().toString());
-    Logger.recordOutput(getName() + "/autoAlign/autotarget", findAutoAlignTarget());
+    Logger.recordOutput(getName() + "/autoAlign/autotarget", findAutoAlignTarget(findAutoAlignTargets()));
     Logger.recordOutput(getName() + "/isNearSource", isNearSource());
     Logger.recordOutput(getName() + "/robotPose", s_drivetrain.getState().Pose);
     Logger.recordOutput(
