@@ -109,9 +109,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         s_driveProfile = new TrapezoidProfile(Constants.Drive.DRIVE_CONSTRAINTS);
         
         var drivetrain_state = s_drivetrain.getState();
+        var pose = drivetrain_state.Pose.rotateAround(s_autoAlignTarget.getTranslation(), s_autoAlignTarget.getRotation().times(-1));
         var field_speeds =
             ChassisSpeeds.fromRobotRelativeSpeeds(
                 drivetrain_state.Speeds, drivetrain_state.Pose.getRotation());
+        var field_speeds_pose = new Translation2d(field_speeds.vxMetersPerSecond, field_speeds.vyMetersPerSecond).rotateBy(s_autoAlignTarget.getRotation().times(-1));
 
         m_currentTurnState =
             new TrapezoidProfile.State(
@@ -120,11 +122,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
         m_currentDriveXState =
             new TrapezoidProfile.State(
-                drivetrain_state.Pose.getX(), field_speeds.vxMetersPerSecond);
+                pose.getX(), field_speeds_pose.getX());
 
         m_currentDriveYState =
             new TrapezoidProfile.State(
-                drivetrain_state.Pose.getY(), field_speeds.vyMetersPerSecond);
+                pose.getY(), field_speeds_pose.getY());
 
         s_isAligned = false;
       }
@@ -162,6 +164,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             s_driveProfile.calculate(dt, m_currentDriveYState, s_autoAlignTargetDriveY);
         m_currentTurnState = s_turnProfile.calculate(dt, m_currentTurnState, s_autoAlignTargetTurn);
 
+        Translation2d newPosition = new Translation2d(m_currentDriveXState.position, m_currentDriveYState.position).rotateAround(s_autoAlignTarget.getTranslation(), s_autoAlignTarget.getRotation().times(1));
+        Translation2d newVelocity = new Translation2d(m_currentDriveXState.velocity, m_currentDriveYState.velocity).rotateBy(s_autoAlignTarget.getRotation().times(1));
+
         var drivetrain_state = s_drivetrain.getState();
         var drivetrain_pose = drivetrain_state.Pose;
         double distance =
@@ -170,17 +175,12 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             Math.abs((drivetrain_pose.getRotation().getRadians() - s_autoAlignTargetTurn.position))
                 % 360;
 
-        // Translation2d newPosition = new Translation2d(m_currentDriveXState.position,
-        // m_currentDriveYState.position).rotateAround(s_autoAlignTarget.getTranslation(),
-        // s_autoAlignTarget.getRotation().times(1));
-        // Translation2d newVelocity = new Translation2d(m_currentDriveXState.velocity,
-        // m_currentDriveYState.velocity).rotateBy(s_autoAlignTarget.getRotation().times(1));
-
-        var perp_dist =
-            Math.cos(s_autoAlignTarget.getRotation().getRadians())
-                    * (s_autoAlignTarget.getY() - drivetrain_pose.getY())
-                - Math.sin(s_autoAlignTarget.getRotation().getRadians())
-                    * (s_autoAlignTarget.getX() - drivetrain_pose.getX());
+        // var perp_dist =
+        //     Math.cos(s_autoAlignTarget.getRotation().getRadians())
+        //             * (s_autoAlignTarget.getY() - drivetrain_pose.getY())
+        //         - Math.sin(s_autoAlignTarget.getRotation().getRadians())
+        //             * (s_autoAlignTarget.getX() - drivetrain_pose.getX());
+        var perp_dist = s_drivetrain.getState().Pose.getY() - m_currentDriveYState.position;
         Logger.recordOutput(
             RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/DistanceToScoreLine", perp_dist);
 
@@ -198,6 +198,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         } else if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE
             && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
                 || heading > (Math.PI * 2 - (Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN)))) {
+
+          // double con
+          // if (perp_dist > 0.05)
           s_drivetrain.setControl(
               s_driveRobotCentric
                   .withVelocityX(0.0)
@@ -214,10 +217,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
               s_autoDrive
                   .withTargetDirection(new Rotation2d(m_currentTurnState.position))
                   .withTargetRateFeedforward(Units.RadiansPerSecond.of(m_currentTurnState.velocity))
-                  .withTargetX(m_currentDriveXState.position)
-                  .withFeedforwardX(m_currentDriveXState.velocity)
-                  .withTargetY(m_currentDriveYState.position)
-                  .withFeedforwardY(m_currentDriveYState.velocity));
+                  .withTargetX(newPosition.getX())
+                  .withFeedforwardX(newVelocity.getX())
+                  .withTargetY(newPosition.getY())
+                  .withFeedforwardY(newVelocity.getY()));
           Logger.recordOutput(
               RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
           Logger.recordOutput(
@@ -227,8 +230,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         Logger.recordOutput(
             "DriveSubsystem/autoAlign/targetPose",
             new Pose2d(
-                m_currentDriveXState.position,
-                m_currentDriveYState.position,
+                newPosition,
                 new Rotation2d(m_currentTurnState.position)));
         Logger.recordOutput(
             "DriveSubsystem/autoAlign/finalPose",
@@ -516,12 +518,12 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         new Pose2d(reefLocation, new Rotation2d()));
 
     var drivetrain_state = s_drivetrain.getState();
-    var drivetrain_pose = drivetrain_state.Pose;
+    var drivetrain_pose = drivetrain_state.Pose.plus(new Transform2d(Constants.Drive.THAGOMIZER_OFFSET.rotateBy(drivetrain_state.Pose.getRotation()), new Rotation2d()));
 
     // find the angle to the reef
     Rotation2d angle =
         Rotation2d.fromRadians(
-                Math.atan2(
+                Math.atan2( 
                     drivetrain_pose.getY() - reefLocation.getY(),
                     drivetrain_pose.getX() - reefLocation.getX()));
 
