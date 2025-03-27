@@ -76,6 +76,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Angle SAFE_REEF_ANGLE_TOP = Rotations.of(0.287598-0.0278);
   static final Angle SAFE_INTAKE_ANGLE_BOTTOM =  Rotations.of(-0.24469);
   static final Angle SAFE_INTAKE_ANGLE_TOP = Rotations.of(0.109375);
+  static final Angle SAFE_NEW_ANGLE_INTAKE = Rotations.of(0.104004);
 
   static final Angle SCORING_L1_ANGLE = Rotations.of(-0.263184);
   static final Angle SCORING_L2_ANGLE = Rotations.of(-0.27002);
@@ -1165,8 +1166,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     elevatorConfig.Feedback.SensorToMechanismRatio = 5.0;
     elevatorConfig.Feedback.RotorToSensorRatio = 1.0;
     elevatorConfig.Audio.AllowMusicDurDisable = true;
-    elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = 15;
-    elevatorConfig.MotionMagic.MotionMagicAcceleration = 40;
+    elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = 1;
+    elevatorConfig.MotionMagic.MotionMagicAcceleration = 1;
     elevatorConfig.MotionMagic.MotionMagicJerk = 0;
     elevatorConfig.MotionMagic.MotionMagicExpo_kV = 0.12;
     elevatorConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
