@@ -82,6 +82,15 @@ public final class Constants {
             MAX_SPEED.in(MetersPerSecond) * 0.2,
             MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.2);
 
+    public static final TrapezoidProfile.Constraints TURN_CONSTRAINTS_SLOW =
+    new TrapezoidProfile.Constraints(
+        MAX_ANGULAR_RATE.in(RadiansPerSecond),
+        MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond));
+    public static final TrapezoidProfile.Constraints DRIVE_CONSTRAINTS_SLOW =
+        new TrapezoidProfile.Constraints(
+            MAX_SPEED.in(MetersPerSecond) * 0.2,
+            MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.2);
+
     public static final double AUTO_ALIGN_TOLERANCE = Meters.of(0.075).in(Meters);
     public static final double AUTO_ALIGN_LR_TOLERANCE = Centimeter.of(0.5).in(Meters);
     public static final double AUTO_ALIGN_TOLERANCE_TURN =

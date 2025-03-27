@@ -13,6 +13,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -91,10 +92,21 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       TrapezoidProfile.State m_currentDriveXState;
       TrapezoidProfile.State m_currentDriveYState;
 
+      boolean secondStage = false;
+
       @Override
       public void initialize() {
         m_lastTime = System.currentTimeMillis();
         m_closeTime = System.currentTimeMillis();
+
+        // move auto align 0.1 meters away from the reef
+        s_autoAlignTarget.plus(new Transform2d(new Translation2d(-0.1, 0), new Rotation2d()));
+        s_autoAlignTargetDriveX.position -= 0.1;
+
+        // make sure the motion profiles are at normal speed
+        s_turnProfile = new TrapezoidProfile(Constants.Drive.TURN_CONSTRAINTS);
+        s_driveProfile = new TrapezoidProfile(Constants.Drive.DRIVE_CONSTRAINTS);
+        
         var drivetrain_state = s_drivetrain.getState();
         var field_speeds =
             ChassisSpeeds.fromRobotRelativeSpeeds(
@@ -231,7 +243,16 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE
             && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
                 || heading > (Math.PI * 2 - Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN))) {
-          s_isAligned = true;
+          if (secondStage) {
+            s_isAligned = true;
+          } else {
+            secondStage = true;
+
+            // move the target back to normal, and lower the constraints
+            s_turnProfile = new TrapezoidProfile(Constants.Drive.TURN_CONSTRAINTS_SLOW);
+            s_driveProfile = new TrapezoidProfile(Constants.Drive.DRIVE_CONSTRAINTS_SLOW);
+            requestAutoAlign();
+          }
         }
 
         if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE * 2
@@ -467,15 +488,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_drivetrain.resetPose(pose);
   }
 
-  private static Pose2d findAutoAlignTarget() {
-    return findAutoAlignTarget(false);
-  }
-
   /**
    * Returns the location the robot should go to in order to align to the nearest reef pole
    * flipSide will cause the robot to align to the farther pole on the same side of the reef.
   */
-  private static Pose2d findAutoAlignTarget(boolean flipSide) {
+  private static Pose2d findAutoAlignTarget() {
     Translation2d reefLocation;
     List<Pose2d> autoAlignLocations;
 
@@ -546,13 +563,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/right_pose",
         right_pose);
 
-    if (flipSide) {
-      var nearest = drivetrain_pose.nearest(Arrays.asList(left_pose, right_pose));
-      if (nearest.equals(left_pose)) return right_pose;
-      else return left_pose;
-    } else {
-      return drivetrain_pose.nearest(Arrays.asList(left_pose, right_pose));
-    }
+    return drivetrain_pose.nearest(Arrays.asList(left_pose, right_pose));
   }
 
   public void setDriveSpeed(double newSpeed) {
