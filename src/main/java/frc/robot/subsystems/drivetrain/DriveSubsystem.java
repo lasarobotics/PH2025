@@ -100,9 +100,13 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         m_closeTime = System.currentTimeMillis();
 
         secondStage = false;
-        // move auto align 0.1 meters away from the reef
-        s_autoAlignTarget = s_autoAlignTarget.plus(new Transform2d(new Translation2d(-0.2, 0), new Rotation2d()));
-        s_autoAlignTargetDriveX.position -= 0.2;
+        // move auto align away from the reef slightly
+        Logger.recordOutput("DriveSubsystem/autoAlign/preTransform", s_autoAlignTarget);
+        s_autoAlignTarget = s_autoAlignTarget.plus(new Transform2d(new Translation2d(-0.3, 0), new Rotation2d()));
+        Logger.recordOutput("DriveSubsystem/autoAlign/postTransform", s_autoAlignTarget);
+
+        s_autoAlignTargetDriveX.position = s_autoAlignTarget.getX();
+        s_autoAlignTargetDriveY.position = s_autoAlignTarget.getY();
 
         // make sure the motion profiles are at normal speed
         s_turnProfile = new TrapezoidProfile(Constants.Drive.TURN_CONSTRAINTS);
@@ -523,7 +527,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         new Pose2d(reefLocation, new Rotation2d()));
 
     var drivetrain_state = s_drivetrain.getState();
-    var drivetrain_pose = drivetrain_state.Pose.plus(new Transform2d(Constants.Drive.THAGOMIZER_OFFSET.rotateBy(drivetrain_state.Pose.getRotation()), new Rotation2d()));
+    var drivetrain_pose = drivetrain_state.Pose.plus(new Transform2d(Constants.Drive.THAGOMIZER_OFFSET, new Rotation2d()));
+    Logger.recordOutput("DriveSubsystem/autoAlign/thagomizerPose", drivetrain_pose);
 
     // find the angle to the reef
     Rotation2d angle =
