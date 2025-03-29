@@ -120,7 +120,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public void execute() {
-        if (LIFT_SUBSYSTEM.isLiftReady()) {
+        if (LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW) && LIFT_SUBSYSTEM.isLiftReady()) {
           INTAKE_SUBSYSTEM.startIntake();
           END_EFFECTOR_SUBSYSTEM.requestIntake();
         }
