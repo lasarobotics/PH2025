@@ -116,19 +116,14 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
         DRIVE_SUBSYSTEM.cancelAutoAlign();
-        INTAKE_SUBSYSTEM.startIntake();
-        END_EFFECTOR_SUBSYSTEM.requestIntake();
       }
 
       @Override
       public void execute() {
-        // if (LIFT_SUBSYSTEM.isLiftReady()) {
-        //   INTAKE_SUBSYSTEM.startIntake();
-        //   END_EFFECTOR_SUBSYSTEM.requestIntake();
-        // } else {
-        //   INTAKE_SUBSYSTEM.stop();
-        //   END_EFFECTOR_SUBSYSTEM.requestStop();
-        // }
+        if (LIFT_SUBSYSTEM.isLiftReady()) {
+          INTAKE_SUBSYSTEM.startIntake();
+          END_EFFECTOR_SUBSYSTEM.requestIntake();
+        }
       }
 
       @Override
