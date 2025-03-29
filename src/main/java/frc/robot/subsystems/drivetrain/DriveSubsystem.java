@@ -505,11 +505,19 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_drivetrain.resetPose(pose);
   }
 
+  private static Pose2d findAutoAlignTarget() {
+    var poses = findAutoAlignTargets();
+    var drivetrain_state = s_drivetrain.getState();
+    var drivetrain_pose = drivetrain_state.Pose;
+
+    return drivetrain_pose.nearest(poses);
+  }
+
   /**
    * Returns the location the robot should go to in order to align to the nearest reef pole
    * flipSide will cause the robot to align to the farther pole on the same side of the reef.
   */
-  private static Pose2d findAutoAlignTarget() {
+  private static List<Pose2d> findAutoAlignTargets() {
     Translation2d reefLocation;
 
     // Determine which reef we're aligning to
@@ -542,7 +550,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       branch_locations.add(right_pose);
     }
 
-    return drivetrain_pose.nearest(branch_locations);
+    return branch_locations;
   }
 
   public void setDriveSpeed(double newSpeed) {
@@ -660,6 +668,19 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     //   LoopTimer.addTimestamp(limelight);
     // }
+
+
+    if(s_shouldAutoAlign) {
+      RobotContainer.setRed();
+    }
+
+    if(findAutoAlignTargets().get(0).equals(findAutoAlignTarget())){
+      RobotContainer.setViolet();
+    } else if(findAutoAlignTargets().get(1).equals(findAutoAlignTarget())){
+      RobotContainer.setAqua();
+    } else {
+      RobotContainer.setWhite();
+    }
 
     Logger.recordOutput(getName() + "/cameraTimes/config", configTime);
     Logger.recordOutput(getName() + "/cameraTimes/getPoseEstimate", getPoseEstimateTime);
