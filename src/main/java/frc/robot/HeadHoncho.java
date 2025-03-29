@@ -128,7 +128,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return REST;
+        if (END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return TURBO;
         if (s_cancelButton.getAsBoolean()) return REST;
 
         if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) {
@@ -174,7 +174,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void initialize() {
         CLIMB_SUBSYSTEM.setIsMounted(false);
         LIFT_SUBSYSTEM.setState(TargetLiftStates.TURBO);
-        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.FAST_SPEED_SCALAR); 
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.FAST_SPEED_SCALAR);
+        DRIVE_SUBSYSTEM.cancelAutoAlign();
       }
 
       @Override
