@@ -111,12 +111,6 @@ public final class Constants {
             Inches.of(-47.74),
             Inches.of(2.5));
 
-    public static final Translation2d THAGOMIZER_OFFSET =
-        new Translation2d(
-            Inches.of(14.74-1.782),
-            Inches.of(-8.8925)
-        );
-
     public static List<Pose2d> AUTO_ALIGN_LOCATIONS_RED =
         Arrays.asList(
             new Pose2d(new Translation2d(0, 0), new Rotation2d(Units.degreesToRadians(180))),

@@ -27,6 +27,7 @@ import frc.robot.RobotContainer;
 import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.DoubleSupplier;
@@ -101,9 +102,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
         secondStage = false;
         // move auto align away from the reef slightly
-        Logger.recordOutput("DriveSubsystem/autoAlign/preTransform", s_autoAlignTarget);
         s_autoAlignTarget = s_autoAlignTarget.plus(new Transform2d(new Translation2d(-0.3, 0), new Rotation2d()));
-        Logger.recordOutput("DriveSubsystem/autoAlign/postTransform", s_autoAlignTarget);
 
         s_autoAlignTargetDriveX.position = s_autoAlignTarget.getX();
         s_autoAlignTargetDriveY.position = s_autoAlignTarget.getY();
@@ -259,7 +258,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             // move the target back to normal, and lower the constraints
             s_turnProfile = new TrapezoidProfile(Constants.Drive.TURN_CONSTRAINTS_SLOW);
             s_driveProfile = new TrapezoidProfile(Constants.Drive.DRIVE_CONSTRAINTS_SLOW);
-            requestAutoAlign();
+            
+            s_autoAlignTarget = s_autoAlignTarget.plus(new Transform2d(new Translation2d(0.3, 0), new Rotation2d()));
+
+            s_autoAlignTargetDriveX.position = s_autoAlignTarget.getX();
+            s_autoAlignTargetDriveY.position = s_autoAlignTarget.getY();
           }
         }
 
@@ -396,9 +399,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     while (true) {
       for (String limelight : limelights) {
-        LimelightHelpers.SetIMUMode(limelight, DriverStation.isDisabled() ? 1 : 2);
+        LimelightHelpers.SetIMUMode(limelight, DriverStation.isDisabled() ? 1 : 4);
         LimelightHelpers.setLimelightNTDouble(
-            limelight, "throttle_set", DriverStation.isDisabled() ? 100 : 0);
+            limelight, "throttle_set", DriverStation.isDisabled() ? 200 : 0);
         LimelightHelpers.SetRobotOrientation(
             limelight, s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
@@ -426,6 +429,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         }
 
         if (pose_estimate.tagCount == 0) {
+          doRejectUpdate = true;
+        }
+
+        if (Double.isNaN(pose_estimate.pose.getX()) || Double.isNaN(pose_estimate.pose.getY()) || Double.isNaN(pose_estimate.pose.getRotation().getDegrees())) {
           doRejectUpdate = true;
         }
 
@@ -466,7 +473,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   }
 
   public static void requestAutoAlign() {
-    requestAutoAlign(findAutoAlignTarget(findAutoAlignTargets()));
+    requestAutoAlign(findAutoAlignTarget());
   }
 
   public void cancelAutoAlign() {
@@ -498,88 +505,44 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_drivetrain.resetPose(pose);
   }
 
-  private static Pose2d findAutoAlignTarget(List<Pose2d> pose2ds) {
-    var drivetrain_state = s_drivetrain.getState();
-    var drivetrain_pose = drivetrain_state.Pose;
-
-    return drivetrain_pose.nearest(pose2ds);
-
-  }
-
-  /** Returns the location the robot should go to in order to align to the nearest reef pole */
-  private static List<Pose2d> findAutoAlignTargets() {
+  /**
+   * Returns the location the robot should go to in order to align to the nearest reef pole
+   * flipSide will cause the robot to align to the farther pole on the same side of the reef.
+  */
+  private static Pose2d findAutoAlignTarget() {
     Translation2d reefLocation;
-    List<Pose2d> autoAlignLocations;
 
     // Determine which reef we're aligning to
     if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == Alliance.Red) {
       reefLocation = Constants.Field.REEF_LOCATION_RED;
-      autoAlignLocations = Constants.Drive.AUTO_ALIGN_LOCATIONS_RED;
     } else {
       reefLocation = Constants.Field.REEF_LOCATION_BLUE;
-      autoAlignLocations = Constants.Drive.AUTO_ALIGN_LOCATIONS_BLUE;
     }
-
-
 
     Logger.recordOutput(
         RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/reefLocation",
         new Pose2d(reefLocation, new Rotation2d()));
 
     var drivetrain_state = s_drivetrain.getState();
-    var drivetrain_pose = drivetrain_state.Pose.plus(new Transform2d(Constants.Drive.THAGOMIZER_OFFSET, new Rotation2d()));
+    var drivetrain_pose = drivetrain_state.Pose;
     Logger.recordOutput("DriveSubsystem/autoAlign/thagomizerPose", drivetrain_pose);
-
-    // find the angle to the reef
-    Rotation2d angle =
-        Rotation2d.fromRadians(
-                Math.atan2( 
-                    drivetrain_pose.getY() - reefLocation.getY(),
-                    drivetrain_pose.getX() - reefLocation.getX()));
 
     Pose2d left_pose;
     Pose2d right_pose;
 
-    Translation2d left_offset = Constants.Drive.LEFT_BRANCH_OFFSET;
-    Translation2d right_offset = Constants.Drive.RIGHT_BRANCH_OFFSET;
-    
-    Logger.recordOutput(
-        RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/left_offset_initial",
-        left_offset);
-    Logger.recordOutput(
-        RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/right_offset_initial",
-        right_offset);
-    
-    double rotation_angle = 0.0;
-    if (angle.getDegrees() <= 150.0 && angle.getDegrees() > 90.0) {
-      rotation_angle = 300.0;
-    }
-    else if (angle.getDegrees() <= 90.0 && angle.getDegrees() > 30.0) {
-      rotation_angle = 240.0;
-    }
-    else if (angle.getDegrees() <= 30.0 && angle.getDegrees() > -30.0) {
-      rotation_angle = 180.0;
-    }
-    else if (angle.getDegrees() <= -30.0 && angle.getDegrees() > -90.0) {
-      rotation_angle = 120.0;
-    }
-    else if (angle.getDegrees() <= -90.0 && angle.getDegrees() > -150.0) {
-      rotation_angle = 60.0;
+    ArrayList<Pose2d> branch_locations = new ArrayList<>();
+    for (int angle = 0; angle < 360; angle += 60) {
+      Translation2d left_offset = Constants.Drive.LEFT_BRANCH_OFFSET;
+      Translation2d right_offset = Constants.Drive.RIGHT_BRANCH_OFFSET;
+      left_offset = left_offset.rotateBy(Rotation2d.fromDegrees(angle));
+      right_offset = right_offset.rotateBy(Rotation2d.fromDegrees(angle));
+      left_pose = new Pose2d(reefLocation.plus(left_offset), Rotation2d.fromDegrees(angle));
+      right_pose = new Pose2d(reefLocation.plus(right_offset), Rotation2d.fromDegrees(angle));
+      branch_locations.add(left_pose);
+      branch_locations.add(right_pose);
     }
 
-    left_offset = left_offset.rotateBy(Rotation2d.fromDegrees(rotation_angle));
-    right_offset = right_offset.rotateBy(Rotation2d.fromDegrees(rotation_angle));
-    left_pose = new Pose2d(reefLocation.plus(left_offset), Rotation2d.fromDegrees(rotation_angle));
-    right_pose = new Pose2d(reefLocation.plus(right_offset), Rotation2d.fromDegrees(rotation_angle));
-    
-    Logger.recordOutput(
-        RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/left_pose",
-        left_pose);
-    Logger.recordOutput(
-        RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/right_pose",
-        right_pose);
-
-    return Arrays.asList(left_pose, right_pose);
+    return drivetrain_pose.nearest(branch_locations);
   }
 
   public void setDriveSpeed(double newSpeed) {
@@ -698,31 +661,13 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     //   LoopTimer.addTimestamp(limelight);
     // }
 
-    /*
-     * Testing code, delete when confirmed that led subsys works as intended
-     */
-
-    var poses = findAutoAlignTargets();
-
-    if(s_shouldAutoAlign) {
-      RobotContainer.setRed();
-    }
-
-    if(poses.get(0).equals(findAutoAlignTarget(poses))){
-      RobotContainer.setViolet();
-    } else if(poses.get(1).equals(findAutoAlignTarget(poses))){
-      RobotContainer.setAqua();
-    } else {
-      RobotContainer.setWhite();
-    }
-
     Logger.recordOutput(getName() + "/cameraTimes/config", configTime);
     Logger.recordOutput(getName() + "/cameraTimes/getPoseEstimate", getPoseEstimateTime);
     Logger.recordOutput(getName() + "/cameraTimes/rejectTags", rejectTagsTime);
     Logger.recordOutput(getName() + "/cameraTimes/addMeasurement", addMeasurementTime);
 
     Logger.recordOutput(getName() + "/state", getState().toString());
-    Logger.recordOutput(getName() + "/autoAlign/autotarget", findAutoAlignTarget(findAutoAlignTargets()));
+    Logger.recordOutput(getName() + "/autoAlign/autotarget", findAutoAlignTarget());
     Logger.recordOutput(getName() + "/isNearSource", isNearSource());
     Logger.recordOutput(getName() + "/robotPose", s_drivetrain.getState().Pose);
     Logger.recordOutput(
