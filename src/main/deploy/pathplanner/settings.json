@@ -12,8 +12,8 @@
     "bottom autos",
     "top autos"
   ],
-  "defaultMaxVel": 4.633,
-  "defaultMaxAccel": 1.5,
+  "defaultMaxVel": 5.25,
+  "defaultMaxAccel": 4.5,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
   "defaultNominalVoltage": 12.0,

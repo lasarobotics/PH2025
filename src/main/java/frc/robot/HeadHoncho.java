@@ -578,8 +578,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     }
 
  public Command autoFirstLeftCoralCommand() {
-  Pose2d redAlignPose = new Pose2d(12.0, 2.8, new Rotation2d(0.0));
-  Pose2d blueAlignPose = new Pose2d(5.6, 5.0, new Rotation2d(0.0));
+  Pose2d redAlignPose = new Pose2d(12.0, 2.8, new Rotation2d(0.0)); // TODO update this for red alliance
+  Pose2d blueAlignPose = new Pose2d(5.55, 5.74, new Rotation2d(0.0));
   if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(Alliance.Red)) {
     return autonomousAutoAlignToPoseCommand(redAlignPose);
   }
@@ -589,8 +589,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 }
 
 public Command autoSecondLeftCoralCommand() {
-  Pose2d redAlignPose = new Pose2d(12.7, 2.6, new Rotation2d(0.0));
-  Pose2d blueAlignPose = new Pose2d(4.7, 5.4, new Rotation2d(0.0));
+  Pose2d redAlignPose = new Pose2d(13.4, 2.6, new Rotation2d(0.0));
+  Pose2d blueAlignPose = new Pose2d(4.3, 5.5, new Rotation2d(0.0));
   if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(Alliance.Red)) {
     return autonomousAutoAlignToPoseCommand(redAlignPose);
   }
@@ -600,8 +600,8 @@ public Command autoSecondLeftCoralCommand() {
 }
 
 public Command autoThirdLeftCoralCommand() {
-  Pose2d redAlignPose = new Pose2d(13.5, 2.5, new Rotation2d(0.0));
-  Pose2d blueAlignPose = new Pose2d(4.2, 5.5, new Rotation2d(0.0));
+  Pose2d redAlignPose = new Pose2d(14.3, 2.9, new Rotation2d(0.0));
+  Pose2d blueAlignPose = new Pose2d(3.6, 5.2, new Rotation2d(0.0));
   if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == Alliance.Red) {
     return autonomousAutoAlignToPoseCommand(redAlignPose);
   }

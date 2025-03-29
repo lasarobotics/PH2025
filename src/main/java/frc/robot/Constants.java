@@ -91,7 +91,7 @@ public final class Constants {
             MAX_SPEED.in(MetersPerSecond) * 0.2,
             MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.2);
 
-    public static final double AUTO_ALIGN_TOLERANCE = Meters.of(0.075).in(Meters);
+    public static final double AUTO_ALIGN_TOLERANCE = Meters.of(0.05).in(Meters);
     public static final double AUTO_ALIGN_LR_TOLERANCE = Centimeter.of(0.5).in(Meters);
     public static final double AUTO_ALIGN_TOLERANCE_TURN =
         Radians.of(0.075).plus(Degrees.of(7.5)).in(Radians);
@@ -228,5 +228,7 @@ public final class Constants {
         new Pair<String, String>("test auto", "test auto");
     public static final Pair<String, String> PRELOAD_1A_AUTO_NAME =
         new Pair<String, String>("preload to 1a", "preload to 1a");
+    public static final Pair<String, String> THREE_CORAL_AUTO_NAME = 
+        new Pair<String, String>("three coral auto", "three coral auto");
   }
 }

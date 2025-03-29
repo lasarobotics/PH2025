@@ -138,6 +138,7 @@ public class RobotContainer {
     m_autoModeChooser.setDefaultOption("Do nothing", Commands.none());
     m_autoModeChooser.setDefaultOption(Constants.AutoNames.TEST_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.TEST_AUTO_NAME.getSecond()));
     m_autoModeChooser.setDefaultOption(Constants.AutoNames.PRELOAD_1A_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.PRELOAD_1A_AUTO_NAME.getSecond()));
+    m_autoModeChooser.setDefaultOption(Constants.AutoNames.THREE_CORAL_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.THREE_CORAL_AUTO_NAME.getSecond()));
   }
 
   public Command getAutonomousCommand() {

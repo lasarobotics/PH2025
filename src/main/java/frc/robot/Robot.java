@@ -23,7 +23,7 @@ public class Robot extends LoggedRobot {
   public Robot() {
 
     if (isReal()) {
-      Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+      Logger.addDataReceiver(new WPILOGWriter("/U/")); // Log to a USB stick ("/U/logs")
       Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
     } else {
       setUseTiming(false); // Run as fast as possible
@@ -42,16 +42,16 @@ public class Robot extends LoggedRobot {
 
     CameraServer.startAutomaticCapture();
 
-    Threads.setCurrentThreadPriority(true, 99);
+    // Threads.setCurrentThreadPriority(true, 99);
   }
 
   @Override
   public void robotPeriodic() {
-    // Threads.setCurrentThreadPriority(true, 99);
+    Threads.setCurrentThreadPriority(true, 99);
     LoopTimer.resetTimer();
     CommandScheduler.getInstance().run();
     LoopTimer.addTimestamp("CommandScheduler");
-    // Threads.setCurrentThreadPriority(false, 10);
+    Threads.setCurrentThreadPriority(false, 0);
   }
 
   @Override
