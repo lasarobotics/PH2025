@@ -2,9 +2,7 @@ package frc.robot.subsystems.drivetrain;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
-
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -18,14 +16,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
-import frc.robot.LoopTimer;
 import frc.robot.LoopTimer;
 import frc.robot.RobotContainer;
 import frc.robot.Telemetry;
@@ -39,16 +35,7 @@ import org.lasarobotics.fsm.SystemState;
 // import org.lasarobotics.vision.AprilTagCamera;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.DoubleSupplier;
-import org.lasarobotics.fsm.StateMachine;
-import org.lasarobotics.fsm.SystemState;
-// import org.lasarobotics.vision.AprilTagCamera;
-import org.littletonrobotics.junction.Logger;
-
 public class DriveSubsystem extends StateMachine implements AutoCloseable {
-  public static record Hardware() {}
   public static record Hardware() {}
 
   public enum State implements SystemState {
@@ -64,26 +51,12 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       public SystemState nextState() {
         if (s_shouldAutoAlign) return AUTO_ALIGN;
         if (!DriverStation.isAutonomous()) return DRIVER_CONTROL;
-        if (s_shouldAutoAlign) return AUTO_ALIGN;
-        if (!DriverStation.isAutonomous()) return DRIVER_CONTROL;
         return this;
       }
     },
     DRIVER_CONTROL {
       @Override
       public void execute() {
-        s_drivetrain.setControl(
-            s_drive
-                .withVelocityX(
-                    Constants.Drive.MAX_SPEED
-                        .times(-Math.pow(s_strafeRequest.getAsDouble(), 1))
-                        .times(s_driveSpeedScalar))
-                .withVelocityY(
-                    Constants.Drive.MAX_SPEED
-                        .times(-Math.pow(s_driveRequest.getAsDouble(), 1))
-                        .times(s_driveSpeedScalar))
-                .withRotationalRate(
-                    Constants.Drive.MAX_ANGULAR_RATE.times(-s_rotateRequest.getAsDouble())));
         s_drivetrain.setControl(
             s_drive
                 .withVelocityX(
@@ -105,14 +78,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             && Math.abs(s_driveRequest.getAsDouble()) <= DriveSubsystem.DEADBAND_SCALAR
             && Math.abs(s_rotateRequest.getAsDouble()) <= DriveSubsystem.DEADBAND_SCALAR) {
           requestAutoAlign();
-        if (s_shouldAutoAlign
-            && Math.abs(s_strafeRequest.getAsDouble()) <= DriveSubsystem.DEADBAND_SCALAR
-            && Math.abs(s_driveRequest.getAsDouble()) <= DriveSubsystem.DEADBAND_SCALAR
-            && Math.abs(s_rotateRequest.getAsDouble()) <= DriveSubsystem.DEADBAND_SCALAR) {
-          requestAutoAlign();
           return AUTO_ALIGN;
-        }
-        if (DriverStation.isAutonomous()) return AUTO;
         }
         if (DriverStation.isAutonomous()) return AUTO;
         return this;
@@ -152,19 +118,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             ChassisSpeeds.fromRobotRelativeSpeeds(
                 drivetrain_state.Speeds, drivetrain_state.Pose.getRotation());
         var field_speeds_pose = new Translation2d(field_speeds.vxMetersPerSecond, field_speeds.vyMetersPerSecond).rotateBy(s_autoAlignTarget.getRotation().times(-1));
-        var drivetrain_state = s_drivetrain.getState();
-        var field_speeds =
-            ChassisSpeeds.fromRobotRelativeSpeeds(
-                drivetrain_state.Speeds, drivetrain_state.Pose.getRotation());
-
-        m_currentTurnState =
-            new TrapezoidProfile.State(
-                drivetrain_state.Pose.getRotation().getRadians(),
-                field_speeds.omegaRadiansPerSecond);
-
-        m_currentDriveXState =
-            new TrapezoidProfile.State(
-                drivetrain_state.Pose.getX(), field_speeds.vxMetersPerSecond);
 
         m_currentTurnState =
             new TrapezoidProfile.State(
@@ -178,9 +131,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         m_currentDriveYState =
             new TrapezoidProfile.State(
                 pose.getY(), field_speeds_pose.getY());
-        m_currentDriveYState =
-            new TrapezoidProfile.State(
-                drivetrain_state.Pose.getY(), field_speeds.vyMetersPerSecond);
 
         s_isAligned = false;
       }
@@ -194,12 +144,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         // Get error which is the smallest distance between goal and measurement
         double errorBound = Math.PI;
         double measurement = s_drivetrain.getState().Pose.getRotation().getRadians();
-        double goalMinDistance =
-            MathUtil.inputModulus(
-                s_autoAlignTargetTurn.position - measurement, -errorBound, errorBound);
-        double setpointMinDistance =
-            MathUtil.inputModulus(
-                m_currentTurnState.position - measurement, -errorBound, errorBound);
         double goalMinDistance =
             MathUtil.inputModulus(
                 s_autoAlignTargetTurn.position - measurement, -errorBound, errorBound);
@@ -222,36 +166,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             s_driveProfile.calculate(dt, m_currentDriveXState, s_autoAlignTargetDriveX);
         m_currentDriveYState =
             s_driveProfile.calculate(dt, m_currentDriveYState, s_autoAlignTargetDriveY);
-        m_currentDriveXState =
-            s_driveProfile.calculate(dt, m_currentDriveXState, s_autoAlignTargetDriveX);
-        m_currentDriveYState =
-            s_driveProfile.calculate(dt, m_currentDriveYState, s_autoAlignTargetDriveY);
         m_currentTurnState = s_turnProfile.calculate(dt, m_currentTurnState, s_autoAlignTargetTurn);
 
         Translation2d newPosition = new Translation2d(m_currentDriveXState.position, m_currentDriveYState.position).rotateAround(s_autoAlignTarget.getTranslation(), s_autoAlignTarget.getRotation().times(1));
         Translation2d newVelocity = new Translation2d(m_currentDriveXState.velocity, m_currentDriveYState.velocity).rotateBy(s_autoAlignTarget.getRotation().times(1));
-
-        var drivetrain_state = s_drivetrain.getState();
-        var drivetrain_pose = drivetrain_state.Pose;
-        double distance =
-            drivetrain_pose.getTranslation().getDistance(s_autoAlignTarget.getTranslation());
-        double heading =
-            Math.abs((drivetrain_pose.getRotation().getRadians() - s_autoAlignTargetTurn.position))
-                % 360;
-
-        // Translation2d newPosition = new Translation2d(m_currentDriveXState.position,
-        // m_currentDriveYState.position).rotateAround(s_autoAlignTarget.getTranslation(),
-        // s_autoAlignTarget.getRotation().times(1));
-        // Translation2d newVelocity = new Translation2d(m_currentDriveXState.velocity,
-        // m_currentDriveYState.velocity).rotateBy(s_autoAlignTarget.getRotation().times(1));
-
-        var perp_dist =
-            Math.cos(s_autoAlignTarget.getRotation().getRadians())
-                    * (s_autoAlignTarget.getY() - drivetrain_pose.getY())
-                - Math.sin(s_autoAlignTarget.getRotation().getRadians())
-                    * (s_autoAlignTarget.getX() - drivetrain_pose.getX());
-        Logger.recordOutput(
-            RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/DistanceToScoreLine", perp_dist);
 
         var drivetrain_state = s_drivetrain.getState();
         var drivetrain_pose = drivetrain_state.Pose;
@@ -298,26 +216,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
               RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
           Logger.recordOutput(
             RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/controlMode", "lr");
-        if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE
-            && Math.abs(perp_dist) < Constants.Drive.AUTO_ALIGN_LR_TOLERANCE
-            && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
-                || heading > (Math.PI * 2 - (Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN)))) {
-          s_drivetrain.setControl(
-              s_drive.withVelocityX(0.0).withVelocityY(0.0).withRotationalRate(0));
-          Logger.recordOutput(
-              RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", true);
-        } else if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE
-            && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
-                || heading > (Math.PI * 2 - (Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN)))) {
-          s_drivetrain.setControl(
-              s_driveRobotCentric
-                  .withVelocityX(0.0)
-                  .withDeadband(0.0)
-                  .withDriveRequestType(DriveRequestType.Velocity)
-                  .withVelocityY(perp_dist * 7.5)
-                  .withRotationalRate(0));
-          Logger.recordOutput(
-              RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
         } else {
           s_drivetrain.setControl(
               s_autoDrive
@@ -331,15 +229,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
               RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
           Logger.recordOutput(
             RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/controlMode", "normal");
-              s_autoDrive
-                  .withTargetDirection(new Rotation2d(m_currentTurnState.position))
-                  .withTargetRateFeedforward(Units.RadiansPerSecond.of(m_currentTurnState.velocity))
-                  .withTargetX(m_currentDriveXState.position)
-                  .withFeedforwardX(m_currentDriveXState.velocity)
-                  .withTargetY(m_currentDriveYState.position)
-                  .withFeedforwardY(m_currentDriveYState.velocity));
-          Logger.recordOutput(
-              RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
         }
 
         Logger.recordOutput(
@@ -354,18 +243,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 s_autoAlignTargetDriveY.position,
                 new Rotation2d(s_autoAlignTargetTurn.position)));
         Logger.recordOutput("DriveSubsystem/autoAlign/finalPose2", s_autoAlignTarget);
-        Logger.recordOutput(
-            "DriveSubsystem/autoAlign/targetPose",
-            new Pose2d(
-                m_currentDriveXState.position,
-                m_currentDriveYState.position,
-                new Rotation2d(m_currentTurnState.position)));
-        Logger.recordOutput(
-            "DriveSubsystem/autoAlign/finalPose",
-            new Pose2d(
-                s_autoAlignTargetDriveX.position,
-                s_autoAlignTargetDriveY.position,
-                new Rotation2d(s_autoAlignTargetTurn.position)));
 
         Logger.recordOutput(
             RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/distanceError", distance);
@@ -391,19 +268,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE * 2
             && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN * 2
                 || heading > (Math.PI * 2 - Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN * 2))) {
-        Logger.recordOutput(
-            RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/distanceError", distance);
-        Logger.recordOutput(
-            RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/headingError", heading);
-        if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE
-            && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
-                || heading > (Math.PI * 2 - Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN))) {
-          s_isAligned = true;
-        }
-
-        if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE * 2
-            && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN * 2
-                || heading > (Math.PI * 2 - Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN * 2))) {
           s_isClose = true;
         } else {
           s_isClose = false;
@@ -415,22 +279,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         // if (System.currentTimeMillis() - m_closeTime > 300) {
         //   s_isAligned = true;
         // }
-        // if (System.currentTimeMillis() - m_closeTime > 300) {
-        //   s_isAligned = true;
-        // }
 
         Logger.recordOutput("DriveSubsystem/autoAlign/isClose", s_isClose);
         Logger.recordOutput(
             "DriveSubsystem/autoAlign/closeTime", System.currentTimeMillis() - m_closeTime);
-        Logger.recordOutput(
-            "DriveSubsystem/autoAlign/closeTime", System.currentTimeMillis() - m_closeTime);
 
-        Logger.recordOutput(
-            "DriveSubsystem/autoAlign/error/x",
-            s_drivetrain.getState().Pose.getX() - m_currentDriveXState.position);
-        Logger.recordOutput(
-            "DriveSubsystem/autoAlign/error/y",
-            s_drivetrain.getState().Pose.getY() - m_currentDriveYState.position);
         Logger.recordOutput(
             "DriveSubsystem/autoAlign/error/x",
             s_drivetrain.getState().Pose.getX() - m_currentDriveXState.position);
@@ -444,13 +297,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         if (!s_shouldAutoAlign) {
           if (DriverStation.isAutonomous()) return AUTO;
           else return DRIVER_CONTROL;
-          if (DriverStation.isAutonomous()) return AUTO;
-          else return DRIVER_CONTROL;
         }
-
-        if (Math.abs(s_strafeRequest.getAsDouble()) > DriveSubsystem.DEADBAND_SCALAR
-            || Math.abs(s_driveRequest.getAsDouble()) > DriveSubsystem.DEADBAND_SCALAR
-            || Math.abs(s_rotateRequest.getAsDouble()) > DriveSubsystem.DEADBAND_SCALAR) {
 
         if (Math.abs(s_strafeRequest.getAsDouble()) > DriveSubsystem.DEADBAND_SCALAR
             || Math.abs(s_driveRequest.getAsDouble()) > DriveSubsystem.DEADBAND_SCALAR
@@ -460,15 +307,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         // if (s_isAligned && DriverStation.isTeleop()) {
         //   return DRIVER_CONTROL;
         // }
-        // if (s_isAligned && DriverStation.isTeleop()) {
-        //   return DRIVER_CONTROL;
-        // }
         return this;
       }
 
       @Override
       public void end(boolean interrupted) {
-        // s_shouldAutoAlign = false;
         // s_shouldAutoAlign = false;
         s_isAligned = false;
       }
@@ -477,7 +320,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   private static CommandSwerveDrivetrain s_drivetrain;
   private static SwerveRequest.FieldCentric s_drive;
-  private static SwerveRequest.RobotCentric s_driveRobotCentric;
   private static SwerveRequest.RobotCentric s_driveRobotCentric;
   private static FieldCentricWithPose s_autoDrive;
 
@@ -494,23 +336,15 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   private static TrapezoidProfile s_turnProfile;
   private static TrapezoidProfile s_driveProfile;
   private static final Double DEADBAND_SCALAR = 0.05;
-  private static final Double DEADBAND_SCALAR = 0.05;
 
-  /** Robot is within the auto align tolerance of the target point */
   /** Robot is within the auto align tolerance of the target point */
   private static boolean s_isAligned;
-
-  /** Robot is within auto align tolerance * 2 of the target point */
 
   /** Robot is within auto align tolerance * 2 of the target point */
   private static boolean s_isClose;
 
   // private static ArrayList<AprilTagCamera> m_cameras;
-  // private static ArrayList<AprilTagCamera> m_cameras;
 
-  private static double s_driveSpeedScalar = 0.2;
-
-  protected final Thread m_limelight_thread;
   private static double s_driveSpeedScalar = 0.2;
 
   protected final Thread m_limelight_thread;
@@ -527,26 +361,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             .withDriveRequestType(DriveRequestType.Velocity)
             .withSteerRequestType(SteerRequestType.MotionMagicExpo)
             .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
-    s_drive =
-        new SwerveRequest.FieldCentric()
-            .withDeadband(Constants.Drive.MAX_SPEED.times(DriveSubsystem.DEADBAND_SCALAR))
-            .withRotationalDeadband(Constants.Drive.MAX_ANGULAR_RATE.times(0.1)) // Add a
-            .withDriveRequestType(DriveRequestType.Velocity)
-            .withSteerRequestType(SteerRequestType.MotionMagicExpo)
-            .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
 
-    s_driveRobotCentric =
-        new SwerveRequest.RobotCentric()
-            .withDriveRequestType(DriveRequestType.Velocity)
-            .withSteerRequestType(SteerRequestType.MotionMagicExpo);
-
-    s_autoDrive =
-        new FieldCentricWithPose()
-            .withDriveRequestType(DriveRequestType.Velocity)
-            .withDeadband(0)
-            .withRotationalDeadband(0)
-            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
-            .withSteerRequestType(SteerRequestType.MotionMagicExpo);
     s_driveRobotCentric =
         new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.Velocity)
@@ -569,10 +384,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     s_turnProfile = new TrapezoidProfile(Constants.Drive.TURN_CONSTRAINTS);
     s_driveProfile = new TrapezoidProfile(Constants.Drive.DRIVE_CONSTRAINTS);
-
-    m_limelight_thread = new Thread(this::limelight_thread_func);
-    m_limelight_thread.setDaemon(true);
-    m_limelight_thread.start();
 
     m_limelight_thread = new Thread(this::limelight_thread_func);
     m_limelight_thread.setDaemon(true);
@@ -636,57 +447,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   public void bindControls(
       DoubleSupplier driveRequest, DoubleSupplier strafeRequest, DoubleSupplier rotateRequest) {
-  public void limelight_thread_func() {
-
-    String[] limelights = {"limelight-left", "limelight-right"};
-
-    while (true) {
-      for (String limelight : limelights) {
-        LimelightHelpers.SetIMUMode(limelight, DriverStation.isDisabled() ? 1 : 2);
-        LimelightHelpers.setLimelightNTDouble(
-            limelight, "throttle_set", DriverStation.isDisabled() ? 100 : 0);
-        LimelightHelpers.SetRobotOrientation(
-            limelight, s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
-
-        Logger.recordOutput(
-            getName() + "/" + limelight + "/botpose",
-            LimelightHelpers.getBotPose3d_wpiBlue(limelight));
-        double[] poseEntry =
-            LimelightHelpers.getLimelightNTDoubleArray(limelight, "botpose_orb_wpiblue");
-        Logger.recordOutput(
-            getName() + "/" + limelight + "/botpose_orb", LimelightHelpers.toPose3D(poseEntry));
-        LimelightHelpers.PoseEstimate pose_estimate =
-            LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
-
-        if (pose_estimate == null) continue;
-        boolean doRejectUpdate = false;
-        if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == Alliance.Red) {
-          int[] validIds = {6, 7, 8, 9, 10, 11};
-          LimelightHelpers.SetFiducialIDFiltersOverride(limelight, validIds);
-        } else {
-          int[] validIds = {17, 18, 19, 20, 21, 22};
-          LimelightHelpers.SetFiducialIDFiltersOverride(limelight, validIds);
-        }
-        if (s_drivetrain.getState().Speeds.omegaRadiansPerSecond > 2 * Math.PI) {
-          doRejectUpdate = true;
-        }
-
-        if (pose_estimate.tagCount == 0) {
-          doRejectUpdate = true;
-        }
-
-        if (!doRejectUpdate) {
-          s_drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
-          s_drivetrain.addVisionMeasurement(
-              pose_estimate.pose, Utils.fpgaToCurrentTime(pose_estimate.timestampSeconds));
-          // Logger.recordOutput(getName() + "/" + limelight + "/botpose_orb", pose_estimate.pose);
-        }
-      }
-    }
-  }
-
-  public void bindControls(
-      DoubleSupplier driveRequest, DoubleSupplier strafeRequest, DoubleSupplier rotateRequest) {
     s_driveRequest = driveRequest;
     s_strafeRequest = strafeRequest;
     s_rotateRequest = rotateRequest;
@@ -695,10 +455,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   /**
    * Request that the drivetrain aligns to the reef
    *
-   *
    * @param state
    */
-  public static void requestAutoAlign(Pose2d pose) {
   public static void requestAutoAlign(Pose2d pose) {
     s_autoAlignTarget = pose;
     s_autoAlignTargetDriveX = new TrapezoidProfile.State(pose.getX(), 0);
@@ -709,8 +467,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   public static void requestAutoAlign() {
     requestAutoAlign(findAutoAlignTarget(findAutoAlignTargets()));
-  public static void requestAutoAlign() {
-    requestAutoAlign(findAutoAlignTarget());
   }
 
   public void cancelAutoAlign() {
@@ -723,7 +479,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Checks if the robot is near the source
-   *
    *
    * @return True if robot is near source
    */
@@ -753,8 +508,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   /** Returns the location the robot should go to in order to align to the nearest reef pole */
   private static List<Pose2d> findAutoAlignTargets() {
-  /** Returns the location the robot should go to in order to align to the nearest reef pole */
-  private static Pose2d findAutoAlignTarget() {
     Translation2d reefLocation;
     List<Pose2d> autoAlignLocations;
 
@@ -776,14 +529,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     var drivetrain_state = s_drivetrain.getState();
     var drivetrain_pose = drivetrain_state.Pose.plus(new Transform2d(Constants.Drive.THAGOMIZER_OFFSET, new Rotation2d()));
     Logger.recordOutput("DriveSubsystem/autoAlign/thagomizerPose", drivetrain_pose);
-
-
-    Logger.recordOutput(
-        RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/reefLocation",
-        new Pose2d(reefLocation, new Rotation2d()));
-
-    var drivetrain_state = s_drivetrain.getState();
-    var drivetrain_pose = drivetrain_state.Pose;
 
     // find the angle to the reef
     Rotation2d angle =
@@ -835,55 +580,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         right_pose);
 
     return Arrays.asList(left_pose, right_pose);
-    Rotation2d angle =
-        Rotation2d.fromRadians(
-                Math.atan2(
-                    drivetrain_pose.getY() - reefLocation.getY(),
-                    drivetrain_pose.getX() - reefLocation.getX()));
-
-    Pose2d left_pose;
-    Pose2d right_pose;
-
-    Translation2d left_offset = Constants.Drive.LEFT_BRANCH_OFFSET;
-    Translation2d right_offset = Constants.Drive.RIGHT_BRANCH_OFFSET;
-    
-    Logger.recordOutput(
-        RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/left_offset_initial",
-        left_offset);
-    Logger.recordOutput(
-        RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/right_offset_initial",
-        right_offset);
-    
-    double rotation_angle = 0.0;
-    if (angle.getDegrees() <= 150.0 && angle.getDegrees() > 90.0) {
-      rotation_angle = 300.0;
-    }
-    else if (angle.getDegrees() <= 90.0 && angle.getDegrees() > 30.0) {
-      rotation_angle = 240.0;
-    }
-    else if (angle.getDegrees() <= 30.0 && angle.getDegrees() > -30.0) {
-      rotation_angle = 180.0;
-    }
-    else if (angle.getDegrees() <= -30.0 && angle.getDegrees() > -90.0) {
-      rotation_angle = 120.0;
-    }
-    else if (angle.getDegrees() <= -90.0 && angle.getDegrees() > -150.0) {
-      rotation_angle = 60.0;
-    }
-
-    left_offset = left_offset.rotateBy(Rotation2d.fromDegrees(rotation_angle));
-    right_offset = right_offset.rotateBy(Rotation2d.fromDegrees(rotation_angle));
-    left_pose = new Pose2d(reefLocation.plus(left_offset), Rotation2d.fromDegrees(rotation_angle));
-    right_pose = new Pose2d(reefLocation.plus(right_offset), Rotation2d.fromDegrees(rotation_angle));
-    
-    Logger.recordOutput(
-        RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/left_pose",
-        left_pose);
-    Logger.recordOutput(
-        RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/right_pose",
-        right_pose);
-
-    return drivetrain_pose.nearest(Arrays.asList(left_pose, right_pose));
   }
 
   public void setDriveSpeed(double newSpeed) {
@@ -892,7 +588,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   /**
    * Initialize hardware devices for drive subsystem
-   *
    *
    * @return Hardware object containing all necessary devices for this subsystem
    */
@@ -905,15 +600,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   private boolean m_hasAppliedOperatorPerspective = false;
 
   /** Set up stuff for limelight */
-  /** Set up stuff for limelight */
   public void limeLightSetup() {
     LimelightHelpers.SetRobotOrientation(
         "limelight1", s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
-    LimelightHelpers.SetRobotOrientation(
-        "limelight1", s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
-    LimelightHelpers.SetRobotOrientation(
-        "limelight1", s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
     LimelightHelpers.SetRobotOrientation(
         "limelight1", s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
   }
@@ -923,14 +613,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     LoopTimer.addTimestamp(getName() + " Start");
 
-
     /*
-     * Periodically try to apply the operator perspective.
-     * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
-     * This allows us to correct the perspective in case the robot code restarts mid-match.
-     * Otherwise, only check and apply the operator perspective if the DS is disabled.
-     * This ensures driving behavior doesn't change until an explicit disable event occurs during testing.
-     */
      * Periodically try to apply the operator perspective.
      * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
      * This allows us to correct the perspective in case the robot code restarts mid-match.
@@ -942,17 +625,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == Alliance.Red) {
         s_drivetrain.setOperatorPerspectiveForward(
             CommandSwerveDrivetrain.kRedAlliancePerspectiveRotation);
-        s_drivetrain.setOperatorPerspectiveForward(
-            CommandSwerveDrivetrain.kRedAlliancePerspectiveRotation);
       } else {
-        s_drivetrain.setOperatorPerspectiveForward(
-            CommandSwerveDrivetrain.kBlueAlliancePerspectiveRotation);
         s_drivetrain.setOperatorPerspectiveForward(
             CommandSwerveDrivetrain.kBlueAlliancePerspectiveRotation);
       }
       m_hasAppliedOperatorPerspective = true;
-    } else {
-      Logger.recordOutput(getName() + "/settingOperatorPerspective", false);
     } else {
       Logger.recordOutput(getName() + "/settingOperatorPerspective", false);
     }
@@ -964,7 +641,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     double addMeasurementTime = 0;
 
     // String[] limelights = {"limelight-left", "limelight-right"};
-    // String[] limelights = {"limelight-left", "limelight-right"};
 
     // for (String limelight : limelights) {
     //   cameraTime = Utils.getSystemTimeSeconds();
@@ -973,16 +649,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     // ? 100 : 0);
     //   LimelightHelpers.SetRobotOrientation(limelight,
     // s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
-    // for (String limelight : limelights) {
-    //   cameraTime = Utils.getSystemTimeSeconds();
-    //   LimelightHelpers.SetIMUMode(limelight, DriverStation.isDisabled() ? 1 : 2);
-    //   LimelightHelpers.setLimelightNTDouble(limelight, "throttle_set", DriverStation.isDisabled()
-    // ? 100 : 0);
-    //   LimelightHelpers.SetRobotOrientation(limelight,
-    // s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
-    //   configTime += Utils.getSystemTimeSeconds() - cameraTime;
-    //   cameraTime = Utils.getSystemTimeSeconds();
     //   configTime += Utils.getSystemTimeSeconds() - cameraTime;
     //   cameraTime = Utils.getSystemTimeSeconds();
 
@@ -994,17 +661,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     // LimelightHelpers.toPose3D(poseEntry));
     //   LimelightHelpers.PoseEstimate pose_estimate =
     // LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
-    //   Logger.recordOutput(getName() + "/" + limelight + "/botpose",
-    // LimelightHelpers.getBotPose3d_wpiBlue(limelight));
-    //   double[] poseEntry = LimelightHelpers.getLimelightNTDoubleArray(limelight,
-    // "botpose_orb_wpiblue");
-    //   Logger.recordOutput(getName() + "/" + limelight + "/botpose_orb",
-    // LimelightHelpers.toPose3D(poseEntry));
-    //   LimelightHelpers.PoseEstimate pose_estimate =
-    // LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
 
-    //   getPoseEstimateTime += Utils.getSystemTimeSeconds() - cameraTime;
-    //   cameraTime = Utils.getSystemTimeSeconds();
     //   getPoseEstimateTime += Utils.getSystemTimeSeconds() - cameraTime;
     //   cameraTime = Utils.getSystemTimeSeconds();
 
@@ -1025,35 +682,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     //   if (pose_estimate.tagCount == 0) {
     //     doRejectUpdate = true;
     //   }
-    //   if (pose_estimate == null) continue;
-    //   boolean doRejectUpdate = false;
-    //   if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == Alliance.Red) {
-    //     int[] validIds = {6,7,8,9,10,11};
-    //     LimelightHelpers.SetFiducialIDFiltersOverride(limelight, validIds);
-    //   }
-    //   else {
-    //     int[] validIds = {17,18,19,20,21,22};
-    //     LimelightHelpers.SetFiducialIDFiltersOverride(limelight, validIds);
-    //   }
-    //   if (s_drivetrain.getState().Speeds.omegaRadiansPerSecond > 2 * Math.PI) {
-    //     doRejectUpdate = true;
-    //   }
-
-    //   if (pose_estimate.tagCount == 0) {
-    //     doRejectUpdate = true;
-    //   }
 
     //   rejectTagsTime += Utils.getSystemTimeSeconds() - cameraTime;
     //   cameraTime = Utils.getSystemTimeSeconds();
-    //   rejectTagsTime += Utils.getSystemTimeSeconds() - cameraTime;
-    //   cameraTime = Utils.getSystemTimeSeconds();
 
-    //   if (!doRejectUpdate) {
-    //     s_drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
-    //     s_drivetrain.addVisionMeasurement(pose_estimate.pose,
-    // Utils.fpgaToCurrentTime(pose_estimate.timestampSeconds));
-    //     // Logger.recordOutput(getName() + "/" + limelight + "/botpose_orb", pose_estimate.pose);
-    //   }
     //   if (!doRejectUpdate) {
     //     s_drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
     //     s_drivetrain.addVisionMeasurement(pose_estimate.pose,
@@ -1083,10 +715,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     } else {
       RobotContainer.setWhite();
     }
-    //   addMeasurementTime += Utils.getSystemTimeSeconds() - cameraTime;
-
-    //   LoopTimer.addTimestamp(limelight);
-    // }
 
     Logger.recordOutput(getName() + "/cameraTimes/config", configTime);
     Logger.recordOutput(getName() + "/cameraTimes/getPoseEstimate", getPoseEstimateTime);
@@ -1104,29 +732,17 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 Inches.of(144.0).minus(Feet.of(3)).minus(Inches.of((29.0 + (3.0 / 8.0)) / 2.0)),
                 Inches.of(158.5)),
             new Rotation2d(Math.toRadians(0))));
-    Logger.recordOutput(
-        getName() + "/knownPose",
-        new Pose2d(
-            new Translation2d(
-                Inches.of(144.0).minus(Feet.of(3)).minus(Inches.of((29.0 + (3.0 / 8.0)) / 2.0)),
-                Inches.of(158.5)),
-            new Rotation2d(Math.toRadians(0))));
     Logger.recordOutput(getName() + "/autoAlign/isAligned", s_isAligned);
     int i = 0;
     for (i = 0; i < 4; i++) {
       Logger.recordOutput(
           getName() + "/Mod" + i + "/torqueCurrent",
-      Logger.recordOutput(
-          getName() + "/Mod" + i + "/torqueCurrent",
           s_drivetrain.getModule(i).getDriveMotor().getTorqueCurrent().getValue());
-      Logger.recordOutput(
-          getName() + "/Mod" + i + "/motorVoltage",
       Logger.recordOutput(
           getName() + "/Mod" + i + "/motorVoltage",
           s_drivetrain.getModule(i).getDriveMotor().getMotorVoltage().getValue());
     }
     LoopTimer.addTimestamp(getName() + " End");
-    LoopTimer.addTimestamp(getName());
   }
 
   @Override
