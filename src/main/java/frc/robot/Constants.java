@@ -218,6 +218,9 @@ public final class Constants {
     public static final String AUTO_ALIGN_COMMAND_NAME = "auto align";
     public static final String AUTO_SCORE_COMMAND_NAME = "score coral";
     public static final String WAIT_FOR_INTAKE_COMMAND_NAME = "wait for intake";
+    public static final String AUTO_FIRST_LEFT_CORAL_ALIGN_COMMAND_NAME = "auto align first coral left";
+    public static final String AUTO_SECOND_LEFT_CORAL_ALIGN_COMMAND_NAME = "auto align second coral left";
+    public static final String AUTO_THIRD_LEFT_CORAL_ALIGN_COMMAND_NAME = "auto align third coral left";
   }
 
   public static class AutoNames {

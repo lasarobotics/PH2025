@@ -30,6 +30,7 @@ import frc.robot.generated.TunerConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
@@ -506,11 +507,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   }
 
   private static Pose2d findAutoAlignTarget() {
-    var poses = findAutoAlignTargets();
-    var drivetrain_state = s_drivetrain.getState();
-    var drivetrain_pose = drivetrain_state.Pose;
+    return findAutoAlignTarget(s_drivetrain.getState().Pose);
+  }
 
-    return drivetrain_pose.nearest(poses);
+  public static Pose2d findAutoAlignTarget(Pose2d startPose) {
+    return startPose.nearest(findAutoAlignTargets());
   }
 
   /**
@@ -531,9 +532,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/reefLocation",
         new Pose2d(reefLocation, new Rotation2d()));
 
-    var drivetrain_state = s_drivetrain.getState();
-    var drivetrain_pose = drivetrain_state.Pose;
-    Logger.recordOutput("DriveSubsystem/autoAlign/thagomizerPose", drivetrain_pose);
 
     Pose2d left_pose;
     Pose2d right_pose;

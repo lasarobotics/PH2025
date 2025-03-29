@@ -9,7 +9,10 @@ import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.climb.ClimbSubsystem;
@@ -463,6 +466,9 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_ALIGN_COMMAND_NAME, this.autononomousAlignCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_SCORE_COMMAND_NAME, this.autonomousScoreCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.WAIT_FOR_INTAKE_COMMAND_NAME, this.autonomousWaitForIntakeCommand());
+    NamedCommands.registerCommand(Constants.NamedCommands.AUTO_FIRST_LEFT_CORAL_ALIGN_COMMAND_NAME, this.autoFirstLeftCoralCommand());
+    NamedCommands.registerCommand(Constants.NamedCommands.AUTO_SECOND_LEFT_CORAL_ALIGN_COMMAND_NAME, this.autoSecondLeftCoralCommand());
+    NamedCommands.registerCommand(Constants.NamedCommands.AUTO_THIRD_LEFT_CORAL_ALIGN_COMMAND_NAME, this.autoThirdLeftCoralCommand());
   }
   /**
    * Tells the robot to move the lift to the L4 state during autonomous
@@ -551,6 +557,59 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
               return END_EFFECTOR_SUBSYSTEM.isCoralCentered();
             });
   }
+
+  /**
+   * Auto aligns the robot to a reef in autonomous given an arbitrary pose 
+   * @param arbitraryPose arbitrary pose for reef the robot should align to in auto
+   */
+  private Command autonomousAutoAlignToPoseCommand(Pose2d arbitraryPose) {
+    return Commands.startEnd(
+    () -> 
+      {
+        DRIVE_SUBSYSTEM.requestAutoAlign(DRIVE_SUBSYSTEM.findAutoAlignTarget(arbitraryPose));
+      },
+    () -> {},
+
+    this
+    )
+    .until(() -> {
+      return (DRIVE_SUBSYSTEM.isAligned() && LIFT_SUBSYSTEM.isLiftReady());
+      });
+    }
+
+ public Command autoFirstLeftCoralCommand() {
+  Pose2d redAlignPose = new Pose2d(12.0, 2.8, new Rotation2d(0.0));
+  Pose2d blueAlignPose = new Pose2d(5.6, 5.0, new Rotation2d(0.0));
+  if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(Alliance.Red)) {
+    return autonomousAutoAlignToPoseCommand(redAlignPose);
+  }
+  else {
+    return autonomousAutoAlignToPoseCommand(blueAlignPose);
+  }
+}
+
+public Command autoSecondLeftCoralCommand() {
+  Pose2d redAlignPose = new Pose2d(12.7, 2.6, new Rotation2d(0.0));
+  Pose2d blueAlignPose = new Pose2d(4.7, 5.4, new Rotation2d(0.0));
+  if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(Alliance.Red)) {
+    return autonomousAutoAlignToPoseCommand(redAlignPose);
+  }
+  else {
+    return autonomousAutoAlignToPoseCommand(blueAlignPose);
+  }
+}
+
+public Command autoThirdLeftCoralCommand() {
+  Pose2d redAlignPose = new Pose2d(13.5, 2.5, new Rotation2d(0.0));
+  Pose2d blueAlignPose = new Pose2d(4.2, 5.5, new Rotation2d(0.0));
+  if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == Alliance.Red) {
+    return autonomousAutoAlignToPoseCommand(redAlignPose);
+  }
+  else {
+    return autonomousAutoAlignToPoseCommand(blueAlignPose);
+  }
+}
+
 
   @Override
   public void periodic() {
