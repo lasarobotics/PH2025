@@ -221,6 +221,9 @@ public final class Constants {
     public static final String AUTO_FIRST_LEFT_CORAL_ALIGN_COMMAND_NAME = "auto align first coral left";
     public static final String AUTO_SECOND_LEFT_CORAL_ALIGN_COMMAND_NAME = "auto align second coral left";
     public static final String AUTO_THIRD_LEFT_CORAL_ALIGN_COMMAND_NAME = "auto align third coral left";
+    public static final String AUTO_FIRST_RIGHT_CORAL_ALIGN_COMMAND_NAME = "auto align first coral right";
+    public static final String AUTO_SECOND_RIGHT_CORAL_ALIGN_COMMAND_NAME = "auto align second coral right";
+    public static final String AUTO_THIRD_RIGHT_CORAL_ALIGN_COMMAND_NAME = "auto align third coral right";
   }
 
   public static class AutoNames {
@@ -228,7 +231,9 @@ public final class Constants {
         new Pair<String, String>("test auto", "test auto");
     public static final Pair<String, String> PRELOAD_1A_AUTO_NAME =
         new Pair<String, String>("preload to 1a", "preload to 1a");
-    public static final Pair<String, String> THREE_CORAL_AUTO_NAME = 
-        new Pair<String, String>("three coral auto", "three coral auto");
+    public static final Pair<String, String> THREE_LEFT_CORAL_AUTO_NAME = 
+        new Pair<String, String>("3 left coral auto", "3 left coral auto");
+    public static final Pair<String, String> THREE_RIGHT_CORAL_AUTO_NAME = 
+        new Pair<String, String>("3 right coral auto","3 right coral auto");
   }
 }

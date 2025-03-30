@@ -469,6 +469,9 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_FIRST_LEFT_CORAL_ALIGN_COMMAND_NAME, this.autoFirstLeftCoralCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_SECOND_LEFT_CORAL_ALIGN_COMMAND_NAME, this.autoSecondLeftCoralCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_THIRD_LEFT_CORAL_ALIGN_COMMAND_NAME, this.autoThirdLeftCoralCommand());
+    NamedCommands.registerCommand(Constants.NamedCommands.AUTO_FIRST_RIGHT_CORAL_ALIGN_COMMAND_NAME, this.autoFirstRightCoralCommand());
+    NamedCommands.registerCommand(Constants.NamedCommands.AUTO_SECOND_RIGHT_CORAL_ALIGN_COMMAND_NAME, this.autoSecondRightCoralCommand());
+    NamedCommands.registerCommand(Constants.NamedCommands.AUTO_THIRD_RIGHT_CORAL_ALIGN_COMMAND_NAME, this.autoThirdRightCoralCommand());
   }
   /**
    * Tells the robot to move the lift to the L4 state during autonomous
@@ -610,6 +613,38 @@ public Command autoThirdLeftCoralCommand() {
   }
 }
 
+public Command autoFirstRightCoralCommand() {
+  Pose2d redAlignPose = new Pose2d(11.9, 5.1, new Rotation2d(0.0)); 
+  Pose2d blueAlignPose = new Pose2d(5.6, 2.9, new Rotation2d(0.0));
+  if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(Alliance.Red)) {
+    return autonomousAutoAlignToPoseCommand(redAlignPose);
+  }
+  else {
+    return autonomousAutoAlignToPoseCommand(blueAlignPose);
+  }
+}
+
+public Command autoSecondRightCoralCommand() {
+  Pose2d redAlignPose = new Pose2d(13.4, 5.6, new Rotation2d(0.0));
+  Pose2d blueAlignPose = new Pose2d(4.0, 2.5, new Rotation2d(0.0));
+  if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(Alliance.Red)) {
+    return autonomousAutoAlignToPoseCommand(redAlignPose);
+  }
+  else {
+    return autonomousAutoAlignToPoseCommand(blueAlignPose);
+  }
+}
+
+public Command autoThirdRightCoralCommand() {
+  Pose2d redAlignPose = new Pose2d(14.1, 5.2, new Rotation2d(0.0));
+  Pose2d blueAlignPose = new Pose2d(3.45, 2.8, new Rotation2d(0.0));
+  if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == Alliance.Red) {
+    return autonomousAutoAlignToPoseCommand(redAlignPose);
+  }
+  else {
+    return autonomousAutoAlignToPoseCommand(blueAlignPose);
+  }
+}
 
   @Override
   public void periodic() {
