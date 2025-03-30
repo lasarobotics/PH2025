@@ -517,6 +517,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
    * @param state
    */
   public static void requestAutoAlign(Pose2d pose) {
+    Logger.recordOutput("temp/requestedPose", pose);
     s_autoAlignTarget = pose;
     s_autoAlignTargetDriveX = new TrapezoidProfile.State(pose.getX(), 0);
     s_autoAlignTargetDriveY = new TrapezoidProfile.State(pose.getY(), 0);
@@ -562,7 +563,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   }
 
   public static Pose2d findAutoAlignTarget(Pose2d startPose) {
-    return startPose.nearest(findAutoAlignTargets());
+    var pose = startPose.nearest(findAutoAlignTargets());
+    Logger.recordOutput("temp/foundPose", pose);
+    return pose;
   }
 
   /**

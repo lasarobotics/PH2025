@@ -55,7 +55,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L3,
     L4,
     A1,
-    A2
+    A2,
+    A_SCORE
   }
 
   private static TargetLiftStates nextState;
@@ -84,6 +85,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Angle SCORING_L4_ANGLE = Rotations.of(0.326172-0.027777777777).plus(Degrees.of(7));
   static final Angle SCORING_A1_ANGLE = Rotations.of(-0.375);
   static final Angle SCORING_A2_ANGLE = Rotations.of(-0.375);
+  static final Angle SCORING_A_ANGLE = Rotations.of(-0.256836);
   static final Angle TURBO_ANGLE = SAFE_INTAKE_ANGLE_BOTTOM;
 
   static final Angle STOW_ANGLE = Rotations.of(-0.215333);
@@ -409,6 +411,34 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         if (nextState == TargetLiftStates.A2) {
           return A2;
         }
+        if (nextState == TargetLiftStates.A_SCORE) {
+          return A_SCORE;
+        }
+        return this;
+      }
+    },
+    A_SCORE {
+      @Override
+      public void initialize() {
+        s_liftinstance.setElevatorHeight(STOW_HEIGHT);
+        s_liftinstance.setArmAngle(SCORING_A_ANGLE);
+      }
+
+      @Override
+      public void execute() {
+        if (s_liftinstance.armAt(SCORING_A_ANGLE) && s_liftinstance.elevatorAt(STOW_HEIGHT)) {
+          isLiftReady = true;
+        } else {
+          isLiftReady = false;
+        }
+      }
+
+      @Override
+      public SystemState nextState() {
+        curState = TargetLiftStates.A_SCORE;
+        if (nextState == TargetLiftStates.STOW) {
+          return STOW;
+        }
         return this;
       }
     },
@@ -466,6 +496,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         }
         if (nextState == TargetLiftStates.A1) {
           return A1;
+        }
+        if (nextState == TargetLiftStates.A_SCORE) {
+          return A_SCORE;
         }
         return this;
       }

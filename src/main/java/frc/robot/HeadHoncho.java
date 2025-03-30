@@ -12,6 +12,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -320,6 +321,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
         if (s_cancelButton.getAsBoolean()) return STOW;
 
+        if (s_L1Button.getAsBoolean()) return ALGAE_SCORE_READY;
+
 
         return this;
       }
@@ -342,6 +345,39 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
         if (s_cancelButton.getAsBoolean()) return STOW;
 
+        if (s_L1Button.getAsBoolean()) return ALGAE_SCORE_READY;
+
+        return this;
+      }
+    },
+    ALGAE_SCORE_READY {
+      @Override
+      public void initialize() {
+        LIFT_SUBSYSTEM.setState(TargetLiftStates.A_SCORE);
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.FAST_SPEED_SCALAR);
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_scoreButton.getAsBoolean()) return ALGAE_SCORE;
+        if (s_cancelButton.getAsBoolean()) return STOW;
+
+        return this;
+      }
+    },
+    ALGAE_SCORE {
+      Timer timer = new Timer();
+      @Override
+      public void initialize() {
+        timer.restart();
+        END_EFFECTOR_SUBSYSTEM.requestScoreReverse();
+        LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_cancelButton.getAsBoolean()) return STOW;
+        if (timer.hasElapsed(0.5)) return STOW;
         return this;
       }
     },
@@ -569,6 +605,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     return Commands.startEnd(
     () -> 
       {
+        Logger.recordOutput("temp/fakePose", arbitraryPose);
         DRIVE_SUBSYSTEM.requestAutoAlign(DRIVE_SUBSYSTEM.findAutoAlignTarget(arbitraryPose));
       },
     () -> {},
@@ -581,12 +618,15 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     }
 
  public Command autoFirstLeftCoralCommand() {
-  Pose2d redAlignPose = new Pose2d(12.0, 2.8, new Rotation2d(0.0)); // TODO update this for red alliance
-  Pose2d blueAlignPose = new Pose2d(5.55, 5.74, new Rotation2d(0.0));
+  Pose2d redAlignPose = new Pose2d(12.8, 2.5, new Rotation2d(0.0)); // TODO update this for red alliance
+  Pose2d blueAlignPose = new Pose2d(5.09, 6.73, new Rotation2d(0.0));
+  Logger.recordOutput("temp/alliance", DriverStation.getAlliance().toString());
   if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(Alliance.Red)) {
+    Logger.recordOutput("temp/actualAlliance", "red");
     return autonomousAutoAlignToPoseCommand(redAlignPose);
   }
   else {
+    Logger.recordOutput("temp/actualAlliance", "blue");
     return autonomousAutoAlignToPoseCommand(blueAlignPose);
   }
 }
@@ -614,8 +654,8 @@ public Command autoThirdLeftCoralCommand() {
 }
 
 public Command autoFirstRightCoralCommand() {
-  Pose2d redAlignPose = new Pose2d(11.9, 5.1, new Rotation2d(0.0)); 
-  Pose2d blueAlignPose = new Pose2d(5.6, 2.9, new Rotation2d(0.0));
+  Pose2d redAlignPose = new Pose2d(12.9, 5.5, new Rotation2d(0.0)); 
+  Pose2d blueAlignPose = new Pose2d(4.78, 2.73, new Rotation2d(0.0));
   if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(Alliance.Red)) {
     return autonomousAutoAlignToPoseCommand(redAlignPose);
   }
