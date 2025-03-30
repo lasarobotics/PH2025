@@ -362,6 +362,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       public void end(boolean interrupted) {
         // s_shouldAutoAlign = false;
         s_isAligned = false;
+
+        s_drivetrain.setControl(s_drive.withVelocityX(0).withVelocityY(0).withRotationalRate(0));
       }
     }
   }
@@ -446,19 +448,19 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     while (true) {
       for (String limelight : limelights) {
-        LimelightHelpers.SetIMUMode(limelight, DriverStation.isDisabled() ? 1 : 4);
+        LimelightHelpers.SetIMUMode(limelight, DriverStation.isDisabled() ? 1 : 3);
         LimelightHelpers.setLimelightNTDouble(
             limelight, "throttle_set", DriverStation.isDisabled() ? 200 : 0);
         LimelightHelpers.SetRobotOrientation(
             limelight, s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
-        Logger.recordOutput(
-            getName() + "/" + limelight + "/botpose",
-            LimelightHelpers.getBotPose3d_wpiBlue(limelight));
+        // Logger.recordOutput(
+        //     getName() + "/" + limelight + "/botpose",
+        //     LimelightHelpers.getBotPose3d_wpiBlue(limelight));
         double[] poseEntry =
             LimelightHelpers.getLimelightNTDoubleArray(limelight, "botpose_orb_wpiblue");
-        Logger.recordOutput(
-            getName() + "/" + limelight + "/botpose_orb", LimelightHelpers.toPose3D(poseEntry));
+        // Logger.recordOutput(
+        //     getName() + "/" + limelight + "/botpose_orb", LimelightHelpers.toPose3D(poseEntry));
         LimelightHelpers.PoseEstimate pose_estimate =
             LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
 
@@ -474,6 +476,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         if (s_drivetrain.getState().Speeds.omegaRadiansPerSecond > 2 * Math.PI) {
           doRejectUpdate = true;
         }
+        // if (new Translation2d(s_drivetrain.getState().Speeds.vxMetersPerSecond, s_drivetrain.getState().Speeds.vyMetersPerSecond).getDistance(new Translation2d(0, 0)) > 2.0) {
+        //   doRejectUpdate = true;
+        // }
 
         if (pose_estimate.tagCount == 0) {
           doRejectUpdate = true;
@@ -576,7 +581,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     Logger.recordOutput(
         RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/reefLocation",
-        new Pose2d(reefLocation, new Rotation2d()));
+        new Pose2d(reefLocation, Rotation2d.fromDegrees(0)));
 
 
     Pose2d left_pose;

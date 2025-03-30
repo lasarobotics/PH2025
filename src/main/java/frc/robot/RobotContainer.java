@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -139,6 +140,7 @@ public class RobotContainer {
     m_autoModeChooser.setDefaultOption(Constants.AutoNames.TEST_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.TEST_AUTO_NAME.getSecond()));
     m_autoModeChooser.setDefaultOption(Constants.AutoNames.PRELOAD_1A_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.PRELOAD_1A_AUTO_NAME.getSecond()));
     m_autoModeChooser.setDefaultOption(Constants.AutoNames.THREE_CORAL_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.THREE_CORAL_AUTO_NAME.getSecond()));
+    PathfindingCommand.warmupCommand().schedule();
   }
 
   public Command getAutonomousCommand() {
