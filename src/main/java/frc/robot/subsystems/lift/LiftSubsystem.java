@@ -56,7 +56,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L4,
     A1,
     A2,
-    A_SCORE
+    A_SCORE,
+    A_KICK
   }
 
   private static TargetLiftStates nextState;
@@ -210,6 +211,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         }
         if (nextState == TargetLiftStates.TURBO) {
           return STOW_TURBO_S1;
+        }
+        if (nextState == TargetLiftStates.A_KICK) {
+          return A_KICK;
         }
         return this;
       }
@@ -436,6 +440,34 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.A_SCORE;
+        if (nextState == TargetLiftStates.STOW) {
+          return STOW;
+        }
+        if (nextState == TargetLiftStates.A_KICK) {
+          return A_KICK;
+        }
+        return this;
+      }
+    },
+    A_KICK {
+      @Override
+      public void initialize() {
+        s_liftinstance.setElevatorHeight(STOW_HEIGHT);
+        s_liftinstance.setArmAngle(SCORING_A1_ANGLE);
+      }
+
+      @Override
+      public void execute() {
+        if (s_liftinstance.armAt(SCORING_A1_ANGLE) && s_liftinstance.elevatorAt(STOW_HEIGHT)) {
+          isLiftReady = true;
+        } else {
+          isLiftReady = false;
+        }
+      }
+
+      @Override
+      public SystemState nextState() {
+        curState = TargetLiftStates.A_KICK;
         if (nextState == TargetLiftStates.STOW) {
           return STOW;
         }

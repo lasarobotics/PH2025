@@ -395,7 +395,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   // private static ArrayList<AprilTagCamera> m_cameras;
 
-  private static double s_driveSpeedScalar = 0.2;
+  private static double s_driveSpeedScalar = Constants.Drive.FAST_SPEED_SCALAR;
 
   protected final Thread m_limelight_thread;
 
@@ -429,8 +429,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_autoDrive.HeadingController.setPID(5, 0, 0);
     s_autoDrive.HeadingController.enableContinuousInput(0, Math.PI * 2);
 
-    s_autoDrive.XController.setPID(1.5, 0, 0);
-    s_autoDrive.YController.setPID(4, 0, 0);
+    s_autoDrive.XController.setPID(6, 0, 0);
+    s_autoDrive.YController.setPID(6, 0, 0);
 
     s_drivetrain.registerTelemetry(logger::telemeterize);
 

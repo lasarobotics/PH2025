@@ -377,6 +377,21 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         if (s_cancelButton.getAsBoolean()) return STOW;
+        if (timer.hasElapsed(0.5)) return ALGAE_KICK;
+        return this;
+      }
+    },
+    ALGAE_KICK {
+      Timer timer = new Timer();
+      @Override
+      public void initialize() {
+        timer.restart();
+        LIFT_SUBSYSTEM.setState(TargetLiftStates.A_KICK);
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_cancelButton.getAsBoolean()) return STOW;
         if (timer.hasElapsed(0.5)) return STOW;
         return this;
       }
@@ -389,6 +404,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
+        if (s_cancelButton.getAsBoolean()) return STOW;
         if (END_EFFECTOR_SUBSYSTEM.isEmpty()) return INTAKE;
 
         return this;
@@ -410,6 +426,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
+        if (s_cancelButton.getAsBoolean()) return STOW;
         if (END_EFFECTOR_SUBSYSTEM.isEmpty()) return INTAKE;
 
         return this;
