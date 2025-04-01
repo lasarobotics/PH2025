@@ -130,7 +130,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         secondStage = false;
         thirdStage = false;
         // move auto align away from the reef slightly
-        s_autoAlignTarget = s_autoAlignTarget.plus(new Transform2d(new Translation2d(-0.3, 0), new Rotation2d()));
+        // s_autoAlignTarget = s_autoAlignTarget.plus(new Transform2d(new Translation2d(-0.3, 0), new Rotation2d()));
 
         s_autoAlignTargetDriveX.position = s_autoAlignTarget.getX();
         s_autoAlignTargetDriveY.position = s_autoAlignTarget.getY();
@@ -297,8 +297,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             // s_isAligned = true;
           } else {
             secondStage = true;
+            thirdStage = true;
 
             // move the target back to normal, and lower the constraints
+            /*
             s_turnProfile = new TrapezoidProfile(Constants.Drive.TURN_CONSTRAINTS_SLOW);
             s_driveProfile = new TrapezoidProfile(Constants.Drive.DRIVE_CONSTRAINTS_SLOW);
             
@@ -306,6 +308,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
             s_autoAlignTargetDriveX.position = s_autoAlignTarget.getX();
             s_autoAlignTargetDriveY.position = s_autoAlignTarget.getY();
+            */
 
             resetMotionProfile();
           }
