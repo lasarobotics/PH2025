@@ -96,7 +96,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Distance L2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(2.55246)).plus(Inches.of(1)).minus(Inches.of(1.375));
   static final Distance CLEAR_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(3.824)).minus(Inches.of(1.375));
   static final Distance L3_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
-  static final Distance L4_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(4.49)).minus(Inches.of(1.125));
+  static final Distance L4_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(4.49)).minus(Inches.of(1.625));
   static final Distance TURBO_HEIGHT = L4_HEIGHT;
   static final Distance A1_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0.45)).minus(Inches.of(0.375));
   static final Distance A2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(2.65678)).minus(Inches.of(0.375));

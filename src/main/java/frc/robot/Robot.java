@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -46,6 +47,8 @@ public class Robot extends LoggedRobot {
     m_robotContainer = new RobotContainer();
 
     CameraServer.startAutomaticCapture();
+
+    RobotController.setBrownoutVoltage(5.5);
 
     // Threads.setCurrentThreadPriority(true, 99);
   }

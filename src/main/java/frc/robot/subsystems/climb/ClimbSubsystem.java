@@ -20,8 +20,9 @@ import frc.robot.LoopTimer;
 public class ClimbSubsystem extends StateMachine implements AutoCloseable {
 
   static final double CLIMB_SPEED = 1.0;
-  static final double MOUNT_ANGLE = 0.295;
-  static final double CLIMB_ANGLE = 0.058;
+  static final double MOUNT_ANGLE = 0.357;
+  static final double CLIMB_ANGLE = 0.12;
+  static final double STOW_ANGLE = 0.08;
 
   public static record Hardware (
     Spark climbMotor
@@ -190,6 +191,17 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
    */
   public void setIsMounted(boolean mounted) {
     this.m_mounted = mounted;
+  }
+
+  /**
+   * Stow the climber so it is inside the frame perimeter
+   */
+  public void stow() {
+    m_climbMotor.set(CLIMB_SPEED);
+  }
+
+  public boolean inStowPosition() {
+    return s_climbInstance.getInputs().absoluteEncoderPosition <= STOW_ANGLE;
   }
 
   /**

@@ -141,6 +141,11 @@ public class RobotContainer {
     m_autoModeChooser.setDefaultOption(Constants.AutoNames.PRELOAD_1A_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.PRELOAD_1A_AUTO_NAME.getSecond()));
     m_autoModeChooser.setDefaultOption(Constants.AutoNames.THREE_LEFT_CORAL_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.THREE_LEFT_CORAL_AUTO_NAME.getSecond()));
     m_autoModeChooser.setDefaultOption(Constants.AutoNames.THREE_RIGHT_CORAL_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.THREE_RIGHT_CORAL_AUTO_NAME.getSecond()));
+    m_autoModeChooser.setDefaultOption("Stow climber", Commands.startEnd(() -> {
+      CLIMB_SUBSYSTEM.stow();
+    }, () -> {
+
+    }, CLIMB_SUBSYSTEM));
     PathfindingCommand.warmupCommand().schedule();
   }
 

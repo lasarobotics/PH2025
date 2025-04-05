@@ -525,7 +525,25 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_FIRST_RIGHT_CORAL_ALIGN_COMMAND_NAME, this.autoFirstRightCoralCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_SECOND_RIGHT_CORAL_ALIGN_COMMAND_NAME, this.autoSecondRightCoralCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_THIRD_RIGHT_CORAL_ALIGN_COMMAND_NAME, this.autoThirdRightCoralCommand());
+    NamedCommands.registerCommand("stow climber", this.stowClimberCommand());
   }
+
+
+
+  public Command stowClimberCommand() {
+    return Commands.startEnd(
+      () -> {
+        System.out.println("Stow command ran");
+        CLIMB_SUBSYSTEM.stow();
+      },
+      () -> {
+        CLIMB_SUBSYSTEM.idleState();
+      },
+      CLIMB_SUBSYSTEM
+    ).until(() -> {return CLIMB_SUBSYSTEM.inStowPosition();});
+  }
+
+
   /**
    * Tells the robot to move the lift to the L4 state during autonomous
    * @return Command which tells the robot to move the lift to the L4 state during autonomous
@@ -594,7 +612,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 		.until(() -> {
                 return END_EFFECTOR_SUBSYSTEM.isEmpty();
               })
-          .withTimeout(2);
+          .withTimeout(0.8);
     }
   }
 
@@ -610,7 +628,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 		this
 		)
 		.until(() -> {
-              return END_EFFECTOR_SUBSYSTEM.isCoralCentered();
+              return END_EFFECTOR_SUBSYSTEM.forwardBeamBreakBroken();
             });
   }
 
@@ -618,11 +636,20 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
    * Auto aligns the robot to a reef in autonomous given an arbitrary pose 
    * @param arbitraryPose arbitrary pose for reef the robot should align to in auto
    */
-  private Command autonomousAutoAlignToPoseCommand(Pose2d arbitraryPose) {
+  private Command autonomousAutoAlignToPoseCommand(Pose2d redPose, Pose2d bluePose) {
     return Commands.startEnd(
     () -> 
       {
-        Logger.recordOutput("temp/fakePose", arbitraryPose);
+        Pose2d arbitraryPose;
+        Logger.recordOutput("Autos/autoAlignAlliance", DriverStation.getAlliance().toString());
+        if (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)) {
+          arbitraryPose = redPose;
+        } else {
+          arbitraryPose = bluePose;
+        }
+        Logger.recordOutput("Autos/redPose", redPose);
+        Logger.recordOutput("Autos/bluePose", bluePose);
+        Logger.recordOutput("Autos/arbitraryPose", arbitraryPose);
         DRIVE_SUBSYSTEM.requestAutoAlign(DRIVE_SUBSYSTEM.findAutoAlignTarget(arbitraryPose));
       },
     () -> {},
@@ -638,69 +665,37 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
   Pose2d redAlignPose = new Pose2d(12.8, 2.5, new Rotation2d(0.0)); // TODO update this for red alliance
   Pose2d blueAlignPose = new Pose2d(5.09, 6.73, new Rotation2d(0.0));
   Logger.recordOutput("temp/alliance", DriverStation.getAlliance().toString());
-  if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(Alliance.Red)) {
-    Logger.recordOutput("temp/actualAlliance", "red");
-    return autonomousAutoAlignToPoseCommand(redAlignPose);
-  }
-  else {
-    Logger.recordOutput("temp/actualAlliance", "blue");
-    return autonomousAutoAlignToPoseCommand(blueAlignPose);
-  }
+  return autonomousAutoAlignToPoseCommand(redAlignPose, blueAlignPose);
 }
 
 public Command autoSecondLeftCoralCommand() {
   Pose2d redAlignPose = new Pose2d(13.4, 2.6, new Rotation2d(0.0));
   Pose2d blueAlignPose = new Pose2d(4.3, 5.5, new Rotation2d(0.0));
-  if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(Alliance.Red)) {
-    return autonomousAutoAlignToPoseCommand(redAlignPose);
-  }
-  else {
-    return autonomousAutoAlignToPoseCommand(blueAlignPose);
-  }
+  return autonomousAutoAlignToPoseCommand(redAlignPose, blueAlignPose);
 }
 
 public Command autoThirdLeftCoralCommand() {
   Pose2d redAlignPose = new Pose2d(14.3, 2.9, new Rotation2d(0.0));
   Pose2d blueAlignPose = new Pose2d(3.6, 5.2, new Rotation2d(0.0));
-  if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == Alliance.Red) {
-    return autonomousAutoAlignToPoseCommand(redAlignPose);
-  }
-  else {
-    return autonomousAutoAlignToPoseCommand(blueAlignPose);
-  }
+  return autonomousAutoAlignToPoseCommand(redAlignPose, blueAlignPose);
 }
 
 public Command autoFirstRightCoralCommand() {
   Pose2d redAlignPose = new Pose2d(12.9, 5.5, new Rotation2d(0.0)); 
   Pose2d blueAlignPose = new Pose2d(4.78, 2.73, new Rotation2d(0.0));
-  if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(Alliance.Red)) {
-    return autonomousAutoAlignToPoseCommand(redAlignPose);
-  }
-  else {
-    return autonomousAutoAlignToPoseCommand(blueAlignPose);
-  }
+  return autonomousAutoAlignToPoseCommand(redAlignPose, blueAlignPose);
 }
 
 public Command autoSecondRightCoralCommand() {
   Pose2d redAlignPose = new Pose2d(13.4, 5.6, new Rotation2d(0.0));
   Pose2d blueAlignPose = new Pose2d(4.0, 2.5, new Rotation2d(0.0));
-  if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(Alliance.Red)) {
-    return autonomousAutoAlignToPoseCommand(redAlignPose);
-  }
-  else {
-    return autonomousAutoAlignToPoseCommand(blueAlignPose);
-  }
+  return autonomousAutoAlignToPoseCommand(redAlignPose, blueAlignPose);
 }
 
 public Command autoThirdRightCoralCommand() {
   Pose2d redAlignPose = new Pose2d(14.1, 5.2, new Rotation2d(0.0));
   Pose2d blueAlignPose = new Pose2d(3.45, 2.8, new Rotation2d(0.0));
-  if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == Alliance.Red) {
-    return autonomousAutoAlignToPoseCommand(redAlignPose);
-  }
-  else {
-    return autonomousAutoAlignToPoseCommand(blueAlignPose);
-  }
+  return autonomousAutoAlignToPoseCommand(redAlignPose, blueAlignPose);
 }
 
   @Override

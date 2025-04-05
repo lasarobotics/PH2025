@@ -222,7 +222,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    *
    * @return True if beam break broken, false otherwise
    */
-  private boolean forwardBeamBreakBroken() {
+  public boolean forwardBeamBreakBroken() {
     return !m_forwardBeamBreak.get();
   }
 
@@ -231,7 +231,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    *
    * @return True if beam break broken, false otherwise
    */
-  private boolean reverseBeamBreakBroken() {
+  public boolean reverseBeamBreakBroken() {
     return !m_reverseBeamBreak.get();
   }
 

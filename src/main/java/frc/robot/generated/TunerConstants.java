@@ -68,6 +68,10 @@ public class TunerConstants {
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
   private static final TalonFXConfiguration driveInitialConfigs =
       new TalonFXConfiguration()
+        .withCurrentLimits(new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(50.0)
+                .withSupplyCurrentLowerTime(0.5)
+            )
           .withOpenLoopRamps(
               new OpenLoopRampsConfigs()
                   .withVoltageOpenLoopRampPeriod(Seconds.of(0.5))

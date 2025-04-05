@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Centimeter;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -105,11 +106,11 @@ public final class Constants {
     public static final Translation2d LEFT_BRANCH_OFFSET =
         new Translation2d(
             Inches.of(-47.74),
-            Inches.of(15.5));
+            Inches.of(15.5).plus(Centimeters.of(1.25)));
     public static final Translation2d RIGHT_BRANCH_OFFSET =
         new Translation2d(
             Inches.of(-47.74),
-            Inches.of(2.5));
+            Inches.of(2.5).plus(Centimeters.of(1.25)));
 
     public static List<Pose2d> AUTO_ALIGN_LOCATIONS_RED =
         Arrays.asList(
