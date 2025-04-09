@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -36,6 +37,7 @@ public class RobotContainer {
   private final IntakeSubsystem INTAKE_SUBSYSTEM = IntakeSubsystem.getInstance(IntakeSubsystem.initializeHardware());
   private final EndEffectorSubsystem END_EFFECTOR_SUBSYSTEM = EndEffectorSubsystem.getInstance(EndEffectorSubsystem.initializeHardware(), LIFT_SUBSYSTEM);
   private final ClimbSubsystem CLIMB_SUBSYSTEM = ClimbSubsystem.getInstance(ClimbSubsystem.initializeHardware());
+  private final static Led LED_SUBSYSTEM = Led.getInstance(Led.initializHardware());
   private final HeadHoncho HEAD_HONCHO = new HeadHoncho(DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM, CLIMB_SUBSYSTEM);
   // private final AutoHoncho AUTO_HONCHO = new AutoHoncho(DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM);
   private static SendableChooser<Command> m_autoModeChooser = new SendableChooser<>();
@@ -46,6 +48,7 @@ public class RobotContainer {
     SmartDashboard.putBoolean("Is Ready", DRIVE_SUBSYSTEM.isAligned() && LIFT_SUBSYSTEM.isLiftReady());
     SmartDashboard.putData("Auto Mode", m_autoModeChooser);
     DRIVE_SUBSYSTEM.resetPose(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
+    LED_SUBSYSTEM.setViolet();
   }
 
   private void configureBindings() {
@@ -111,12 +114,39 @@ public class RobotContainer {
   }
 
   /**
+   * setter methods for led colors
+   */
+  public static void setViolet() {
+    LED_SUBSYSTEM.setViolet();
+  }
+
+  public static void setRed() {
+    LED_SUBSYSTEM.setRed();
+  }
+
+  public static void setAqua() {
+    LED_SUBSYSTEM.setAqua();
+  }
+
+  public static void setWhite() {
+    LED_SUBSYSTEM.setWhite();
+  }
+
+  /**
    * Add auto modes to chooser
    */
   private void autoModeChooser() {
     m_autoModeChooser.setDefaultOption("Do nothing", Commands.none());
     m_autoModeChooser.setDefaultOption(Constants.AutoNames.TEST_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.TEST_AUTO_NAME.getSecond()));
     m_autoModeChooser.setDefaultOption(Constants.AutoNames.PRELOAD_1A_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.PRELOAD_1A_AUTO_NAME.getSecond()));
+    m_autoModeChooser.setDefaultOption(Constants.AutoNames.THREE_LEFT_CORAL_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.THREE_LEFT_CORAL_AUTO_NAME.getSecond()));
+    m_autoModeChooser.setDefaultOption(Constants.AutoNames.THREE_RIGHT_CORAL_AUTO_NAME.getFirst(), new PathPlannerAuto(Constants.AutoNames.THREE_RIGHT_CORAL_AUTO_NAME.getSecond()));
+    m_autoModeChooser.setDefaultOption("Stow climber", Commands.startEnd(() -> {
+      CLIMB_SUBSYSTEM.stow();
+    }, () -> {
+
+    }, CLIMB_SUBSYSTEM));
+    PathfindingCommand.warmupCommand().schedule();
   }
 
   public Command getAutonomousCommand() {

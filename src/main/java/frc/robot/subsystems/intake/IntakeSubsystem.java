@@ -202,11 +202,11 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     m_intakeMotor.stopMotor();
   }
 
-  private boolean firstIntakeBeamBreak() {
+  public boolean firstIntakeBeamBreak() {
     return !m_firstBeamBreak.getInputs().value;
   }
 
-  private boolean secondIntakeBeamBreak() {
+  public boolean secondIntakeBeamBreak() {
     return !m_secondBeamBreak.getInputs().value;
   }
 

@@ -30,7 +30,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
 
   static final Dimensionless INTAKE_MOTOR_SPEED = Percent.of(100);
   static final Dimensionless REGURGITATE_MOTOR_SPEED = Percent.of(-50);
-  static final Dimensionless SCORE_MOTOR_SPEED = Percent.of(80);
+  static final Dimensionless SCORE_MOTOR_SPEED = Percent.of(100);
   static final Dimensionless CENTER_CORAL_MOTOR_SPEED = Percent.of(-10);
   static final Dimensionless DESCORE_ALGAE_MOTOR_SPEED = Percent.of(10);
 
@@ -222,7 +222,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    *
    * @return True if beam break broken, false otherwise
    */
-  private boolean forwardBeamBreakBroken() {
+  public boolean forwardBeamBreakBroken() {
     return !m_forwardBeamBreak.get();
   }
 
@@ -231,7 +231,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    *
    * @return True if beam break broken, false otherwise
    */
-  private boolean reverseBeamBreakBroken() {
+  public boolean reverseBeamBreakBroken() {
     return !m_reverseBeamBreak.get();
   }
 

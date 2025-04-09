@@ -5,6 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -20,10 +22,14 @@ public class Robot extends LoggedRobot {
 
   private final RobotContainer m_robotContainer;
 
+  private final Servo phlapServo;
+
   public Robot() {
 
+    phlapServo = new Servo(3);
+
     if (isReal()) {
-      Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+      Logger.addDataReceiver(new WPILOGWriter("/U/")); // Log to a USB stick ("/U/logs")
       Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
     } else {
       setUseTiming(false); // Run as fast as possible
@@ -42,16 +48,18 @@ public class Robot extends LoggedRobot {
 
     CameraServer.startAutomaticCapture();
 
-    Threads.setCurrentThreadPriority(true, 99);
+    RobotController.setBrownoutVoltage(5.5);
+
+    // Threads.setCurrentThreadPriority(true, 99);
   }
 
   @Override
   public void robotPeriodic() {
-    // Threads.setCurrentThreadPriority(true, 99);
+    Threads.setCurrentThreadPriority(true, 99);
     LoopTimer.resetTimer();
     CommandScheduler.getInstance().run();
     LoopTimer.addTimestamp("CommandScheduler");
-    // Threads.setCurrentThreadPriority(false, 10);
+    Threads.setCurrentThreadPriority(false, 0);
   }
 
   @Override
@@ -67,6 +75,8 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     Logger.recordOutput("Auto/Lift/State", "starting");
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    
+    phlapServo.set(1);
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -83,6 +93,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
+    phlapServo.set(1);
+
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }

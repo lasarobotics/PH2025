@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 1.5365544105643658,
-        "y": 0.774194700326492
+        "x": 1.3072345890410957,
+        "y": 0.5991438356164384
       },
       "prevControl": {
-        "x": 1.7438561605443255,
-        "y": 0.9222418133681778
+        "x": 1.5145363390210553,
+        "y": 0.7471909486581242
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "intake coral"
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.633,
-    "maxAcceleration": 1.5,
+    "maxVelocity": 5.25,
+    "maxAcceleration": 4.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

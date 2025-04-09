@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Centimeter;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -79,10 +80,19 @@ public final class Constants {
             MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond));
     public static final TrapezoidProfile.Constraints DRIVE_CONSTRAINTS =
         new TrapezoidProfile.Constraints(
-            MAX_SPEED.in(MetersPerSecond) * 0.5,
-            MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.8);
+            MAX_SPEED.in(MetersPerSecond) * 0.6,
+            MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.6);
 
-    public static final double AUTO_ALIGN_TOLERANCE = Meters.of(0.075).in(Meters);
+    public static final TrapezoidProfile.Constraints TURN_CONSTRAINTS_SLOW =
+    new TrapezoidProfile.Constraints(
+        MAX_ANGULAR_RATE.in(RadiansPerSecond),
+        MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond));
+    public static final TrapezoidProfile.Constraints DRIVE_CONSTRAINTS_SLOW =
+        new TrapezoidProfile.Constraints(
+            MAX_SPEED.in(MetersPerSecond) * 0.2,
+            MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.2);
+
+    public static final double AUTO_ALIGN_TOLERANCE = Meters.of(0.05).in(Meters);
     public static final double AUTO_ALIGN_LR_TOLERANCE = Centimeter.of(0.5).in(Meters);
     public static final double AUTO_ALIGN_TOLERANCE_TURN =
         Radians.of(0.075).plus(Degrees.of(7.5)).in(Radians);
@@ -95,12 +105,12 @@ public final class Constants {
     // y+ is robot moves left, x+ is robot moves into the reef
     public static final Translation2d LEFT_BRANCH_OFFSET =
         new Translation2d(
-            Inches.of(-52.74),
-            Inches.of(15.5));
+            Inches.of(-47.74),
+            Inches.of(15.5).plus(Centimeters.of(1.25)));
     public static final Translation2d RIGHT_BRANCH_OFFSET =
         new Translation2d(
-            Inches.of(-52.74),
-            Inches.of(2.5));
+            Inches.of(-47.74),
+            Inches.of(2.5).plus(Centimeters.of(1.25)));
 
     public static List<Pose2d> AUTO_ALIGN_LOCATIONS_RED =
         Arrays.asList(
@@ -168,6 +178,10 @@ public final class Constants {
         new LimitSwitch.ID("EndEffectorHardware/ReverseBeamBreak", 3);
   }
 
+  public static class LedHardware {
+    public static final int PWM_PORT = 4;
+  }
+
   public static class VisionHardware {
     public static final String CAMERA_A_NAME = "Left";
     public static Transform3d CAMERA_A_LOCATION =
@@ -205,6 +219,12 @@ public final class Constants {
     public static final String AUTO_ALIGN_COMMAND_NAME = "auto align";
     public static final String AUTO_SCORE_COMMAND_NAME = "score coral";
     public static final String WAIT_FOR_INTAKE_COMMAND_NAME = "wait for intake";
+    public static final String AUTO_FIRST_LEFT_CORAL_ALIGN_COMMAND_NAME = "auto align first coral left";
+    public static final String AUTO_SECOND_LEFT_CORAL_ALIGN_COMMAND_NAME = "auto align second coral left";
+    public static final String AUTO_THIRD_LEFT_CORAL_ALIGN_COMMAND_NAME = "auto align third coral left";
+    public static final String AUTO_FIRST_RIGHT_CORAL_ALIGN_COMMAND_NAME = "auto align first coral right";
+    public static final String AUTO_SECOND_RIGHT_CORAL_ALIGN_COMMAND_NAME = "auto align second coral right";
+    public static final String AUTO_THIRD_RIGHT_CORAL_ALIGN_COMMAND_NAME = "auto align third coral right";
   }
 
   public static class AutoNames {
@@ -212,5 +232,9 @@ public final class Constants {
         new Pair<String, String>("test auto", "test auto");
     public static final Pair<String, String> PRELOAD_1A_AUTO_NAME =
         new Pair<String, String>("preload to 1a", "preload to 1a");
+    public static final Pair<String, String> THREE_LEFT_CORAL_AUTO_NAME = 
+        new Pair<String, String>("3 left coral auto", "3 left coral auto");
+    public static final Pair<String, String> THREE_RIGHT_CORAL_AUTO_NAME = 
+        new Pair<String, String>("3 right coral auto","3 right coral auto");
   }
 }

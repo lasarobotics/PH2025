@@ -48,13 +48,16 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   public static enum TargetLiftStates {
     NOTHING,
+    TURBO,
     STOW,
     L1,
     L2,
     L3,
     L4,
     A1,
-    A2
+    A2,
+    A_SCORE,
+    A_KICK
   }
 
   private static TargetLiftStates nextState;
@@ -71,17 +74,20 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   // Tolerance in degrees of arm
   static final Angle ARM_TOLERANCE = Degrees.of(2.0);
 
-  static final Angle SCORING_L1_ANGLE = Rotations.of(-0.263184);
-  static final Angle SCORING_L2_ANGLE = Rotations.of(-0.27002);
-  static final Angle SCORING_L3_ANGLE = Rotations.of(0.328125);
-  static final Angle SCORING_L4_ANGLE = Rotations.of(0.326172-0.027777777777).plus(Degrees.of(7));
-  static final Angle SCORING_A1_ANGLE = Rotations.of(-0.375);
-  static final Angle SCORING_A2_ANGLE = Rotations.of(-0.375);
-
   static final Angle SAFE_REEF_ANGLE_BOTTOM = Rotations.of(-0.256836);
   static final Angle SAFE_REEF_ANGLE_TOP = Rotations.of(0.287598-0.0278);
   static final Angle SAFE_INTAKE_ANGLE_BOTTOM =  Rotations.of(-0.24469);
   static final Angle SAFE_INTAKE_ANGLE_TOP = Rotations.of(0.109375);
+  static final Angle SAFE_NEW_ANGLE_INTAKE = Rotations.of(0.104004);
+
+  static final Angle SCORING_L1_ANGLE = Rotations.of(-0.263184);
+  static final Angle SCORING_L2_ANGLE = Rotations.of(-0.27002);
+  static final Angle SCORING_L3_ANGLE = Rotations.of(0.34375);
+  static final Angle SCORING_L4_ANGLE = Rotations.of(0.326172-0.027777777777).plus(Degrees.of(7));
+  static final Angle SCORING_A1_ANGLE = Rotations.of(-0.375);
+  static final Angle SCORING_A2_ANGLE = Rotations.of(-0.375);
+  static final Angle SCORING_A_ANGLE = Rotations.of(-0.256836);
+  static final Angle TURBO_ANGLE = SAFE_INTAKE_ANGLE_BOTTOM;
 
   static final Angle STOW_ANGLE = Rotations.of(-0.215333);
   static final Distance STOW_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0.05));
@@ -90,8 +96,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Distance L2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(2.55246)).plus(Inches.of(1)).minus(Inches.of(1.375));
   static final Distance CLEAR_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(3.824)).minus(Inches.of(1.375));
   static final Distance L3_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
-  static final Distance L4_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(4.49)).minus(Inches.of(1.125));
-
+  static final Distance L4_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(4.49)).minus(Inches.of(1.625));
+  static final Distance TURBO_HEIGHT = L4_HEIGHT;
   static final Distance A1_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0.45)).minus(Inches.of(0.375));
   static final Distance A2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(2.65678)).minus(Inches.of(0.375));
 
@@ -203,6 +209,154 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         if (nextState == TargetLiftStates.A2) {
           return STOW_A2_S1;
         }
+        if (nextState == TargetLiftStates.TURBO) {
+          return STOW_TURBO_S1;
+        }
+        if (nextState == TargetLiftStates.A_KICK) {
+          return A_KICK;
+        }
+        return this;
+      }
+    },
+    STOW_TURBO_S1 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
+          return STOW_TURBO_S2;
+        }
+        return this;
+      }
+    },
+    STOW_TURBO_S2 {
+      @Override
+      public void initialize() {
+        s_liftinstance.setElevatorHeight(TURBO_HEIGHT);
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getElevatorHeight().gte(CLEAR_HEIGHT)) {
+          return TURBO;
+        }
+        return this;
+      }
+    },
+    TURBO {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(TURBO_ANGLE);
+        s_liftinstance.setElevatorHeight(TURBO_HEIGHT);
+      }
+
+      @Override
+      public void execute() {
+        if (s_liftinstance.armAt(TURBO_ANGLE) && s_liftinstance.elevatorAt(TURBO_HEIGHT)) {
+          isLiftReady = true;
+        } else {
+          isLiftReady = false;
+        }
+      }
+
+      @Override
+      public SystemState nextState() {
+        curState = TargetLiftStates.TURBO;
+        if (nextState == TargetLiftStates.L1) {
+          return L4_L1_S1;
+        }
+        if (nextState == TargetLiftStates.L2) {
+          return L4_L2_S1;
+        }
+        if (nextState == TargetLiftStates.L3) {
+          return STOW_L3_S2;
+        }
+        if (nextState == TargetLiftStates.L4) {
+          return L4;
+        }
+        if (nextState == TargetLiftStates.STOW) {
+          return L4_STOW_S1;
+        }
+        return this;
+      }
+    },
+    L1_TURBO_S1 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(TURBO_ANGLE.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
+          return TURBO;
+        }
+        return this;
+      }
+    },
+    L2_TURBO_S1 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(TURBO_ANGLE.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
+          return TURBO;
+        }
+        return this;
+      }
+    },
+    L3_TURBO_S1 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setElevatorHeight(TURBO_HEIGHT);
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.elevatorAt(TURBO_HEIGHT)) {
+          return L3_TURBO_S2;
+        }
+        return this;
+      }
+    },
+    L3_TURBO_S2 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(TURBO_ANGLE.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
+          return TURBO;
+        }
+        return this;
+      }
+    },
+    L4_TURBO_S1 {
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        s_liftinstance.setArmAngle(TURBO_ANGLE.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
+          return TURBO;
+        }
         return this;
       }
     },
@@ -261,6 +415,62 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         if (nextState == TargetLiftStates.A2) {
           return A2;
         }
+        if (nextState == TargetLiftStates.A_SCORE) {
+          return A_SCORE;
+        }
+        return this;
+      }
+    },
+    A_SCORE {
+      @Override
+      public void initialize() {
+        s_liftinstance.setElevatorHeight(STOW_HEIGHT);
+        s_liftinstance.setArmAngle(SCORING_A_ANGLE);
+      }
+
+      @Override
+      public void execute() {
+        if (s_liftinstance.armAt(SCORING_A_ANGLE) && s_liftinstance.elevatorAt(STOW_HEIGHT)) {
+          isLiftReady = true;
+        } else {
+          isLiftReady = false;
+        }
+      }
+
+      @Override
+      public SystemState nextState() {
+        curState = TargetLiftStates.A_SCORE;
+        if (nextState == TargetLiftStates.STOW) {
+          return STOW;
+        }
+        if (nextState == TargetLiftStates.A_KICK) {
+          return A_KICK;
+        }
+        return this;
+      }
+    },
+    A_KICK {
+      @Override
+      public void initialize() {
+        s_liftinstance.setElevatorHeight(STOW_HEIGHT);
+        s_liftinstance.setArmAngle(SCORING_A1_ANGLE);
+      }
+
+      @Override
+      public void execute() {
+        if (s_liftinstance.armAt(SCORING_A1_ANGLE) && s_liftinstance.elevatorAt(STOW_HEIGHT)) {
+          isLiftReady = true;
+        } else {
+          isLiftReady = false;
+        }
+      }
+
+      @Override
+      public SystemState nextState() {
+        curState = TargetLiftStates.A_KICK;
+        if (nextState == TargetLiftStates.STOW) {
+          return STOW;
+        }
         return this;
       }
     },
@@ -318,6 +528,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         }
         if (nextState == TargetLiftStates.A1) {
           return A1;
+        }
+        if (nextState == TargetLiftStates.A_SCORE) {
+          return A_SCORE;
         }
         return this;
       }
@@ -381,6 +594,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         }
         if (nextState == TargetLiftStates.L4) {
           return L1_L4_S1;
+        }
+        if (nextState == TargetLiftStates.TURBO) {
+          return L1_TURBO_S1;
         }
         return this;
       }
@@ -533,6 +749,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         if (nextState == TargetLiftStates.L4) {
           return L2_L4_S1;
         }
+        if (nextState == TargetLiftStates.TURBO) {
+          return L2_TURBO_S1;
+        }
         return this;
       }
     },
@@ -668,6 +887,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         }
         if (nextState == TargetLiftStates.L4) {
           return L3_L4_S1;
+        }
+        if (nextState == TargetLiftStates.TURBO) {
+          return L3_TURBO_S1;
         }
         return this;
       }
@@ -931,6 +1153,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         }
         if (nextState == TargetLiftStates.L3) {
           return L4_L3_S1;
+        }
+        if (nextState == TargetLiftStates.TURBO) {
+          return L4_TURBO_S1;
         }
         return this;
       }

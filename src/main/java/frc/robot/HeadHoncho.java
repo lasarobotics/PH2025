@@ -9,7 +9,11 @@ import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.climb.ClimbSubsystem;
@@ -63,8 +67,14 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_L3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L3;
         if (s_L4Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return L4;
 
-        if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) return CLIMB;
-        if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) return MOUNT;
+        if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) {
+          LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+          return CLIMB;
+        } 
+        if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) {
+          LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+          return MOUNT;
+        }
 
         if(s_algaeL2Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L2;
         if(s_algaeL3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L3;
@@ -84,7 +94,11 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         if(s_climbButtonRising) return CLIMB;
-        if(s_cancelButton.getAsBoolean()) return STOW;
+        if(s_cancelButton.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) {
+          return STOW;
+        } else if (s_cancelButton.getAsBoolean() && !END_EFFECTOR_SUBSYSTEM.isEmpty()) {
+          return TURBO;
+        }
 
         return this;
       }
@@ -99,8 +113,11 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         if(s_climbButtonRising) return MOUNT;
-        if(s_cancelButton.getAsBoolean()) return STOW;
-
+        if(s_cancelButton.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) {
+          return STOW;
+        } else if (s_cancelButton.getAsBoolean() && !END_EFFECTOR_SUBSYSTEM.isEmpty()) {
+          return TURBO;
+        }
         return this;
       }
     },
@@ -109,29 +126,29 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
         DRIVE_SUBSYSTEM.cancelAutoAlign();
-        INTAKE_SUBSYSTEM.startIntake();
-        END_EFFECTOR_SUBSYSTEM.requestIntake();
       }
 
       @Override
       public void execute() {
-        // if (LIFT_SUBSYSTEM.isLiftReady()) {
-        //   INTAKE_SUBSYSTEM.startIntake();
-        //   END_EFFECTOR_SUBSYSTEM.requestIntake();
-        // } else {
-        //   INTAKE_SUBSYSTEM.stop();
-        //   END_EFFECTOR_SUBSYSTEM.requestStop();
-        // }
+        if (LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW) && LIFT_SUBSYSTEM.isLiftReady()) {
+          INTAKE_SUBSYSTEM.startIntake();
+          END_EFFECTOR_SUBSYSTEM.requestIntake();
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return REST;
+        if (END_EFFECTOR_SUBSYSTEM.isCoralCentered()) return TURBO;
         if (s_cancelButton.getAsBoolean()) return REST;
 
-        if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) return CLIMB;
-        if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) return MOUNT;
-
+        if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) {
+          LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+          return CLIMB;
+        } 
+        if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) {
+          LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+          return MOUNT;
+        }
         if (s_algaeL2Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L2;
         if (s_algaeL3Button.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty()) return ALGAE_DESCORE_L3;
 
@@ -160,6 +177,35 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void end(boolean interrupted) {
         INTAKE_SUBSYSTEM.stop();
         END_EFFECTOR_SUBSYSTEM.requestStop();
+      }
+    },
+    TURBO {
+      @Override
+      public void initialize() {
+        CLIMB_SUBSYSTEM.setIsMounted(false);
+        LIFT_SUBSYSTEM.setState(TargetLiftStates.TURBO);
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.FAST_SPEED_SCALAR);
+        DRIVE_SUBSYSTEM.cancelAutoAlign();
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_L1Button.getAsBoolean()) return L1;
+        if (s_L2Button.getAsBoolean()) return L2;
+        if (s_L3Button.getAsBoolean()) return L3;
+        if (s_L4Button.getAsBoolean()) return L4;
+
+        if (END_EFFECTOR_SUBSYSTEM.isEmpty()) return STOW;
+
+        if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) {
+          LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+          return CLIMB;
+        }
+        if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) {
+          LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+          return MOUNT;
+        }
+        return this;
       }
     },
     STOW {
@@ -192,7 +238,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_L3Button.getAsBoolean()) return L3;
         if (s_L4Button.getAsBoolean()) return L4;
 
-        if (s_cancelButton.getAsBoolean()) return STOW;
+        if (s_cancelButton.getAsBoolean()) return TURBO;
 
         return this;
       }
@@ -214,7 +260,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_L3Button.getAsBoolean()) return L3;
         if (s_L4Button.getAsBoolean()) return L4;
 
-        if (s_cancelButton.getAsBoolean()) return STOW;
+        if (s_cancelButton.getAsBoolean()) return TURBO;
 
         return this;
       }
@@ -236,7 +282,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_L3Button.getAsBoolean()) return L3;
         if (s_L4Button.getAsBoolean()) return L4;
 
-        if (s_cancelButton.getAsBoolean()) return STOW;
+        if (s_cancelButton.getAsBoolean()) return TURBO;
 
         return this;
       }
@@ -258,7 +304,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_L3Button.getAsBoolean()) return L3;
         if (s_L4Button.getAsBoolean()) return L4;
 
-        if (s_cancelButton.getAsBoolean()) return STOW;
+        if (s_cancelButton.getAsBoolean()) return TURBO;
 
         return this;
       }
@@ -280,6 +326,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if (s_algaeL3Button.getAsBoolean()) return ALGAE_DESCORE_L3;
 
         if (s_cancelButton.getAsBoolean()) return STOW;
+
+        if (s_L1Button.getAsBoolean()) return ALGAE_SCORE_READY;
 
 
         return this;
@@ -303,6 +351,54 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
         if (s_cancelButton.getAsBoolean()) return STOW;
 
+        if (s_L1Button.getAsBoolean()) return ALGAE_SCORE_READY;
+
+        return this;
+      }
+    },
+    ALGAE_SCORE_READY {
+      @Override
+      public void initialize() {
+        LIFT_SUBSYSTEM.setState(TargetLiftStates.A_SCORE);
+        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.FAST_SPEED_SCALAR);
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_scoreButton.getAsBoolean()) return ALGAE_SCORE;
+        if (s_cancelButton.getAsBoolean()) return STOW;
+
+        return this;
+      }
+    },
+    ALGAE_SCORE {
+      Timer timer = new Timer();
+      @Override
+      public void initialize() {
+        timer.restart();
+        END_EFFECTOR_SUBSYSTEM.requestScoreReverse();
+        LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_cancelButton.getAsBoolean()) return STOW;
+        if (timer.hasElapsed(0.5)) return ALGAE_KICK;
+        return this;
+      }
+    },
+    ALGAE_KICK {
+      Timer timer = new Timer();
+      @Override
+      public void initialize() {
+        timer.restart();
+        LIFT_SUBSYSTEM.setState(TargetLiftStates.A_KICK);
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (s_cancelButton.getAsBoolean()) return STOW;
+        if (timer.hasElapsed(0.5)) return STOW;
         return this;
       }
     },
@@ -314,6 +410,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
+        if (s_cancelButton.getAsBoolean()) return STOW;
         if (END_EFFECTOR_SUBSYSTEM.isEmpty()) return INTAKE;
 
         return this;
@@ -321,7 +418,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public void end(boolean interrupted) {
-        LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+        LIFT_SUBSYSTEM.setState(TargetLiftStates.TURBO);
         END_EFFECTOR_SUBSYSTEM.requestStop();
         DRIVE_SUBSYSTEM.cancelAutoAlign();
         DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.FAST_SPEED_SCALAR);
@@ -335,6 +432,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
+        if (s_cancelButton.getAsBoolean()) return STOW;
         if (END_EFFECTOR_SUBSYSTEM.isEmpty()) return INTAKE;
 
         return this;
@@ -428,7 +526,31 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_ALIGN_COMMAND_NAME, this.autononomousAlignCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.AUTO_SCORE_COMMAND_NAME, this.autonomousScoreCommand());
     NamedCommands.registerCommand(Constants.NamedCommands.WAIT_FOR_INTAKE_COMMAND_NAME, this.autonomousWaitForIntakeCommand());
+    NamedCommands.registerCommand(Constants.NamedCommands.AUTO_FIRST_LEFT_CORAL_ALIGN_COMMAND_NAME, this.autoFirstLeftCoralCommand());
+    NamedCommands.registerCommand(Constants.NamedCommands.AUTO_SECOND_LEFT_CORAL_ALIGN_COMMAND_NAME, this.autoSecondLeftCoralCommand());
+    NamedCommands.registerCommand(Constants.NamedCommands.AUTO_THIRD_LEFT_CORAL_ALIGN_COMMAND_NAME, this.autoThirdLeftCoralCommand());
+    NamedCommands.registerCommand(Constants.NamedCommands.AUTO_FIRST_RIGHT_CORAL_ALIGN_COMMAND_NAME, this.autoFirstRightCoralCommand());
+    NamedCommands.registerCommand(Constants.NamedCommands.AUTO_SECOND_RIGHT_CORAL_ALIGN_COMMAND_NAME, this.autoSecondRightCoralCommand());
+    NamedCommands.registerCommand(Constants.NamedCommands.AUTO_THIRD_RIGHT_CORAL_ALIGN_COMMAND_NAME, this.autoThirdRightCoralCommand());
+    NamedCommands.registerCommand("stow climber", this.stowClimberCommand());
   }
+
+
+
+  public Command stowClimberCommand() {
+    return Commands.startEnd(
+      () -> {
+        System.out.println("Stow command ran");
+        CLIMB_SUBSYSTEM.stow();
+      },
+      () -> {
+        CLIMB_SUBSYSTEM.idleState();
+      },
+      CLIMB_SUBSYSTEM
+    ).until(() -> {return CLIMB_SUBSYSTEM.inStowPosition();});
+  }
+
+
   /**
    * Tells the robot to move the lift to the L4 state during autonomous
    * @return Command which tells the robot to move the lift to the L4 state during autonomous
@@ -497,7 +619,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 		.until(() -> {
                 return END_EFFECTOR_SUBSYSTEM.isEmpty();
               })
-          .withTimeout(2);
+          .withTimeout(0.8);
     }
   }
 
@@ -513,9 +635,75 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 		this
 		)
 		.until(() -> {
-              return END_EFFECTOR_SUBSYSTEM.isCoralCentered();
+              return END_EFFECTOR_SUBSYSTEM.forwardBeamBreakBroken();
             });
   }
+
+  /**
+   * Auto aligns the robot to a reef in autonomous given an arbitrary pose 
+   * @param arbitraryPose arbitrary pose for reef the robot should align to in auto
+   */
+  private Command autonomousAutoAlignToPoseCommand(Pose2d redPose, Pose2d bluePose) {
+    return Commands.startEnd(
+    () -> 
+      {
+        Pose2d arbitraryPose;
+        Logger.recordOutput("Autos/autoAlignAlliance", DriverStation.getAlliance().toString());
+        if (DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Red)) {
+          arbitraryPose = redPose;
+        } else {
+          arbitraryPose = bluePose;
+        }
+        Logger.recordOutput("Autos/redPose", redPose);
+        Logger.recordOutput("Autos/bluePose", bluePose);
+        Logger.recordOutput("Autos/arbitraryPose", arbitraryPose);
+        DRIVE_SUBSYSTEM.requestAutoAlign(DRIVE_SUBSYSTEM.findAutoAlignTarget(arbitraryPose));
+      },
+    () -> {},
+
+    this
+    )
+    .until(() -> {
+      return (DRIVE_SUBSYSTEM.isAligned() && LIFT_SUBSYSTEM.isLiftReady());
+      });
+    }
+
+ public Command autoFirstLeftCoralCommand() {
+  Pose2d redAlignPose = new Pose2d(12.8, 2.5, new Rotation2d(0.0)); // TODO update this for red alliance
+  Pose2d blueAlignPose = new Pose2d(5.09, 6.73, new Rotation2d(0.0));
+  Logger.recordOutput("temp/alliance", DriverStation.getAlliance().toString());
+  return autonomousAutoAlignToPoseCommand(redAlignPose, blueAlignPose);
+}
+
+public Command autoSecondLeftCoralCommand() {
+  Pose2d redAlignPose = new Pose2d(13.4, 2.6, new Rotation2d(0.0));
+  Pose2d blueAlignPose = new Pose2d(4.3, 5.5, new Rotation2d(0.0));
+  return autonomousAutoAlignToPoseCommand(redAlignPose, blueAlignPose);
+}
+
+public Command autoThirdLeftCoralCommand() {
+  Pose2d redAlignPose = new Pose2d(14.3, 2.9, new Rotation2d(0.0));
+  Pose2d blueAlignPose = new Pose2d(3.6, 5.2, new Rotation2d(0.0));
+  return autonomousAutoAlignToPoseCommand(redAlignPose, blueAlignPose);
+}
+
+public Command autoFirstRightCoralCommand() {
+  Pose2d redAlignPose = new Pose2d(12.9, 5.5, new Rotation2d(0.0)); 
+  Pose2d blueAlignPose = new Pose2d(4.78, 2.73, new Rotation2d(0.0));
+  return autonomousAutoAlignToPoseCommand(redAlignPose, blueAlignPose);
+}
+
+public Command autoSecondRightCoralCommand() {
+  Pose2d redAlignPose = new Pose2d(13.4, 5.6, new Rotation2d(0.0));
+  Pose2d blueAlignPose = new Pose2d(4.0, 2.5, new Rotation2d(0.0));
+  return autonomousAutoAlignToPoseCommand(redAlignPose, blueAlignPose);
+}
+
+public Command autoThirdRightCoralCommand() {
+  Pose2d redAlignPose = new Pose2d(14.1, 5.2, new Rotation2d(0.0));
+  Pose2d blueAlignPose = new Pose2d(3.45, 2.8, new Rotation2d(0.0));
+  return autonomousAutoAlignToPoseCommand(redAlignPose, blueAlignPose);
+}
 
   @Override
   public void periodic() {
