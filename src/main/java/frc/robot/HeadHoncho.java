@@ -274,6 +274,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean() && DRIVE_SUBSYSTEM.isAligned()) return SCORE;
+        if (s_forceScoreButton.getAsBoolean() && LIFT_SUBSYSTEM.isLiftReady()) return SCORE;
 
         if (s_L1Button.getAsBoolean()) return L1;
         if (s_L2Button.getAsBoolean()) return L2;
@@ -297,6 +298,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean() && DRIVE_SUBSYSTEM.isAligned()) return SCORE_REVERSE;
+        if (s_forceScoreButton.getAsBoolean() && LIFT_SUBSYSTEM.isLiftReady()) return SCORE_REVERSE;
 
         if (s_L1Button.getAsBoolean()) return L1;
         if (s_L2Button.getAsBoolean()) return L2;
@@ -320,6 +322,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean() && DRIVE_SUBSYSTEM.isAligned()) return SCORE_REVERSE;
+        if (s_forceScoreButton.getAsBoolean() && LIFT_SUBSYSTEM.isLiftReady()) return SCORE_REVERSE;
 
         if (s_L1Button.getAsBoolean()) return L1;
         if (s_L2Button.getAsBoolean()) return L2;
@@ -478,7 +481,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
   private static ClimbSubsystem CLIMB_SUBSYSTEM;
 
   private static BooleanSupplier s_intakeButton;
-  private static BooleanSupplier s_regurgitateButton;
+  private static BooleanSupplier s_forceScoreButton;
 
   private static BooleanSupplier s_L1Button;
   private static BooleanSupplier s_L2Button;
@@ -516,7 +519,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       DoubleSupplier strafeRequest,
       DoubleSupplier rotateRequest,
       BooleanSupplier intakeButton,
-      BooleanSupplier regurgitateButton,
+      BooleanSupplier forceScoreButton,
       BooleanSupplier L1Button,
       BooleanSupplier L2Button,
       BooleanSupplier L3Button,
@@ -528,7 +531,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     BooleanSupplier climbButton
   ) {
     s_intakeButton = intakeButton;
-    s_regurgitateButton = regurgitateButton;
+    s_forceScoreButton = forceScoreButton;
     s_L1Button = L1Button;
     s_L2Button = L2Button;
     s_L3Button = L3Button;

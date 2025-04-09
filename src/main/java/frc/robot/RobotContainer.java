@@ -57,7 +57,7 @@ public class RobotContainer {
      () -> PRIMARY_CONTROLLER.getLeftY(), // drive y
      () -> PRIMARY_CONTROLLER.getRightX(), // drive rotate
      PRIMARY_CONTROLLER.leftTrigger(), // intake
-     PRIMARY_CONTROLLER.leftBumper(), // regurgitate
+     PRIMARY_CONTROLLER.leftBumper(), // force score 
      PRIMARY_CONTROLLER.a(), // L1
      PRIMARY_CONTROLLER.b(), // L2
      PRIMARY_CONTROLLER.y(), // L3
