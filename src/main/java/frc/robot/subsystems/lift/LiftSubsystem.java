@@ -191,6 +191,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.STOW;
+        if(!isLiftReady) {
+          return this;
+        }
         if (nextState == TargetLiftStates.L1) {
           return STOW_L1_S0;
         }
@@ -583,6 +586,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.L1;
+        if(!isLiftReady) {
+          return this;
+        }
         if (nextState == TargetLiftStates.STOW) {
           return L1_STOW_S1;
         }
@@ -737,6 +743,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.L2;
+        if(!isLiftReady) {
+          return this;
+        }
         if (nextState == TargetLiftStates.STOW) {
           return L1_STOW_S1;
         }
@@ -876,6 +885,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.L3;
+        if(!isLiftReady) {
+          return this;
+        }
         if (nextState == TargetLiftStates.STOW) {
           return L3_STOW_S1;
         }
@@ -1142,6 +1154,9 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.L4;
+        if(!isLiftReady) {
+          return this;
+        }
         if (nextState == TargetLiftStates.STOW) {
           return L4_STOW_S1;
         }
