@@ -48,7 +48,7 @@ public class Robot extends LoggedRobot {
 
     CameraServer.startAutomaticCapture();
 
-    RobotController.setBrownoutVoltage(5.5);
+    RobotController.setBrownoutVoltage(6.75);
 
     // Threads.setCurrentThreadPriority(true, 99);
   }

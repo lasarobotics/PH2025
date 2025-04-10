@@ -238,7 +238,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.L1);
         // DRIVE_SUBSYSTEM.requestAutoAlign();
-        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
+        //DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
         lastReefState = TargetLiftStates.L1;
       }
 
@@ -261,7 +261,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.L2);
         DRIVE_SUBSYSTEM.requestAutoAlign();
-        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
+        //DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
         lastReefState = TargetLiftStates.L2;
       }
 
@@ -285,7 +285,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.L3);
         DRIVE_SUBSYSTEM.requestAutoAlign();
-        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
+       // DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
         lastReefState = TargetLiftStates.L3;
       }
 
@@ -309,7 +309,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.L4);
         DRIVE_SUBSYSTEM.requestAutoAlign();
-        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
+       // DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
         lastReefState = TargetLiftStates.L4;
       }
 
