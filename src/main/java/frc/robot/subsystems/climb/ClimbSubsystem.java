@@ -7,6 +7,7 @@ package frc.robot.subsystems.climb;
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 import org.lasarobotics.hardware.revrobotics.Spark.SparkInputs;
@@ -112,6 +113,10 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
     this.m_climbMotor = ClimbHardware.climbMotor;
 
     this.m_mounted = false;
+
+    TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+
+    this.m_climbMotor.getConfigurator().apply(motorConfig);
   }
 
   /**
