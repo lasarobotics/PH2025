@@ -164,7 +164,9 @@ public final class Constants {
   }
 
   public static class ClimbHardware {
-    public static final Spark.ID CLIMB_MOTOR_ID = new Spark.ID("endEffecterMotor", 51);
+    public static final Spark.ID ENCODER_ID = new Spark.ID("climbHardware/Encoder", 51);
+    public static final TalonFX.ID CLIMB_MOTOR_ID =
+        new TalonFX.ID("climbHardware/Motor", PhoenixCANBus.RIO, 52);
   }
 
   public static class EndEffectorHardware {

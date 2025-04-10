@@ -6,14 +6,13 @@ package frc.robot.subsystems.climb;
 
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
+import com.ctre.phoenix6.hardware.TalonFX;
 import org.lasarobotics.hardware.revrobotics.Spark;
+import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 import org.lasarobotics.hardware.revrobotics.Spark.SparkInputs;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.Command;
-
-import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
-
 import frc.robot.Constants;
 import frc.robot.LoopTimer;
 
@@ -25,7 +24,9 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   static final double STOW_ANGLE = 0.08;
 
   public static record Hardware (
-    Spark climbMotor
+    Spark climbEncoder,
+    TalonFX climbMotor
+    
     
   ) {}
 
@@ -96,7 +97,8 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   }
 
   private static ClimbSubsystem s_climbInstance;
-  private final Spark m_climbMotor;
+  private final Spark m_climbEncoder;
+  private final TalonFX m_climbMotor;
   private ClimbStates nextState;
   private boolean m_mounted;
 
@@ -106,7 +108,9 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
     super(ClimbStates.IDLE);
     nextState =  ClimbStates.IDLE;
 
+    this.m_climbEncoder = ClimbHardware.climbEncoder;
     this.m_climbMotor = ClimbHardware.climbMotor;
+
     this.m_mounted = false;
   }
 
@@ -153,7 +157,8 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
    */
   public static Hardware initializeHardware() {
     Hardware climbHardware = new Hardware(
-      new Spark(Constants.ClimbHardware.CLIMB_MOTOR_ID, MotorKind.NEO)
+      new Spark(Constants.ClimbHardware.ENCODER_ID, MotorKind.NEO),
+      new TalonFX(Constants.ClimbHardware.CLIMB_MOTOR_ID.deviceID, Constants.ClimbHardware.CLIMB_MOTOR_ID.bus.name)
     );
     
 
@@ -197,7 +202,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
    * Stow the climber so it is inside the frame perimeter
    */
   public void stow() {
-    m_climbMotor.set(CLIMB_SPEED);
+    m_climbEncoder.set(CLIMB_SPEED);
   }
 
   public boolean inStowPosition() {
@@ -248,7 +253,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
    * gets spark inputs
    */
   public SparkInputs getInputs() {
-    return this.m_climbMotor.getInputs();
+    return this.m_climbEncoder.getInputs();
   }
 
   
@@ -265,7 +270,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
 
   @Override
   public void close() {
-    m_climbMotor.close();
+    m_climbEncoder.close();
     s_climbInstance = null;
   }
 }
