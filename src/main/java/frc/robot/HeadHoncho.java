@@ -662,8 +662,8 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
     }
 
  public Command autoFirstLeftCoralCommand() {
-  Pose2d redAlignPose = new Pose2d(12.8, 2.5, new Rotation2d(0.0)); // TODO update this for red alliance
-  Pose2d blueAlignPose = new Pose2d(5.09, 6.73, new Rotation2d(0.0));
+  Pose2d redAlignPose = new Pose2d(12.45, 2.54, new Rotation2d(0.0)); // TODO update this for red alliance
+  Pose2d blueAlignPose = new Pose2d(5.03, 5.41, new Rotation2d(0.0));
   Logger.recordOutput("temp/alliance", DriverStation.getAlliance().toString());
   return autonomousAutoAlignToPoseCommand(redAlignPose, blueAlignPose);
 }
