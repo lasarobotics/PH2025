@@ -92,8 +92,8 @@ public final class Constants {
             MAX_SPEED.in(MetersPerSecond) * 0.2,
             MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.2);
 
-    public static final double AUTO_ALIGN_TOLERANCE = Meters.of(0.05).in(Meters);
-    public static final double AUTO_ALIGN_LR_TOLERANCE = Centimeter.of(0.5).in(Meters);
+    public static final double AUTO_ALIGN_TOLERANCE = Meters.of(0.085).in(Meters);
+    public static final double AUTO_ALIGN_LR_TOLERANCE = Centimeter.of(0.25).in(Meters);
     public static final double AUTO_ALIGN_TOLERANCE_TURN =
         Radians.of(0.075).plus(Degrees.of(7.5)).in(Radians);
 
