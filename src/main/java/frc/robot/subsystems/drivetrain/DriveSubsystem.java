@@ -1,41 +1,40 @@
 package frc.robot.subsystems.drivetrain;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.DoubleSupplier;
+
+import org.lasarobotics.fsm.StateMachine;
+import org.lasarobotics.fsm.SystemState;
+// import org.lasarobotics.vision.AprilTagCamera;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 import frc.robot.LoopTimer;
 import frc.robot.RobotContainer;
 import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.DoubleSupplier;
-import org.lasarobotics.fsm.StateMachine;
-import org.lasarobotics.fsm.SystemState;
-// import org.lasarobotics.vision.AprilTagCamera;
-import org.littletonrobotics.junction.Logger;
 
 public class DriveSubsystem extends StateMachine implements AutoCloseable {
   public static record Hardware() {}
@@ -98,6 +97,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
       boolean secondStage = false;
       boolean thirdStage = false;
+      Timer timer = new Timer();
 
       /**
        * Set the current motion profile state to the actual state of the robot
@@ -162,6 +162,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 pose.getY(), field_speeds_pose.getY());
 
         s_isAligned = false;
+        timer.restart();
       }
 
       @Override
@@ -234,7 +235,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
               RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", true);
           Logger.recordOutput(
             RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/controlMode", "deadband");
-            s_isAligned = true;
+            s_isAligned = RobotContainer.DRIVE_SUBSYSTEM.seesTag() && timer.hasElapsed(0.1);
         } else if (thirdStage) {
         // } else if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE
         //     && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
@@ -247,18 +248,14 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                   .withVelocityX(0.0)
                   .withDeadband(0.0)
                   .withDriveRequestType(DriveRequestType.Velocity)
-                  .withVelocityY(perp_dist * 10)
+                  .withVelocityY(perp_dist * 20)
                   .withRotationalRate(0));
           Logger.recordOutput(
               RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
           Logger.recordOutput(
             RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/controlMode", "lr");
-
-          if (perp_dist < Constants.Drive.AUTO_ALIGN_LR_TOLERANCE) {
-            s_isAligned = true;
-          } else {
-            s_isAligned = false;
-          }
+          s_isAligned = false;
+          timer.restart();
         } else {
           s_drivetrain.setControl(
               s_autoDrive
@@ -272,7 +269,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
               RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
           Logger.recordOutput(
             RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/controlMode", "normal");
-            s_isAligned = false;
+          s_isAligned = false;
+          timer.restart();
         }
 
         Logger.recordOutput(
@@ -295,25 +293,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE
             && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
                 || heading > (Math.PI * 2 - Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN))) {
-          if (secondStage) {
-            // s_isAligned = true;
-          } else {
-            secondStage = true;
-            thirdStage = true;
+          secondStage = true;
+          thirdStage = true;
 
-            // move the target back to normal, and lower the constraints
-            /*
-            s_turnProfile = new TrapezoidProfile(Constants.Drive.TURN_CONSTRAINTS_SLOW);
-            s_driveProfile = new TrapezoidProfile(Constants.Drive.DRIVE_CONSTRAINTS_SLOW);
-            
-            s_autoAlignTarget = s_autoAlignTarget.plus(new Transform2d(new Translation2d(0.3, 0), new Rotation2d()));
-
-            s_autoAlignTargetDriveX.position = s_autoAlignTarget.getX();
-            s_autoAlignTargetDriveY.position = s_autoAlignTarget.getY();
-            */
-
-            resetMotionProfile();
-          }
+          resetMotionProfile();
         }
 
         Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/secondStage", secondStage);
@@ -329,9 +312,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         if (!s_isClose) {
           m_closeTime = System.currentTimeMillis();
         }
-        // if (System.currentTimeMillis() - m_closeTime > 300) {
-        //   s_isAligned = true;
-        // }
 
         Logger.recordOutput("DriveSubsystem/autoAlign/isClose", s_isClose);
         Logger.recordOutput(
@@ -359,15 +339,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             return DRIVER_CONTROL;
           }
         }
-        // if (s_isAligned && DriverStation.isTeleop()) {
-        //   return DRIVER_CONTROL;
-        // }
         return this;
       }
 
       @Override
       public void end(boolean interrupted) {
-        // s_shouldAutoAlign = false;
         s_isAligned = false;
 
         s_drivetrain.setControl(s_drive.withVelocityX(0).withVelocityY(0).withRotationalRate(0));
@@ -403,6 +379,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   // private static ArrayList<AprilTagCamera> m_cameras;
 
   private static double s_driveSpeedScalar = Constants.Drive.FAST_SPEED_SCALAR;
+
+  //Camera variables
+  private static boolean s_leftCameraSeesTag = false;
+  private static boolean s_rightCameraSeesTag = false;
+
 
   protected final Thread m_limelight_thread;
 
@@ -471,7 +452,15 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         LimelightHelpers.PoseEstimate pose_estimate =
             LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
 
-        if (pose_estimate == null) continue;
+        if (pose_estimate == null) {
+          if (limelight == "limelight-left") {
+            s_leftCameraSeesTag = false;
+          }
+          if (limelight == "limelight-right") {
+            s_rightCameraSeesTag = false;
+          }
+          continue;
+        }
         boolean doRejectUpdate = false;
         if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == Alliance.Red) {
           int[] validIds = {6, 7, 8, 9, 10, 11};
@@ -501,6 +490,12 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
               pose_estimate.pose, Utils.fpgaToCurrentTime(pose_estimate.timestampSeconds));
           // Logger.recordOutput(getName() + "/" + limelight + "/botpose_orb", pose_estimate.pose);
         }
+        if (limelight == "limelight-left") {
+          s_leftCameraSeesTag = !doRejectUpdate;
+        }
+        if (limelight == "limelight-right") {
+          s_rightCameraSeesTag = !doRejectUpdate;
+				}
       }
       try {
         Thread.sleep(15);
@@ -617,6 +612,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   public void setDriveSpeed(double newSpeed) {
     s_driveSpeedScalar = newSpeed;
   }
+
+	public boolean seesTag() {
+		return (s_leftCameraSeesTag || s_rightCameraSeesTag);
+	}
 
   /**
    * Initialize hardware devices for drive subsystem
