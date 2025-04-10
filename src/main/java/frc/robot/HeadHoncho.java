@@ -52,6 +52,12 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
+
+        if(s_autoClimb && DriverStation.isFMSAttached() && DriverStation.isTeleopEnabled() && DriverStation.getMatchTime() <= 22.0){
+          s_autoClimb = false;
+          return MOUNT;
+        }
+
         if (s_intakeButton.getAsBoolean() && END_EFFECTOR_SUBSYSTEM.isEmpty() && LIFT_SUBSYSTEM.isAtState(TargetLiftStates.STOW)) {
           return INTAKE;
         }
@@ -465,6 +471,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
   private static BooleanSupplier s_climbButton;
   private static Boolean s_lastClimbBoolean = false;
   private static Boolean s_climbButtonRising = false;
+  private static Boolean s_autoClimb = true;
 
   public HeadHoncho(
       DriveSubsystem driveSubsystem,
