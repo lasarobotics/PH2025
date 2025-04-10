@@ -75,6 +75,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public State nextState() {
+        if (DriverStation.isAutonomous()) return AUTO;
         if (s_shouldAutoAlign
             && Math.abs(s_strafeRequest.getAsDouble()) <= DriveSubsystem.DEADBAND_SCALAR
             && Math.abs(s_driveRequest.getAsDouble()) <= DriveSubsystem.DEADBAND_SCALAR
@@ -82,7 +83,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
           requestAutoAlign();
           return AUTO_ALIGN;
         }
-        if (DriverStation.isAutonomous()) return AUTO;
         return this;
       }
     },
@@ -353,7 +353,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         if (Math.abs(s_strafeRequest.getAsDouble()) > DriveSubsystem.DEADBAND_SCALAR
             || Math.abs(s_driveRequest.getAsDouble()) > DriveSubsystem.DEADBAND_SCALAR
             || Math.abs(s_rotateRequest.getAsDouble()) > DriveSubsystem.DEADBAND_SCALAR) {
-          return DRIVER_CONTROL;
+          if (!DriverStation.isAutonomous()) {
+            return DRIVER_CONTROL;
+          }
         }
         // if (s_isAligned && DriverStation.isTeleop()) {
         //   return DRIVER_CONTROL;
@@ -526,6 +528,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     s_autoAlignTargetDriveY = new TrapezoidProfile.State(pose.getY(), 0);
     s_autoAlignTargetTurn = new TrapezoidProfile.State(pose.getRotation().getRadians(), 0);
     s_shouldAutoAlign = true;
+    Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/shouldAutoAlign", s_shouldAutoAlign);
   }
 
   public static void requestAutoAlign() {
@@ -534,6 +537,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   public void cancelAutoAlign() {
     s_shouldAutoAlign = false;
+    Logger.recordOutput(getName() + "/autoAlign/shouldAutoAlign", s_shouldAutoAlign);
   }
 
   public Pose2d getPose() {
