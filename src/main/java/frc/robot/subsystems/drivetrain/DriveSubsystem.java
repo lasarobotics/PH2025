@@ -225,7 +225,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         }
 
         // if the robot is _very_ close to the target, turn off the drivetrain
-        if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE
+        if ((distance < Constants.Drive.AUTO_ALIGN_TOLERANCE || thirdStage)
             && Math.abs(perp_dist) < Constants.Drive.AUTO_ALIGN_LR_TOLERANCE
             && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
                 || heading > (Math.PI * 2 - (Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN)))) {
@@ -235,7 +235,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
               RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", true);
           Logger.recordOutput(
             RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/controlMode", "deadband");
-            s_isAligned = RobotContainer.DRIVE_SUBSYSTEM.seesTag() && timer.hasElapsed(0.1);
+            s_isAligned = RobotContainer.DRIVE_SUBSYSTEM.seesTag() && timer.hasElapsed(0.05);
         } else if (thirdStage) {
         // } else if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE
         //     && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
@@ -368,7 +368,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   private static TrapezoidProfile s_turnProfile;
   private static TrapezoidProfile s_driveProfile;
-  private static final Double DEADBAND_SCALAR = 0.05;
+  private static final Double DEADBAND_SCALAR = 0.085;
 
   /** Robot is within the auto align tolerance of the target point */
   private static boolean s_isAligned;
