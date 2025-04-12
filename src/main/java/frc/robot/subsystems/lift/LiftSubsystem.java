@@ -69,7 +69,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Distance HOMING_EPSILON = Millimeters.of(5);
 
   // Tolerance in cm of top and bottom minimum clearance
-  static final Distance ELEVATOR_TOLERANCE = Centimeters.of(0.5);
+  static final Distance ELEVATOR_TOLERANCE = Inches.of(2.0);
 
   // Tolerance in degrees of arm
   static final Angle ARM_TOLERANCE = Degrees.of(2.0);

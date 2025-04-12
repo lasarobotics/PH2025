@@ -55,6 +55,22 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       }
 
       @Override
+      public void execute() {
+        if (s_L4Button.getAsBoolean()) {
+          lastReefState = TargetLiftStates.L4;
+        }
+        if (s_L3Button.getAsBoolean()) {
+          lastReefState = TargetLiftStates.L3;
+        }
+        if (s_L2Button.getAsBoolean()) {
+          lastReefState = TargetLiftStates.L2;
+        }
+        if (s_L1Button.getAsBoolean()) {
+          lastReefState = TargetLiftStates.L1;
+        }
+      }
+
+      @Override
       public SystemState nextState() {
 
         if(s_autoClimb && DriverStation.isFMSAttached() && DriverStation.isTeleopEnabled() && DriverStation.getMatchTime() <= 22.0){
@@ -138,6 +154,18 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
           INTAKE_SUBSYSTEM.startIntake();
           END_EFFECTOR_SUBSYSTEM.requestIntake();
         }
+        if (s_L4Button.getAsBoolean()) {
+          lastReefState = TargetLiftStates.L4;
+        }
+        if (s_L3Button.getAsBoolean()) {
+          lastReefState = TargetLiftStates.L3;
+        }
+        if (s_L2Button.getAsBoolean()) {
+          lastReefState = TargetLiftStates.L2;
+        }
+        if (s_L1Button.getAsBoolean()) {
+          lastReefState = TargetLiftStates.L1;
+        }
       }
 
       @Override
@@ -162,7 +190,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         if(s_climbButtonRising && CLIMB_SUBSYSTEM.isMounting()) {
           LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
           return CLIMB;
-        } 
+        }
         if(s_climbButtonRising && !CLIMB_SUBSYSTEM.isMounting()) {
           LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
           return MOUNT;
@@ -204,6 +232,23 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.TURBO);
         DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.FAST_SPEED_SCALAR);
         DRIVE_SUBSYSTEM.cancelAutoAlign();
+        lastReefState = TargetLiftStates.TURBO;
+      }
+
+      @Override
+      public void execute() {
+        if (s_L4Button.getAsBoolean()) {
+          lastReefState = TargetLiftStates.L4;
+        }
+        if (s_L3Button.getAsBoolean()) {
+          lastReefState = TargetLiftStates.L3;
+        }
+        if (s_L2Button.getAsBoolean()) {
+          lastReefState = TargetLiftStates.L2;
+        }
+        if (s_L1Button.getAsBoolean()) {
+          lastReefState = TargetLiftStates.L1;
+        }
       }
 
       @Override
@@ -243,7 +288,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.L1);
-        // DRIVE_SUBSYSTEM.requestAutoAlign();
+        DRIVE_SUBSYSTEM.cancelAutoAlign();
         //DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.SLOW_SPEED_SCALAR);
         lastReefState = TargetLiftStates.L1;
       }
@@ -273,7 +318,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean() && DRIVE_SUBSYSTEM.isAligned()) return SCORE;
+        if (LIFT_SUBSYSTEM.isLiftReady() && DRIVE_SUBSYSTEM.isAligned()) return SCORE;
         if (s_forceScoreButton.getAsBoolean() && LIFT_SUBSYSTEM.isLiftReady()) return SCORE;
 
         if (s_L1Button.getAsBoolean()) return L1;
@@ -297,7 +342,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean() && DRIVE_SUBSYSTEM.isAligned()) return SCORE_REVERSE;
+        if (LIFT_SUBSYSTEM.isLiftReady() && DRIVE_SUBSYSTEM.isAligned()) return SCORE_REVERSE;
         if (s_forceScoreButton.getAsBoolean() && LIFT_SUBSYSTEM.isLiftReady()) return SCORE_REVERSE;
 
         if (s_L1Button.getAsBoolean()) return L1;
@@ -321,7 +366,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        if (LIFT_SUBSYSTEM.isLiftReady() && s_scoreButton.getAsBoolean() && DRIVE_SUBSYSTEM.isAligned()) return SCORE_REVERSE;
+        if (LIFT_SUBSYSTEM.isLiftReady() && DRIVE_SUBSYSTEM.isAligned()) return SCORE_REVERSE;
         if (s_forceScoreButton.getAsBoolean() && LIFT_SUBSYSTEM.isLiftReady()) return SCORE_REVERSE;
 
         if (s_L1Button.getAsBoolean()) return L1;
@@ -569,6 +614,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         CLIMB_SUBSYSTEM.stow();
       },
       () -> {
+        CLIMB_SUBSYSTEM.stopMotor();
         CLIMB_SUBSYSTEM.idleState();
       },
       CLIMB_SUBSYSTEM
@@ -741,6 +787,25 @@ public Command autoThirdRightCoralCommand() {
     else
       s_climbButtonRising = false;
     s_lastClimbBoolean = s_climbButton.getAsBoolean();
+
+    if (this.getState() == State.SCORE || this.getState() == State.SCORE_REVERSE) {
+      RobotContainer.setViolet();
+    }
+    else if (lastReefState == TargetLiftStates.L4) {
+      RobotContainer.setGreen();
+    }
+    else if (lastReefState == TargetLiftStates.L3) {
+      RobotContainer.setBlue();
+    }
+    else if (lastReefState == TargetLiftStates.L2) {
+      RobotContainer.setYellow();
+    }
+    else if (lastReefState == TargetLiftStates.L1) {
+      RobotContainer.setRed();
+    }
+    else {
+      RobotContainer.setRainbow();
+    }
 
     Logger.recordOutput(getName() + "/buttons/L1", s_L1Button);
     Logger.recordOutput(getName() + "/buttons/L2", s_L2Button);

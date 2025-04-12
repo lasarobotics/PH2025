@@ -11,12 +11,12 @@ public class LoopTimer {
   public static void resetTimer() {
     LoopTimer.couter = 0;
     LoopTimer.baseTime = RobotController.getFPGATime();
-    Logger.recordOutput("LoopTimer/OverrunThreshold", 20 * 1000);
+    Logger.recordOutput("LoopTimer/OverrunThreshold", 20.0);
   }
 
   public static void addTimestamp(String label) {
     long current_time = RobotController.getFPGATime();
-    Logger.recordOutput("LoopTimer/" + couter + " - " + label, current_time - baseTime);
+    Logger.recordOutput("LoopTimer/" + couter + " - " + label, (current_time - baseTime) / 1000.0);
     LoopTimer.couter++;
   }
 }

@@ -124,12 +124,24 @@ public class RobotContainer {
     LED_SUBSYSTEM.setRed();
   }
 
-  public static void setAqua() {
-    LED_SUBSYSTEM.setAqua();
+  public static void setYellow() {
+    LED_SUBSYSTEM.setYellow();
+  }
+
+  public static void setBlue() {
+    LED_SUBSYSTEM.setBlue();
   }
 
   public static void setWhite() {
     LED_SUBSYSTEM.setWhite();
+  }
+
+  public static void setGreen() {
+    LED_SUBSYSTEM.setGreen();
+  }
+
+  public static void setRainbow() {
+    LED_SUBSYSTEM.setRainbow();
   }
 
   /**

@@ -20,6 +20,7 @@ import frc.robot.LoopTimer;
 public class ClimbSubsystem extends StateMachine implements AutoCloseable {
 
   static final double CLIMB_SPEED = 1.0;
+  static final double CLIMB_SPEED_SLOW = CLIMB_SPEED * 0.2;
   static final double MOUNT_ANGLE = 0.357;
   static final double CLIMB_ANGLE = 0.12;
   static final double STOW_ANGLE = 0.08;
@@ -122,7 +123,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   /**
    * Stops motor
    */
-  private void stopMotor() {
+  public void stopMotor() {
     m_climbMotor.stopMotor();
   }
 
@@ -207,7 +208,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
    * Stow the climber so it is inside the frame perimeter
    */
   public void stow() {
-    m_climbEncoder.set(CLIMB_SPEED);
+    m_climbMotor.set(CLIMB_SPEED_SLOW);
   }
 
   public boolean inStowPosition() {

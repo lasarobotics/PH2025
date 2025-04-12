@@ -46,7 +46,7 @@ public class Robot extends LoggedRobot {
     // be added.
     m_robotContainer = new RobotContainer();
 
-    CameraServer.startAutomaticCapture();
+    // CameraServer.startAutomaticCapture();
 
     RobotController.setBrownoutVoltage(6.75);
 
