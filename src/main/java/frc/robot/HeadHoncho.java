@@ -680,19 +680,36 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
                 END_EFFECTOR_SUBSYSTEM.setState(EndEffectorStates.SCORE_L4);
                 DRIVE_SUBSYSTEM.cancelAutoAlign();
               },
-              () -> {
-                LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
-                INTAKE_SUBSYSTEM.startIntake();
-                END_EFFECTOR_SUBSYSTEM.requestIntake();
-              },
+              () -> {},
 		  this
     )
 		.until(() -> {
                 return END_EFFECTOR_SUBSYSTEM.isEmpty();
               })
-          .withTimeout(0.8);
+    .withTimeout(0.8)
+    .andThen(
+      Commands.startEnd(
+                () -> {
+          Logger.recordOutput("Auto/Command", Constants.NamedCommands.AUTO_SCORE_COMMAND_NAME);
+                  LIFT_SUBSYSTEM.setState(TargetLiftStates.PANIC);
+                  END_EFFECTOR_SUBSYSTEM.setState(EndEffectorStates.SCORE_L4);
+                },
+                () -> {
+                  LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+                  INTAKE_SUBSYSTEM.startIntake();
+                  END_EFFECTOR_SUBSYSTEM.requestIntake();
+                },
+        this
+      )
+      .until(() -> {
+        return END_EFFECTOR_SUBSYSTEM.isEmpty();
+      })
+      .withTimeout(0.5));
     }
   }
+
+
+
 
   /**
    * Sets the intake and end effector subsystems to intake state in autonomous

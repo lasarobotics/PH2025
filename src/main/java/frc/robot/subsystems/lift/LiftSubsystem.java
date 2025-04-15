@@ -54,6 +54,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     L2,
     L3,
     L4,
+    PANIC,
     A1,
     A2,
     A_SCORE,
@@ -97,6 +98,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static final Distance CLEAR_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(3.824)).minus(Inches.of(1.375));
   static final Distance L3_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
   static final Distance L4_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(4.49)).minus(Inches.of(1.625));
+  static final Distance PANIC_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(4.5)).minus(Inches.of(1.125));
   static final Distance TURBO_HEIGHT = L4_HEIGHT;
   static final Distance A1_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0.45)).minus(Inches.of(0.375));
   static final Distance A2_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(2.65678)).minus(Inches.of(0.375));
@@ -1157,6 +1159,42 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         if(!isLiftReady) {
           return this;
         }
+        if (nextState == TargetLiftStates.STOW) {
+          return L4_STOW_S1;
+        }
+        if (nextState == TargetLiftStates.L1) {
+          return L4_L1_S1;
+        }
+        if (nextState == TargetLiftStates.L2) {
+          return L4_L2_S1;
+        }
+        if (nextState == TargetLiftStates.L3) {
+          return L4_L3_S1;
+        }
+        if (nextState == TargetLiftStates.TURBO) {
+          return L4_TURBO_S1;
+        }
+        if (nextState == TargetLiftStates.PANIC) {
+          return PANIC;
+        }
+        return this;
+      }
+    },
+    PANIC {
+      @Override
+      public void initialize() {
+        s_liftinstance.setElevatorHeight(PANIC_HEIGHT);
+        s_liftinstance.setArmAngle(SCORING_L4_ANGLE);
+      }
+
+      @Override
+      public void execute() {
+        isLiftReady = true;
+      }
+
+      @Override
+      public SystemState nextState() {
+        curState = TargetLiftStates.PANIC;
         if (nextState == TargetLiftStates.STOW) {
           return L4_STOW_S1;
         }
