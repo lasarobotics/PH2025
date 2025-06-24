@@ -63,10 +63,14 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+
+    }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    m_robotContainer.DRIVE_SUBSYSTEM.questNavReset();
+  }
 
   @Override
   public void disabledExit() {}

@@ -161,6 +161,10 @@ public class RobotContainer {
     PathfindingCommand.warmupCommand().schedule();
   }
 
+  public void disabledPeriodic() {
+    DRIVE_SUBSYSTEM.questNavReset();
+  }
+
   public Command getAutonomousCommand() {
     Logger.recordOutput("Autos/selectedAuto", m_autoModeChooser.getSelected().getName());
     return m_autoModeChooser.getSelected();

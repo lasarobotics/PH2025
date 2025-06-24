@@ -23,6 +23,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -31,12 +32,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
+import frc.robot.Constants.Drive;
 import frc.robot.LimelightHelpers;
 import frc.robot.LoopTimer;
 import frc.robot.RobotContainer;
 import frc.robot.Telemetry;
-import frc.robot.Constants.Drive;
 import frc.robot.generated.TunerConstants;
+import gg.questnav.questnav.QuestNav;
 
 public class DriveSubsystem extends StateMachine implements AutoCloseable {
   public static record Hardware() {}
@@ -351,6 +353,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   private static SwerveRequest.FieldCentric s_drive;
   private static SwerveRequest.RobotCentric s_driveRobotCentric;
   private static FieldCentricWithPose s_autoDrive;
+  private static QuestNav m_quest;
+  private Transform2d ROBOT_TO_QUEST;
 
   private static DoubleSupplier s_driveRequest = () -> 0;
   private static DoubleSupplier s_strafeRequest = () -> 0;
@@ -424,6 +428,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     m_limelight_thread = new Thread(this::limelight_thread_func);
     m_limelight_thread.setDaemon(true);
     m_limelight_thread.start();
+
+    m_quest = new QuestNav();
+    ROBOT_TO_QUEST = new Transform2d(0, 0, new Rotation2d(90));
   }
 
   public void limelight_thread_func() {
@@ -635,6 +642,13 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         "limelight1", s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
   }
 
+  public void questNavReset() {
+    Pose2d robotPose = getPose();
+    Pose2d questPose = robotPose.transformBy(ROBOT_TO_QUEST);
+    m_quest.setPose(questPose);
+  }
+
+
   @Override
   public void periodic() {
 
@@ -667,6 +681,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     double rejectTagsTime = 0;
     double addMeasurementTime = 0;
 
+    m_quest.commandPeriodic(); 
+
 
     Logger.recordOutput(getName() + "/cameraTimes/config", configTime);
     Logger.recordOutput(getName() + "/cameraTimes/getPoseEstimate", getPoseEstimateTime);
@@ -678,6 +694,16 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/isNearSource", isNearSource());
     Logger.recordOutput(getName() + "/robotPose", s_drivetrain.getState().Pose);
     Logger.recordOutput(getName() + "/seesTag", seesTag());
+
+    if (m_quest.isConnected() && m_quest.isTracking()) {
+      Pose2d questPose = m_quest.getPose();
+      Pose2d robotPose = questPose.transformBy(ROBOT_TO_QUEST.inverse());
+      Logger.recordOutput(getName() + "Drive/actualQuestRobotPose", robotPose);
+    }
+
+
+
+
 
     Logger.recordOutput(
         getName() + "/knownPose",
