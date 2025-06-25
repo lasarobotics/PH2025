@@ -430,7 +430,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     m_limelight_thread.start();
 
     m_quest = new QuestNav();
-    ROBOT_TO_QUEST = new Transform2d(0, 0, new Rotation2d(90));
+    ROBOT_TO_QUEST = new Transform2d(0.203086, 0.06377, new Rotation2d((3 * Math.PI)/2));
   }
 
   public void limelight_thread_func() {
@@ -648,6 +648,14 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     m_quest.setPose(questPose);
   }
 
+  public void getQuestNavPose() {
+    if (m_quest.isConnected() && m_quest.isTracking()) {
+      Pose2d questPose = m_quest.getPose();
+      Pose2d robotPose = questPose.transformBy(ROBOT_TO_QUEST.inverse());
+      Logger.recordOutput(getName() + "Drive/actualQuestRobotPose", robotPose);
+    }
+  }
+
 
   @Override
   public void periodic() {
@@ -695,15 +703,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/robotPose", s_drivetrain.getState().Pose);
     Logger.recordOutput(getName() + "/seesTag", seesTag());
 
-    if (m_quest.isConnected() && m_quest.isTracking()) {
-      Pose2d questPose = m_quest.getPose();
-      Pose2d robotPose = questPose.transformBy(ROBOT_TO_QUEST.inverse());
-      Logger.recordOutput(getName() + "Drive/actualQuestRobotPose", robotPose);
-    }
-
-
-
-
+    getQuestNavPose();
 
     Logger.recordOutput(
         getName() + "/knownPose",
