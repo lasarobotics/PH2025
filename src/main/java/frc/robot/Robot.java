@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Threads;
@@ -46,7 +47,7 @@ public class Robot extends LoggedRobot {
     // be added.
     m_robotContainer = new RobotContainer();
 
-    // CameraServer.startAutomaticCapture();
+    CameraServer.startAutomaticCapture();
 
     RobotController.setBrownoutVoltage(6.75);
 

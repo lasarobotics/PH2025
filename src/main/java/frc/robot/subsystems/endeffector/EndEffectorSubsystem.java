@@ -239,7 +239,7 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
    * Centers coral in end effector
    */
   private void centerCoral() {
-    if (LIFT_SUBSYSTEM.getArmVelocity().gte(RotationsPerSecond.of(0.5))) {
+    if (LIFT_SUBSYSTEM.getArmVelocity().gte(RotationsPerSecond.of(0.85))) {
       s_endEffectorInstance.centerReverse();
     } else if(forwardBeamBreakBroken() && !reverseBeamBreakBroken()) {
       s_endEffectorInstance.centerForward();

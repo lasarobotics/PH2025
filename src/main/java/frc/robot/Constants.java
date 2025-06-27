@@ -72,7 +72,7 @@ public final class Constants {
     // measure
 
     public static final double SLOW_SPEED_SCALAR = 0.3;
-    public static final double FAST_SPEED_SCALAR = 1.0;
+    public static final double FAST_SPEED_SCALAR = 1.0; // Modified for SMART Camps
 
     public static final TrapezoidProfile.Constraints TURN_CONSTRAINTS =
         new TrapezoidProfile.Constraints(
@@ -80,7 +80,7 @@ public final class Constants {
             MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond));
     public static final TrapezoidProfile.Constraints DRIVE_CONSTRAINTS =
         new TrapezoidProfile.Constraints(
-            MAX_SPEED.in(MetersPerSecond) * 0.8,
+            MAX_SPEED.in(MetersPerSecond) * 0.85,
             MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.6);
 
     public static final TrapezoidProfile.Constraints TURN_CONSTRAINTS_SLOW =
@@ -89,7 +89,7 @@ public final class Constants {
         MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond));
     public static final TrapezoidProfile.Constraints DRIVE_CONSTRAINTS_SLOW =
         new TrapezoidProfile.Constraints(
-            MAX_SPEED.in(MetersPerSecond) * 0.2,
+            MAX_SPEED.in(MetersPerSecond) * 0.25,
             MAX_ACCELERATION.in(MetersPerSecondPerSecond) * 0.2);
 
     public static final double AUTO_ALIGN_TOLERANCE = Meters.of(0.085).in(Meters);

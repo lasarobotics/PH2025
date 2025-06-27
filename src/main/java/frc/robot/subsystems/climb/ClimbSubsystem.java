@@ -7,6 +7,7 @@ package frc.robot.subsystems.climb;
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
@@ -116,6 +117,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
     this.m_mounted = false;
 
     TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+    motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     this.m_climbMotor.getConfigurator().apply(motorConfig);
   }
@@ -130,7 +132,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   /**
    * Sets the motor output for climbing
    */
-  private void climb() {
+  public void climb() {
     m_climbMotor.set(CLIMB_SPEED);
   }
 
