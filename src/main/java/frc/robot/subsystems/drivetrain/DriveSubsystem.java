@@ -20,12 +20,15 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -681,19 +684,46 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         "limelight1", s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
   }
 
+
+
+  /**
+   * Reset the pose of the Quest to the robot's position while disabled
+   */
   public void questNavReset() {
     Pose2d robotPose = getPose();
     Pose2d questPose = robotPose.transformBy(ROBOT_TO_QUEST);
     m_quest.setPose(questPose);
   }
 
-  public void getQuestNavPose() {
+  /**
+   * Get the pose of the robot through the Quest
+   * @return Pose the Quest is reporting of the robot
+   */
+  public Pose2d getQuestNavPose() {
     if (m_quest.isConnected() && m_quest.isTracking()) {
       Pose2d questPose = m_quest.getPose();
       Pose2d robotPose = questPose.transformBy(ROBOT_TO_QUEST.inverse());
       Logger.recordOutput(getName() + "Drive/actualQuestRobotPose", robotPose);
+      return robotPose;
+    }
+    return null;
+  }
+
+  /**
+   * Add the measurement of the quest's pose to the drivetrain's reported pose
+   */
+  public void addQuestMeasurement() {
+    //Trust QuestNav for 2 cm x and y, and 2 degrees rotational
+    Matrix<N3, N1> QUESTNAV_STD_DEVS = VecBuilder.fill(0.02, 0.02, 0.035);
+
+    if (m_quest.isConnected() && m_quest.isTracking()) {
+      Pose2d quest_pose = getQuestNavPose();
+      double quest_timestamp = m_quest.getDataTimestamp();
+      s_drivetrain.addVisionMeasurement(quest_pose, quest_timestamp, QUESTNAV_STD_DEVS);
     }
   }
+
+
 
   @Override
   public void periodic() {
@@ -761,6 +791,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
           s_drivetrain.getModule(i).getDriveMotor().getMotorVoltage().getValue());
     }
     LoopTimer.addTimestamp(getName() + " End");
+
   }
 
   @Override
