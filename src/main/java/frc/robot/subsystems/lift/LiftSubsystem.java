@@ -1356,8 +1356,6 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     m_elevatorPositionSetter = new MotionMagicVoltage(Radians.zero());
     m_elevatorHomingBeamBreak = liftHardware.elevatorHomingBeamBreak;
 
-    // TODO: Figure out motor configuration values (gear ratios, sensors, etc)
-
     // Create configurations for elevator motor
     TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
     elevatorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -1511,6 +1509,11 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     return m_pivotMotor.getVelocity().getValue();
   }
 
+  /**
+   * Convert motor rotations to elevator A1_HEIGHT
+   * @param angle in motor rotations
+   * @return Distance the elevator has moved vertically
+   */
   public static Distance convertToDistance(Angle angle) {
     Distance SPROCKET_RADIUS = Constants.LiftHardware.SPROCKET_PITCH_RADIUS;
     double circumference = 2 * Math.PI * SPROCKET_RADIUS.in(Meters);
@@ -1579,6 +1582,10 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     return isLiftReady;
   }
 
+  /**
+   * Return if the elevator's homing beam break is broken
+   * @return Boolean for if the elevator's homing beam break is broken
+   */
   private boolean elevatorHomingBeamBreak() {
     return !m_elevatorHomingBeamBreak.getInputs().value;
   }

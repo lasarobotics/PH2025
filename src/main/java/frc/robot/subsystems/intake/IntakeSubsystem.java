@@ -202,10 +202,18 @@ public class IntakeSubsystem extends StateMachine implements AutoCloseable {
     m_intakeMotor.stopMotor();
   }
 
+  /**
+   * Returns if the first beam break in the intake is broken 
+   * @return A boolean if the first beam break in the intake is broken
+   */
   public boolean firstIntakeBeamBreak() {
     return !m_firstBeamBreak.getInputs().value;
   }
 
+  /**
+   * Returns if the second beam break in the intake is broken
+   * @return if the first beam break in the intake is broken
+   */
   public boolean secondIntakeBeamBreak() {
     return !m_secondBeamBreak.getInputs().value;
   }

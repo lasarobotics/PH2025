@@ -1,10 +1,10 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Centimeter;
+import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -14,15 +14,21 @@ import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.lasarobotics.hardware.ctre.CANcoder;
+import org.lasarobotics.hardware.ctre.PhoenixCANBus;
+import org.lasarobotics.hardware.ctre.TalonFX;
+import org.lasarobotics.hardware.generic.LimitSwitch;
+import org.lasarobotics.hardware.revrobotics.Spark;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularAcceleration;
@@ -32,14 +38,6 @@ import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.generated.TunerConstants;
-import java.util.Arrays;
-import java.util.List;
-import org.lasarobotics.hardware.ctre.CANcoder;
-import org.lasarobotics.hardware.ctre.PhoenixCANBus;
-import org.lasarobotics.hardware.ctre.TalonFX;
-import org.lasarobotics.hardware.generic.LimitSwitch;
-import org.lasarobotics.hardware.revrobotics.Spark;
-import org.lasarobotics.vision.AprilTagCamera.Resolution;
 
 public final class Constants {
   public static class Field {
@@ -182,31 +180,6 @@ public final class Constants {
 
   public static class LedHardware {
     public static final int PWM_PORT = 4;
-  }
-
-  public static class VisionHardware {
-    public static final String CAMERA_A_NAME = "Left";
-    public static Transform3d CAMERA_A_LOCATION =
-        new Transform3d(
-            new Translation3d(0.217 - 0.0508, 0.32, 0.203 - 0.098425),
-            new Rotation3d(Math.toRadians(0.7), Math.toRadians(-13.9), Math.toRadians(-40 - 1.6)));
-    public static final Resolution CAMERA_A_RESOLUTION = Resolution.RES_1280_800;
-    public static final Rotation2d CAMERA_A_FOV = Rotation2d.fromDegrees(70);
-
-    public static final String CAMERA_B_NAME = "Right";
-    public static Transform3d CAMERA_B_LOCATION =
-        new Transform3d(
-            new Translation3d(0.227 - 0.0508, -0.30, 0.203 - 0.098425),
-            new Rotation3d(Math.toRadians(1.25), Math.toRadians(-7), Math.toRadians(-10 - 0.35)));
-    public static final Resolution CAMERA_B_RESOLUTION = Resolution.RES_1280_800;
-    public static final Rotation2d CAMERA_B_FOV = Rotation2d.fromDegrees(70);
-
-    public static final String CAMERA_C_NAME = "Arducam_OV9782_USB_Camera_C";
-    public static final Transform3d CAMERA_C_LOCATION =
-        new Transform3d(
-            new Translation3d(00, 0, 0), new Rotation3d(0, Math.toRadians(0), Math.toRadians(0)));
-    public static final Resolution CAMERA_C_RESOLUTION = Resolution.RES_1280_720;
-    public static final Rotation2d CAMERA_C_FOV = Rotation2d.fromDegrees(79.7);
   }
 
   public static class SmartDashboard {

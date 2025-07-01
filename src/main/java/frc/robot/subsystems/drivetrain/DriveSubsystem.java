@@ -433,8 +433,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     ROBOT_TO_QUEST = new Transform2d(-0.1524, -0.3429, new Rotation2d((3 * Math.PI)/2));
   }
 
+  /**
+   * Function to set up the LimeLights on the robot 
+   */
   public void limelight_thread_func() {
-
     String[] limelights = {"limelight-left", "limelight-right"};
 
     while (true) {
@@ -509,6 +511,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     }
   }
 
+  /*
+   * Binds the controls needed to drive for controller usage
+   */
   public void bindControls(
       DoubleSupplier driveRequest, DoubleSupplier strafeRequest, DoubleSupplier rotateRequest) {
     s_driveRequest = driveRequest;
@@ -517,9 +522,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * Request that the drivetrain aligns to the reef
-   *
-   * @param state
+   * Request an auto align to the pole nearest to the pose passed in
+   * @param pose Pose to pass in which the robot aligns to the pole nearest to that pose
    */
   public static void requestAutoAlign(Pose2d pose) {
     Logger.recordOutput("temp/requestedPose", pose);
@@ -531,44 +535,72 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/shouldAutoAlign", s_shouldAutoAlign);
   }
 
+  /*
+   * Requests an auto align based on the pole that is nearest to the robot's pose
+   */
   public static void requestAutoAlign() {
     requestAutoAlign(findAutoAlignTarget());
   }
 
+  /**
+   * Cancels the auto align of the robot
+   */
   public void cancelAutoAlign() {
     s_shouldAutoAlign = false;
     Logger.recordOutput(getName() + "/autoAlign/shouldAutoAlign", s_shouldAutoAlign);
   }
 
+  /**
+   * Gets the pose of the robot
+   * @return The pose of the robot
+   */
   public Pose2d getPose() {
     return s_drivetrain.getState().Pose;
   }
 
   /**
    * Checks if the robot is near the source
-   *
    * @return True if robot is near source
    */
   public boolean isNearSource() {
     return ((getPose().getX() < 2.0) && ((getPose().getY() < 1.5) || getPose().getY() > 6.0));
   }
 
+  /**
+   * Check whether the robot is aligned to the reef to score or not
+   * @return A boolean showing whether the robot is aligned to the reef or not
+   */
   public boolean isAligned() {
     return s_isAligned;
   }
 
+  /**
+   * Resets the pose of the robot to a 
+   */
   public void resetPose() {
     s_drivetrain.resetPose();
   }
 
+  /**
+   * 
+   * @param pose
+   */
   public void resetPose(Pose2d pose) {
     s_drivetrain.resetPose(pose);
   }
 
+  /**
+   * Finds the nearest reef pole to align to from the robot's pose
+   * @return A pose closest aligned to the nearest reef pole from the robot's current pose
+   */
   private static Pose2d findAutoAlignTarget() {
     return findAutoAlignTarget(s_drivetrain.getState().Pose);
   }
 
+  /**
+   * Finds the nearest auto align target to align to from a passed in pose
+   * @param startPose The pose passed in which the robot finds the aligned pose nearest to
+   */
   public static Pose2d findAutoAlignTarget(Pose2d startPose) {
     var pose = startPose.nearest(findAutoAlignTargets());
     Logger.recordOutput("temp/foundPose", pose);
@@ -612,17 +644,24 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     return branch_locations;
   }
 
+  /**
+   * Sets the drive speed of the robot
+   * @param newSpeed speed to set the robot to
+   */
   public void setDriveSpeed(double newSpeed) {
     s_driveSpeedScalar = newSpeed;
   }
 
+  /**
+   * Boolean if either of the limelights sees an april tag
+   * @return boolean if either of the limelights sees an AprilTag
+   */
 	public boolean seesTag() {
 		return (s_leftCameraSeesTag || s_rightCameraSeesTag);
 	}
 
   /**
    * Initialize hardware devices for drive subsystem
-   *
    * @return Hardware object containing all necessary devices for this subsystem
    */
   public static Hardware initializeHardware() {
@@ -655,7 +694,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       Logger.recordOutput(getName() + "Drive/actualQuestRobotPose", robotPose);
     }
   }
-
 
   @Override
   public void periodic() {

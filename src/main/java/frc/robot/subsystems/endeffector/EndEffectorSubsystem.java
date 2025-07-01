@@ -15,7 +15,6 @@ import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.Dimensionless;
-import edu.wpi.first.wpilibj.AsynchronousInterrupt;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 import frc.robot.LoopTimer;
@@ -195,10 +194,16 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     m_endEffectorMotor.set(SCORE_MOTOR_SPEED.in(Value));
   }
 
+  /**
+   * If the coral is not fully in the end effector, center it (if it is sticking out in the reverse direction)
+   */
   private void centerReverse() {
     m_endEffectorMotor.set(-CENTER_CORAL_MOTOR_SPEED.in(Value));
   }
 
+  /**
+   * If the coral is not fully in the end effector, center it (if it is sticking out in the forward direction)
+   */
   private void centerForward() {
     m_endEffectorMotor.set(CENTER_CORAL_MOTOR_SPEED.in(Value));
   }
@@ -276,10 +281,16 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     this.nextState = nextState;
   }
 
+  /**
+   * Requests the score state in the state machine for API purposes
+   */
   public void requestScore() {
     setState(EndEffectorStates.SCORE);
   }
 
+  /**
+   * Requests the score reverse state in the state machine for API purposes
+   */
   public void requestScoreReverse() {
     setState(EndEffectorStates.SCORE_L4);
   }
@@ -291,6 +302,9 @@ public class EndEffectorSubsystem extends StateMachine implements AutoCloseable 
     setState(EndEffectorStates.HOLD);
   }
 
+  /**
+   * Requests an intake in the state machine for API purposes
+   */
   public void requestIntake() {
     setState(EndEffectorStates.INTAKE);
   }

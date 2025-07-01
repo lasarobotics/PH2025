@@ -12,8 +12,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.climb.ClimbSubsystem;
@@ -607,6 +607,10 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
 
 
+  /**
+   * Command to stow the climbeer
+   * @return Command which stows the climber
+   */
   public Command stowClimberCommand() {
     return Commands.startEnd(
       () -> {
@@ -640,6 +644,10 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
             });
   }
 
+  /**
+   * Command that goes to L4 without waiting for auto align
+   * @return Command that goes to L4 without waiting for auto align
+   */
   public Command autononomousL4CommandNoWait() {
     return Commands.startEnd(
             () -> {

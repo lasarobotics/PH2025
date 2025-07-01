@@ -213,6 +213,10 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
     m_climbMotor.set(CLIMB_SPEED_SLOW);
   }
 
+  /**
+   * 
+   * @return A boolean for whether or not the climber is in the stow position
+   */
   public boolean inStowPosition() {
     return s_climbInstance.getInputs().absoluteEncoderPosition <= STOW_ANGLE;
   }
@@ -258,7 +262,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   }
 
   /**
-   * gets spark inputs
+   * Gets the climb's encoders values
    */
   public SparkInputs getInputs() {
     return this.m_climbEncoder.getInputs();
