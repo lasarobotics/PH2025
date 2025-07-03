@@ -447,13 +447,13 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         LimelightHelpers.SetRobotOrientation(
             limelight, s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
-        // Logger.recordOutput(
-        //     getName() + "/" + limelight + "/botpose",
-        //     LimelightHelpers.getBotPose3d_wpiBlue(limelight));
+        Logger.recordOutput(
+            getName() + "/" + limelight + "/botpose",
+            LimelightHelpers.getBotPose3d_wpiBlue(limelight));
         double[] poseEntry =
             LimelightHelpers.getLimelightNTDoubleArray(limelight, "botpose_orb_wpiblue");
-        // Logger.recordOutput(
-        //     getName() + "/" + limelight + "/botpose_orb", LimelightHelpers.toPose3D(poseEntry));
+        Logger.recordOutput(
+            getName() + "/" + limelight + "/botpose_orb", LimelightHelpers.toPose3D(poseEntry));
         LimelightHelpers.PoseEstimate pose_estimate =
             LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
 
