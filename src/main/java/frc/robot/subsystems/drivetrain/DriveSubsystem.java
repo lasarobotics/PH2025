@@ -759,7 +759,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     //       getName() + "/Mod" + i + "/motorVoltage",
     //       s_drivetrain.getModule(i).getDriveMotor().getMotorVoltage().getValue());
     // }
-    Logger.recordOutput(getName() + "/swerveStates", s_drivetrain.getStateCopy().ModuleStates);
+    Logger.recordOutput(getName() + "/swerveStates", s_drivetrain.getState().ModuleStates);
     LoopTimer.addTimestamp(getName() + " End");
   }
 
