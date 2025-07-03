@@ -751,15 +751,15 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 Inches.of(158.5)),
             new Rotation2d(Math.toRadians(0))));
     Logger.recordOutput(getName() + "/autoAlign/isAligned", s_isAligned);
-    int i = 0;
-    for (i = 0; i < 4; i++) {
-      Logger.recordOutput(
-          getName() + "/Mod" + i + "/torqueCurrent",
-          s_drivetrain.getModule(i).getDriveMotor().getTorqueCurrent().getValue());
-      Logger.recordOutput(
-          getName() + "/Mod" + i + "/motorVoltage",
-          s_drivetrain.getModule(i).getDriveMotor().getMotorVoltage().getValue());
-    }
+    // for (int i = 0; i < 4; i++) {
+    //   Logger.recordOutput(
+    //       getName() + "/Mod" + i + "/torqueCurrent",
+    //       s_drivetrain.getModule(i).getDriveMotor().getTorqueCurrent().getValue());
+    //   Logger.recordOutput(
+    //       getName() + "/Mod" + i + "/motorVoltage",
+    //       s_drivetrain.getModule(i).getDriveMotor().getMotorVoltage().getValue());
+    // }
+    Logger.recordOutput(getName() + "/swerveStates", s_drivetrain.getStateCopy().ModuleStates);
     LoopTimer.addTimestamp(getName() + " End");
   }
 
