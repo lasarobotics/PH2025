@@ -430,7 +430,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     m_limelight_thread.start();
 
     m_quest = new QuestNav();
-    ROBOT_TO_QUEST = new Transform2d(-0.1524, -0.3429, new Rotation2d((3 * Math.PI)/2));
+    ROBOT_TO_QUEST = new Transform2d(-0.081473, -0.2369871054, new Rotation2d((3 * Math.PI)/2));
   }
 
   /**
@@ -447,13 +447,13 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         LimelightHelpers.SetRobotOrientation(
             limelight, s_drivetrain.getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
-        // Logger.recordOutput(
-        //     getName() + "/" + limelight + "/botpose",
-        //     LimelightHelpers.getBotPose3d_wpiBlue(limelight));
+         Logger.recordOutput(
+             getName() + "/" + limelight + "/botpose",
+             LimelightHelpers.getBotPose3d_wpiBlue(limelight));
         double[] poseEntry =
             LimelightHelpers.getLimelightNTDoubleArray(limelight, "botpose_orb_wpiblue");
-        // Logger.recordOutput(
-        //     getName() + "/" + limelight + "/botpose_orb", LimelightHelpers.toPose3D(poseEntry));
+         Logger.recordOutput(
+             getName() + "/" + limelight + "/botpose_orb", LimelightHelpers.toPose3D(poseEntry));
         LimelightHelpers.PoseEstimate pose_estimate =
             LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
 
@@ -691,7 +691,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     if (m_quest.isConnected() && m_quest.isTracking()) {
       Pose2d questPose = m_quest.getPose();
       Pose2d robotPose = questPose.transformBy(ROBOT_TO_QUEST.inverse());
-      Logger.recordOutput(getName() + "Drive/actualQuestRobotPose", robotPose);
+      Logger.recordOutput(getName() + "Quest/actualQuestRobotPose", robotPose);
+      Logger.recordOutput(getName() + "Quest/battery", m_quest.getBatteryPercent());
     }
   }
 
@@ -741,6 +742,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/robotPose", s_drivetrain.getState().Pose);
     Logger.recordOutput(getName() + "/seesTag", seesTag());
 
+    Logger.recordOutput(getName() + "/pigeonGyroAngle",s_drivetrain.getState().RawHeading);
+
+
     getQuestNavPose();
 
     Logger.recordOutput(
@@ -751,16 +755,18 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
                 Inches.of(158.5)),
             new Rotation2d(Math.toRadians(0))));
     Logger.recordOutput(getName() + "/autoAlign/isAligned", s_isAligned);
-    int i = 0;
-    for (i = 0; i < 4; i++) {
-      Logger.recordOutput(
-          getName() + "/Mod" + i + "/torqueCurrent",
-          s_drivetrain.getModule(i).getDriveMotor().getTorqueCurrent().getValue());
-      Logger.recordOutput(
-          getName() + "/Mod" + i + "/motorVoltage",
-          s_drivetrain.getModule(i).getDriveMotor().getMotorVoltage().getValue());
-    }
-    LoopTimer.addTimestamp(getName() + " End");
+    // int i = 0;
+    // for (i = 0; i < 4; i++) {
+    //   Logger.recordOutput(
+    //       getName() + "/Mod" + i + "/torqueCurrent",
+    //       s_drivetrain.getModule(i).getDriveMotor().getTorqueCurrent().getValue());
+    //   Logger.recordOutput(
+    //       getName() + "/Mod" + i + "/motorVoltage",
+    //       s_drivetrain.getModule(i).getDriveMotor().getMotorVoltage().getValue());
+    // }
+    // LoopTimer.addTimestamp(getName() + " End");
+
+    Logger.recordOutput(getName() + "/swerveStates", s_drivetrain.getState().ModuleStates);
   }
 
   @Override
