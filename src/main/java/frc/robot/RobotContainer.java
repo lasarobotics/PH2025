@@ -64,7 +64,7 @@ public class RobotContainer {
      PRIMARY_CONTROLLER.rightBumper(), // L4
      PRIMARY_CONTROLLER.povDown(), //L2 Algae Descore
      PRIMARY_CONTROLLER.povUp(), //L3 Algae Descore
-     PRIMARY_CONTROLLER.rightTrigger(), // score
+     PRIMARY_CONTROLLER.rightTrigger(), // score L1
      PRIMARY_CONTROLLER.x(), // cancel
      PRIMARY_CONTROLLER.rightStick() //climb
     );

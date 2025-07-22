@@ -22,11 +22,13 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -272,7 +274,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/controlMode", "normal");
           s_isAligned = false;
           timer.restart();
-        }
+        }{}
 
         Logger.recordOutput(
             "DriveSubsystem/autoAlign/targetPose",
@@ -388,8 +390,20 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   private static boolean s_rightCameraSeesTag = false;
 
 
-  protected final Thread m_limelight_thread;
+  private static SwerveModulePosition[] imposterPositions = {null, null, null, null};
+  private static Matrix<N3, N1> imposter_drive_std_devs = VecBuilder.fill(1000000.0, 1000000.0, 100000.0);
+  private static Matrix<N3, N1> imposter_vision_std_devs = VecBuilder.fill(0.01, 0.01, 0.01);
 
+  private static SwerveDrivePoseEstimator s_impostor = new SwerveDrivePoseEstimator(
+        s_drivetrain.getKinematics(), 
+        s_drivetrain.getPigeon2().getRotation2d(), 
+        imposterPositions,
+        new Pose2d(0.0,0.0, new Rotation2d(0.0)),
+        imposter_drive_std_devs,
+        imposter_vision_std_devs);
+
+
+  protected final Thread m_limelight_thread;
   public DriveSubsystem(Hardware driveHardware, Telemetry logger) {
     super(State.DRIVER_CONTROL);
 
@@ -433,7 +447,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     m_limelight_thread.start();
 
     m_quest = new QuestNav();
-    ROBOT_TO_QUEST = new Transform2d(0.081473, -0.2369871054, new Rotation2d((3 * Math.PI)/2));
+    ROBOT_TO_QUEST = new Transform2d(-0.081473, -0.2369871054, new Rotation2d((3 * Math.PI)/2));
   }
 
   /**
@@ -497,6 +511,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
           s_drivetrain.addVisionMeasurement(
               pose_estimate.pose, Utils.fpgaToCurrentTime(pose_estimate.timestampSeconds));
           // Logger.recordOutput(getName() + "/" + limelight + "/botpose_orb", pose_estimate.pose);
+
+          s_impostor.addVisionMeasurement(
+            pose_estimate.pose, Utils.fpgaToCurrentTime(pose_estimate.timestampSeconds));
         }
         if (limelight == "limelight-left") {
           s_leftCameraSeesTag = !doRejectUpdate;
@@ -703,7 +720,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     if (m_quest.isConnected() && m_quest.isTracking()) {
       Pose2d questPose = m_quest.getPose();
       Pose2d robotPose = questPose.transformBy(ROBOT_TO_QUEST.inverse());
-      Logger.recordOutput(getName() + "Drive/actualQuestRobotPose", robotPose);
+      Logger.recordOutput(getName() + "Quest/actualQuestRobotPose", robotPose);
+      Logger.recordOutput(getName() + "Quest/questBattery" , m_quest.getBatteryPercent());
       return robotPose;
     }
     return null;
@@ -714,13 +732,14 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
    */
   public void addQuestMeasurement() {
     //Trust QuestNav for 2 cm x and y, and 2 degrees rotational
-    Matrix<N3, N1> QUESTNAV_STD_DEVS = VecBuilder.fill(0.02, 0.02, 0.035);
+    Matrix<N3, N1> QUESTNAV_STD_DEVS = VecBuilder.fill(0.00000000000000000000000000000000000000001, 0.0000000000000000000000000000001, 0.035);
 
-    if (m_quest.isConnected() && m_quest.isTracking()) {
+    if (m_quest.isConnected() && m_quest.isTracking() && DriverStation.isEnabled()) {
       Pose2d quest_pose = getQuestNavPose();
       double quest_timestamp = m_quest.getDataTimestamp();
       s_drivetrain.addVisionMeasurement(quest_pose, quest_timestamp, QUESTNAV_STD_DEVS);
-    }
+      s_impostor.addVisionMeasurement(quest_pose, quest_timestamp, QUESTNAV_STD_DEVS);
+    };
   }
 
 
@@ -758,6 +777,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     double addMeasurementTime = 0;
 
     m_quest.commandPeriodic(); 
+    getQuestNavPose();
+    Logger.recordOutput(getName() + "Quest/ImpostorDrivePose", s_impostor.getEstimatedPosition());
+
 
 
     Logger.recordOutput(getName() + "/cameraTimes/config", configTime);
@@ -771,7 +793,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/robotPose", s_drivetrain.getState().Pose);
     Logger.recordOutput(getName() + "/seesTag", seesTag());
 
-    getQuestNavPose();
+  
 
     Logger.recordOutput(
         getName() + "/knownPose",
