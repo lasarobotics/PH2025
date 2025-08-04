@@ -13,7 +13,7 @@ import org.lasarobotics.hardware.revrobotics.Spark;
 import org.lasarobotics.hardware.revrobotics.Spark.MotorKind;
 import org.lasarobotics.hardware.revrobotics.Spark.SparkInputs;
 import org.littletonrobotics.junction.Logger;
-
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.LoopTimer;
@@ -25,11 +25,12 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   static final double MOUNT_ANGLE = 0.357;
   static final double CLIMB_ANGLE = 0.12;
   static final double STOW_ANGLE = 0.08;
+  static final double SERVO_ANGLE = 120.0;
 
   public static record Hardware (
     Spark climbEncoder,
-    TalonFX climbMotor
-    
+    TalonFX climbMotor,
+    Servo servo
     
   ) {}
 
@@ -79,6 +80,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         s_climbInstance.climb();
+        s_climbInstance.extendServo();
         s_climbInstance.setIsMounted(false);
 
       }
@@ -102,8 +104,10 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   private static ClimbSubsystem s_climbInstance;
   private final Spark m_climbEncoder;
   private final TalonFX m_climbMotor;
+  private final Servo m_servo;
   private ClimbStates nextState;
   private boolean m_mounted;
+  private boolean m_servoExtended = false;
 
 
   /** Creates a new ClimbSubsystem. */
@@ -113,6 +117,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
 
     this.m_climbEncoder = ClimbHardware.climbEncoder;
     this.m_climbMotor = ClimbHardware.climbMotor;
+    this.m_servo = ClimbHardware.servo;
 
     this.m_mounted = false;
 
@@ -143,6 +148,13 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
     m_climbMotor.set(-CLIMB_SPEED);
   }
 
+  private void extendServo() {
+    if(!m_servoExtended) {
+      m_servo.setAngle(SERVO_ANGLE);
+      m_servoExtended = true;
+    }
+  }
+
   /**
    * Runs climber
    * @return Command to run the climber motors
@@ -166,7 +178,8 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   public static Hardware initializeHardware() {
     Hardware climbHardware = new Hardware(
       new Spark(Constants.ClimbHardware.ENCODER_ID, MotorKind.NEO),
-      new TalonFX(Constants.ClimbHardware.CLIMB_MOTOR_ID.deviceID, Constants.ClimbHardware.CLIMB_MOTOR_ID.bus.name)
+      new TalonFX(Constants.ClimbHardware.CLIMB_MOTOR_ID.deviceID, Constants.ClimbHardware.CLIMB_MOTOR_ID.bus.name),
+      new Servo(Constants.ClimbHardware.SERVO_ID)
     );
     
 
