@@ -25,7 +25,8 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
   static final double MOUNT_ANGLE = 0.357;
   static final double CLIMB_ANGLE = 0.12;
   static final double STOW_ANGLE = 0.08;
-  static final double SERVO_ANGLE = 120.0;
+  static final double SERVO_ANGLE = 180.0;
+  static final double SERVO_RETRACT_ANGLE = 45.0;
 
   public static record Hardware (
     Spark climbEncoder,
@@ -44,6 +45,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
     IDLE {
       @Override
       public void initialize() {
+        s_climbInstance.retractServo();
         s_climbInstance.stopMotor();
       }
 
@@ -56,6 +58,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         s_climbInstance.mount();
+        s_climbInstance.extendServo();
         if((s_climbInstance.inMountPosition())){
           s_climbInstance.setIsMounted(true);
         }
@@ -80,7 +83,6 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public void initialize() {
         s_climbInstance.climb();
-        s_climbInstance.extendServo();
         s_climbInstance.setIsMounted(false);
 
       }
@@ -118,6 +120,7 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
     this.m_climbEncoder = ClimbHardware.climbEncoder;
     this.m_climbMotor = ClimbHardware.climbMotor;
     this.m_servo = ClimbHardware.servo;
+    this.m_servo.setAngle(SERVO_RETRACT_ANGLE);
 
     this.m_mounted = false;
 
@@ -153,6 +156,11 @@ public class ClimbSubsystem extends StateMachine implements AutoCloseable {
       m_servo.setAngle(SERVO_ANGLE);
       m_servoExtended = true;
     }
+  }
+
+  private void retractServo() {
+    m_servo.setAngle(SERVO_RETRACT_ANGLE);
+    m_servoExtended = false;
   }
 
   /**

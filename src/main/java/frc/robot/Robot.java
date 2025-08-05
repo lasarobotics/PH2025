@@ -35,8 +35,8 @@ public class Robot extends LoggedRobot {
       BuildConstants.MAVEN_NAME,
       BuildConstants.GIT_SHA,
       BuildConstants.BUILD_DATE,
-      true,
-      true
+      false,
+      false
       );
       
     m_robotContainer = new RobotContainer();

@@ -52,6 +52,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
         INTAKE_SUBSYSTEM.stop();
         lastReefState = TargetLiftStates.STOW;
+        CLIMB_SUBSYSTEM.idleState();
       }
 
       @Override

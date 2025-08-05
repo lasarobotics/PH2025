@@ -22,11 +22,15 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.PubSubOption;
+import edu.wpi.first.networktables.StructEntry;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -355,6 +359,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   private static FieldCentricWithPose s_autoDrive;
   private static QuestNav m_quest;
   private Transform2d ROBOT_TO_QUEST;
+  private Transform2d OAKD_TO_ROBOT;
+  private StructEntry<Pose3d> oakd_pose_entry;
 
   private static DoubleSupplier s_driveRequest = () -> 0;
   private static DoubleSupplier s_strafeRequest = () -> 0;
@@ -431,6 +437,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     m_quest = new QuestNav();
     ROBOT_TO_QUEST = new Transform2d(-0.1524, -0.3429, new Rotation2d((3 * Math.PI)/2));
+    OAKD_TO_ROBOT = new Transform2d(Inches.of(-12.0), Inches.of(-17.5), Rotation2d.kZero);
+    oakd_pose_entry = NetworkTableInstance.getDefault().getTable("PurpleRanger").getStructTopic("Pose", Pose3d.struct).getEntry(new Pose3d(), PubSubOption.keepDuplicates(true));
   }
 
   /**
@@ -740,6 +748,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     Logger.recordOutput(getName() + "/isNearSource", isNearSource());
     Logger.recordOutput(getName() + "/robotPose", s_drivetrain.getState().Pose);
     Logger.recordOutput(getName() + "/seesTag", seesTag());
+
+    Logger.recordOutput(getName() + "/PurpleRangerPose", oakd_pose_entry.get().toPose2d().transformBy(OAKD_TO_ROBOT));
 
     getQuestNavPose();
 
