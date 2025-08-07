@@ -49,7 +49,7 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
         // reset the whole robot
         END_EFFECTOR_SUBSYSTEM.requestStop();
         DRIVE_SUBSYSTEM.cancelAutoAlign();
-        LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
+        if (!LIFT_SUBSYSTEM.isAtState(TargetLiftStates.L4)) LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
         INTAKE_SUBSYSTEM.stop();
         lastReefState = TargetLiftStates.STOW;
         CLIMB_SUBSYSTEM.idleState();
