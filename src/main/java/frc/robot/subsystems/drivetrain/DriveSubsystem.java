@@ -43,6 +43,7 @@ import frc.robot.LoopTimer;
 import frc.robot.RobotContainer;
 import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants;
+import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
 
 public class DriveSubsystem extends StateMachine implements AutoCloseable {
@@ -387,20 +388,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   //Camera variables
   private static boolean s_leftCameraSeesTag = false;
-  private static boolean s_rightCameraSeesTag = false;
-
-
-  private static SwerveModulePosition[] imposterPositions = {null, null, null, null};
-  private static Matrix<N3, N1> imposter_drive_std_devs = VecBuilder.fill(1000000.0, 1000000.0, 100000.0);
-  private static Matrix<N3, N1> imposter_vision_std_devs = VecBuilder.fill(0.01, 0.01, 0.01);
-
-  private static SwerveDrivePoseEstimator s_impostor = new SwerveDrivePoseEstimator(
-        s_drivetrain.getKinematics(), 
-        s_drivetrain.getPigeon2().getRotation2d(), 
-        imposterPositions,
-        new Pose2d(0.0,0.0, new Rotation2d(0.0)),
-        imposter_drive_std_devs,
-        imposter_vision_std_devs);
+  private static boolean s_rightCameraSeesTag = false;;
 
 
   protected final Thread m_limelight_thread;
@@ -512,8 +500,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
               pose_estimate.pose, Utils.fpgaToCurrentTime(pose_estimate.timestampSeconds));
           // Logger.recordOutput(getName() + "/" + limelight + "/botpose_orb", pose_estimate.pose);
 
-          s_impostor.addVisionMeasurement(
-            pose_estimate.pose, Utils.fpgaToCurrentTime(pose_estimate.timestampSeconds));
         }
         if (limelight == "limelight-left") {
           s_leftCameraSeesTag = !doRejectUpdate;
@@ -718,11 +704,18 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
    */
   public Pose2d getQuestNavPose() {
     if (m_quest.isConnected() && m_quest.isTracking()) {
-      Pose2d questPose = m_quest.getPose();
-      Pose2d robotPose = questPose.transformBy(ROBOT_TO_QUEST.inverse());
+      PoseFrame[] poseFrames = m_quest.getAllUnreadPoseFrames();
+      if (poseFrames.length > 0) {
+        // Get the most recent Quest pose
+        Pose2d questPose = poseFrames[poseFrames.length - 1].questPose();
+
+        //Transform by the mount pose to get your robot pose
+        Pose2d robotPose = questPose.transformBy(ROBOT_TO_QUEST.inverse());
+
       Logger.recordOutput(getName() + "Quest/actualQuestRobotPose", robotPose);
-      Logger.recordOutput(getName() + "Quest/questBattery" , m_quest.getBatteryPercent());
+      Logger.recordOutput(getName() + "Quest/questBattery" , m_quest.getBatteryPercent().getAsInt());
       return robotPose;
+      }
     }
     return null;
   }
@@ -731,14 +724,32 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
    * Add the measurement of the quest's pose to the drivetrain's reported pose
    */
   public void addQuestMeasurement() {
-    //Trust QuestNav for 2 cm x and y, and 2 degrees rotational
-    Matrix<N3, N1> QUESTNAV_STD_DEVS = VecBuilder.fill(0.00000000000000000000000000000000000000001, 0.0000000000000000000000000000001, 0.035);
+    Matrix<N3, N1> QUESTNAV_STD_DEVS =
+    VecBuilder.fill(
+        0.02, // Trust down to 2cm in X direction
+        0.02, // Trust down to 2cm in Y direction
+        0.035 // Trust down to 2 degrees rotational
+    );
 
-    if (m_quest.isConnected() && m_quest.isTracking() && DriverStation.isEnabled()) {
-      Pose2d quest_pose = getQuestNavPose();
-      double quest_timestamp = m_quest.getDataTimestamp();
-      s_drivetrain.addVisionMeasurement(quest_pose, quest_timestamp, QUESTNAV_STD_DEVS);
-      s_impostor.addVisionMeasurement(quest_pose, quest_timestamp, QUESTNAV_STD_DEVS);
+if (m_quest.isTracking()) {
+    // Get the latest pose data frames from the Quest
+    PoseFrame[] questFrames = m_quest.getAllUnreadPoseFrames();
+
+    // Loop over the pose data frames and send them to the pose estimator
+    for (PoseFrame questFrame : questFrames) {
+        // Get the pose of the Quest
+        Pose2d questPose = questFrame.questPose();
+        // Get timestamp for when the data was sent
+        double timestamp = questFrame.dataTimestamp();
+
+        // Transform by the mount pose to get your robot pose
+        Pose2d robotPose = questPose.transformBy(ROBOT_TO_QUEST.inverse());
+
+        // You can put some sort of filtering here if you would like!
+
+        // Add the measurement to our estimator
+        s_drivetrain.addVisionMeasurement(robotPose, timestamp, QUESTNAV_STD_DEVS);  
+        }
     };
   }
 
@@ -778,7 +789,6 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     m_quest.commandPeriodic(); 
     getQuestNavPose();
-    Logger.recordOutput(getName() + "Quest/ImpostorDrivePose", s_impostor.getEstimatedPosition());
 
 
 
