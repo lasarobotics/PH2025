@@ -22,16 +22,20 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.PubSubOption;
+import edu.wpi.first.networktables.StructEntry;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -388,7 +392,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   //Camera variables
   private static boolean s_leftCameraSeesTag = false;
-  private static boolean s_rightCameraSeesTag = false;;
+  private static boolean s_rightCameraSeesTag = false;
+
+  private Transform3d OAKD_TO_ROBOT;
+  private StructEntry<Pose3d> oakd_pose_entry;
 
 
   protected final Thread m_limelight_thread;
@@ -436,6 +443,11 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
     m_quest = new QuestNav();
     ROBOT_TO_QUEST = new Transform2d(-0.081473, -0.2369871054, new Rotation2d((3 * Math.PI)/2));
+
+    //OAKD_TO_ROBOT = new Transform2d(Inches.of(-14.0), Inches.of(-3.5), Rotation2d.fromDegrees(-12.0));
+    OAKD_TO_ROBOT = new Transform3d(Inches.of(-14.0), Inches.of(-3.5), Inches.of(15.25), new Rotation3d(Units.Degrees.of(12.0), Units.Degrees.zero(), Units.Degrees.zero()));
+    oakd_pose_entry = NetworkTableInstance.getDefault().getTable("PurpleRanger").getStructTopic("Pose", Pose3d.struct).getEntry(new Pose3d(), PubSubOption.keepDuplicates(true));
+
   }
 
   /**
@@ -789,6 +801,7 @@ if (m_quest.isTracking()) {
 
     m_quest.commandPeriodic(); 
     getQuestNavPose();
+    Logger.recordOutput(getName() + "/PurpleRangerPose", oakd_pose_entry.get().transformBy(OAKD_TO_ROBOT).toPose2d());
 
 
 
