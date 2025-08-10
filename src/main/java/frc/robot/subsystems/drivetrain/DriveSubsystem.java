@@ -507,7 +507,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         }
 
         if (!doRejectUpdate) {
-          s_drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
+          s_drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 0.2));
           s_drivetrain.addVisionMeasurement(
               pose_estimate.pose, Utils.fpgaToCurrentTime(pose_estimate.timestampSeconds));
           // Logger.recordOutput(getName() + "/" + limelight + "/botpose_orb", pose_estimate.pose);
@@ -743,7 +743,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         0.035 // Trust down to 2 degrees rotational
     );
 
-if (m_quest.isTracking()) {
+if (m_quest.isTracking() && m_quest.isConnected()) {
     // Get the latest pose data frames from the Quest
     PoseFrame[] questFrames = m_quest.getAllUnreadPoseFrames();
 

@@ -159,6 +159,8 @@ public class RobotContainer {
 
     }, CLIMB_SUBSYSTEM));
     PathfindingCommand.warmupCommand().schedule();
+
+    
   }
 
   public void disabledPeriodic() {
