@@ -120,23 +120,23 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       GTE_OR_LTE elevatorComparison
     ){}
   
-    static IDF[] STOW_TURBO_INSTRUCTIONS = new IDF[]{
-      new IDF(
-        SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE),
-        SAFE_INTAKE_ANGLE_BOTTOM,
-        GTE_OR_LTE.LTE,
-        null,
-        null,
-        null
-      ),
-      new IDF(
-        null,
-        null,
-        null,
-        TURBO_HEIGHT,
-        CLEAR_HEIGHT,
-        GTE_OR_LTE.GTE
-      )
+  static IDF[] STOW_TURBO_INSTRUCTIONS = new IDF[]{
+    new IDF(
+      SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE),
+      SAFE_INTAKE_ANGLE_BOTTOM,
+      GTE_OR_LTE.LTE,
+      null,
+      null,
+      null
+    ),
+    new IDF(
+      null,
+      null,
+      null,
+      TURBO_HEIGHT,
+      CLEAR_HEIGHT,
+      GTE_OR_LTE.GTE
+    )
   };
 
   static IDF[] L1_TURBO_INSTRUCTIONS = new IDF[]{
@@ -147,7 +147,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       null,
       null
-  )
+    )
   };
 
   static IDF[] L2_TURBO_INSTRUCTIONS = new IDF[]{
@@ -177,7 +177,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       null,
       null
-  )
+    )
   };
 
   static IDF L4_TURBO_INSTRUCTIONS = new IDF(
@@ -316,6 +316,25 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       L4_HEIGHT,
       CLEAR_HEIGHT,
       GTE_OR_LTE.GTE
+    )
+  };
+
+  static IDF[] L1_STOW_INSTRUCTIONS = new IDF[]{
+    new IDF(
+      SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE),
+      SAFE_REEF_ANGLE_BOTTOM,
+      GTE_OR_LTE.GTE,
+      null,
+      null,
+      null
+    ),
+    new IDF(
+      null,
+      null,
+      null,
+      STOW_HEIGHT,
+      STOW_HEIGHT,
+      GTE_OR_LTE.LTE
     )
   };
 
@@ -775,7 +794,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
           return STOW_A2_S1;
         }
         if (nextState == TargetLiftStates.TURBO) {
-          return STOW_TURBO_S1;
+          return STOW_TURBO;
         }
         if (nextState == TargetLiftStates.A_KICK) {
           return A_KICK;
@@ -783,30 +802,56 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         return this;
       }
     },
-    STOW_TURBO_S1 {
+    STOW_TURBO {
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
-          return STOW_TURBO_S2;
+      public void execute() {
+        if (currentStep >= STOW_TURBO_INSTRUCTIONS.length) {
+          return;
         }
-        return this;
-      }
-    },
-    STOW_TURBO_S2 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(TURBO_HEIGHT);
+        IDF currentInstruction = STOW_TURBO_INSTRUCTIONS[currentStep];
+        if (!stepInitialized) {
+          if (currentInstruction.wantedArmAngle != null) {
+            s_liftinstance.setArmAngle(currentInstruction.wantedArmAngle);
+          }
+          if (currentInstruction.wantedElevatorHeight != null) {
+            s_liftinstance.setElevatorHeight(currentInstruction.wantedElevatorHeight);
+          }
+          stepInitialized = true;
+        } else {
+          boolean armConditionMet = true;
+          boolean elevatorConditionMet = true;
+          if (currentInstruction.neededArmAngle != null) {
+            if (currentInstruction.armComparison == GTE_OR_LTE.GTE) {
+              armConditionMet = s_liftinstance.getArmAngle().gte(currentInstruction.neededArmAngle);
+            } else {
+              armConditionMet = s_liftinstance.getArmAngle().lte(currentInstruction.neededArmAngle);
+            }
+          }
+          if (currentInstruction.neededElevatorHeight != null) {
+            if (currentInstruction.elevatorComparison == GTE_OR_LTE.GTE) {
+              elevatorConditionMet = s_liftinstance.getElevatorHeight().gte(currentInstruction.neededElevatorHeight);
+            } else {
+              elevatorConditionMet = s_liftinstance.getElevatorHeight().lte(currentInstruction.neededElevatorHeight);
+            }
+          }
+          if (armConditionMet && elevatorConditionMet) {
+            currentStep++;
+            stepInitialized = false;
+          }
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getElevatorHeight().gte(CLEAR_HEIGHT)) {
+        if (currentStep >= STOW_TURBO_INSTRUCTIONS.length) {
           return TURBO;
         }
         return this;
