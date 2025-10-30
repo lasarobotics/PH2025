@@ -772,7 +772,37 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     }
     LoopTimer.addTimestamp(getName() + " End");
   }
+  // --------------------------------------------------------------------
+  // Added helper methods for coordinate-based control
+  // --------------------------------------------------------------------
 
+  // Drive robot in field-relative frame (vx, vy, omega in m/s and rad/s)
+  public void driveFieldRelative(double vx, double vy, double omega) {
+      var heading = getPose().getRotation();
+      var speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omega, heading);
+      driveRobotRelative(speeds);
+  }
+
+  // Drive robot in robot-relative frame
+  public void driveRobotRelative(ChassisSpeeds speeds) {
+      s_drivetrain.setControl(
+          s_driveRobotCentric
+              .withVelocityX(speeds.vxMetersPerSecond)
+              .withVelocityY(speeds.vyMetersPerSecond)
+              .withRotationalRate(speeds.omegaRadiansPerSecond)
+      );
+  }
+
+  // Stop the drivetrain completely
+  public void stop() {
+      s_drivetrain.setControl(
+          s_driveRobotCentric.withVelocityX(0).withVelocityY(0).withRotationalRate(0)
+      );
+  }
+
+  // --------------------------------------------------------------------
+
+  
   @Override
   public void close() throws Exception {
     s_drivetrain.close();
