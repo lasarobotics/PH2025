@@ -7,7 +7,7 @@ import frc.robot.LimelightHelpers;
 public class localizationSubsystem extends SubsystemBase {
 
     private Notifier notifier;
-    private final String limelightName = "limelight"; //CHANGE NAME TO REAL NAME
+    private final String limelightName = "limelight-left"; //CHANGE NAME TO REAL NAME
     private int failedCycles = 0;
 
     public double currentX0 = 0.0, currentY0 = 0.0;
