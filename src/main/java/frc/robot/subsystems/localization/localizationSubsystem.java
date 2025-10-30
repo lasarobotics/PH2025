@@ -23,8 +23,13 @@ public class localizationSubsystem extends SubsystemBase {
 
     public localizationSubsystem() {
         notifier = new Notifier(this::updateDetections);
-        notifier.startPeriodic(0.1);
+        notifier.startPeriodic(0.02);
         System.out.println("[LocalizationSubsystem] Started Reading");
+    }
+
+    @Override
+    public void periodic() {
+        updateDetections();
     }
 
     private void updateDetections() {
@@ -92,5 +97,10 @@ public class localizationSubsystem extends SubsystemBase {
 
     public double[] getCornersY() {
         return new double[]{currentY0, currentY1, currentY2, currentY3};
+    }
+
+    public static void localizationSubsystem() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'localizationSubsystem'");
     }
 }

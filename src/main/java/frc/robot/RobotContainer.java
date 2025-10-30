@@ -26,6 +26,7 @@ import frc.robot.subsystems.drivetrain.DriveSubsystem;
 import frc.robot.subsystems.endeffector.EndEffectorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lift.LiftSubsystem;
+import frc.robot.subsystems.localization.localizationSubsystem;
 
 public class RobotContainer {
   private final CommandXboxController PRIMARY_CONTROLLER = new CommandXboxController(0);
@@ -41,6 +42,7 @@ public class RobotContainer {
   private final HeadHoncho HEAD_HONCHO = new HeadHoncho(DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM, CLIMB_SUBSYSTEM);
   // private final AutoHoncho AUTO_HONCHO = new AutoHoncho(DRIVE_SUBSYSTEM, INTAKE_SUBSYSTEM, LIFT_SUBSYSTEM, END_EFFECTOR_SUBSYSTEM);
   private static SendableChooser<Command> m_autoModeChooser = new SendableChooser<>();
+  private final localizationSubsystem LOCALIZATION_SUBSYSTEM = new localizationSubsystem();
 
   public RobotContainer() {
     configureBindings();
