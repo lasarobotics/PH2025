@@ -1,106 +1,100 @@
 package frc.robot.subsystems.localization;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.Notifier;
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.LimelightHelpers;
+import edu.wpi.first.wpilibj.Timer;
 
 public class localizationSubsystem extends SubsystemBase {
 
-    private Notifier notifier;
-    private final String limelightName = "limelight-left";
-    private int failedCycles = 0;
-
-    private final NetworkTable table =
+    private final String limelightName = "limelight"; // match the camera name in Limelight UI
+    private final NetworkTable llTable =
+        NetworkTableInstance.getDefault().getTable(limelightName);
+    private final NetworkTable logTable =
         NetworkTableInstance.getDefault().getTable("LocalizationSubsystem");
 
-    public double currentX0 = 0.0, currentY0 = 0.0;
-    public double currentX1 = 0.0, currentY1 = 0.0;
-    public double currentX2 = 0.0, currentY2 = 0.0;
-    public double currentX3 = 0.0, currentY3 = 0.0;
+    private int failedCycles = 0;
+    private double lastUpdate = 0.0;
 
-    public localizationSubsystem() {
-        notifier = new Notifier(this::updateDetections);
-        notifier.startPeriodic(0.02);
-        System.out.println("[LocalizationSubsystem] Started Reading");
-    }
+    private double[] botpose = new double[7]; // X,Y,Z,Roll,Pitch,Yaw,Latency
+    private int tagCount = 0;
+    private double tagDistance = 0.0;
+    private double tid = -1;
 
     @Override
     public void periodic() {
-        updateDetections();
+        double now = Timer.getFPGATimestamp();
+        if (now - lastUpdate < 0.02) return; // 50 Hz
+        lastUpdate = now;
+        updateFromLimelight();
     }
 
-    private void updateDetections() {
+    private void updateFromLimelight() {
         try {
-            LimelightHelpers.RawDetection[] detections = LimelightHelpers.getRawDetections(limelightName);
+            double tv = llTable.getEntry("tv").getDouble(0); // valid target flag
+            double[] pose = llTable.getEntry("botpose_wpiblue").getDoubleArray(new double[0]);
+            double tagID = llTable.getEntry("tid").getDouble(-1);
+            double[] t2d = llTable.getEntry("t2d").getDoubleArray(new double[0]);
 
-            if (detections == null) {
+            if (tv < 1 || pose.length < 6) {
                 failedCycles++;
-                Logger.recordOutput("Localization/Status", "NULL DATA");
+                Logger.recordOutput("Localization/Status", "NO TARGET");
+                Logger.recordOutput("Localization/TagCount", 0);
                 if (failedCycles >= 10) Logger.recordOutput("Localization/Status", "NOT RESPONDING");
                 return;
             }
 
-            if (detections.length == 0) {
-                failedCycles++;
-                Logger.recordOutput("Localization/Status", "NO DETECTIONS");
-                Logger.recordOutput("Localization/DetectionCount", 0);
-                return;
-            }
-
             failedCycles = 0;
-            LimelightHelpers.RawDetection d = detections[0];
+            botpose = pose;
+            tid = tagID;
+            tagCount = (t2d.length >= 2) ? (int) t2d[1] : 1;
+            tagDistance = (pose.length >= 7) ? pose[6] : 0.0;
 
-            currentX0 = d.corner0_X; currentY0 = d.corner0_Y;
-            currentX1 = d.corner1_X; currentY1 = d.corner1_Y;
-            currentX2 = d.corner2_X; currentY2 = d.corner2_Y;
-            currentX3 = d.corner3_X; currentY3 = d.corner3_Y;
+            // Pose format: [X, Y, Z, Roll, Pitch, Yaw, Latency, TagCount, TagSpan, AvgDist, AvgArea]
+            double x = botpose[0];
+            double y = botpose[1];
+            double z = botpose[2];
+            double roll = botpose[3];
+            double pitch = botpose[4];
+            double yaw = botpose[5];
 
             Logger.recordOutput("Localization/Status", "OK");
-            Logger.recordOutput("Localization/DetectionCount", detections.length);
-            Logger.recordOutput("Localization/Corners/X", new double[]{currentX0, currentX1, currentX2, currentX3});
-            Logger.recordOutput("Localization/Corners/Y", new double[]{currentY0, currentY1, currentY2, currentY3});
+            Logger.recordOutput("Localization/TagID", tid);
+            Logger.recordOutput("Localization/TagCount", tagCount);
+            Logger.recordOutput("Localization/RobotPose/X", x);
+            Logger.recordOutput("Localization/RobotPose/Y", y);
+            Logger.recordOutput("Localization/RobotPose/Z", z);
+            Logger.recordOutput("Localization/RobotPose/Rotation", new double[]{roll, pitch, yaw});
+            Logger.recordOutput("Localization/TagDistance", tagDistance);
 
-            String detectionString = String.format(
-                "Detection #0:%n" +
-                " Corner0: (%.2f, %.2f)%n" +
-                " Corner1: (%.2f, %.2f)%n" +
-                " Corner2: (%.2f, %.2f)%n" +
-                " Corner3: (%.2f, %.2f)%n" +
+            String formatted = String.format(
+                "Pose (Field - Blue):%n" +
+                " X: %.3f m%n" +
+                " Y: %.3f m%n" +
+                " Z: %.3f m%n" +
+                " Roll: %.2f° Pitch: %.2f° Yaw: %.2f°%n" +
+                " Tag ID: %.0f | Tags Seen: %d%n" +
                 "--------------------------------------%n",
-                currentX0, currentY0,
-                currentX1, currentY1,
-                currentX2, currentY2,
-                currentX3, currentY3
+                x, y, z, roll, pitch, yaw, tid, tagCount
             );
+            Logger.recordOutput("Localization/PoseString", formatted);
 
-            Logger.recordOutput("Localization/DetectionString", detectionString);
-
-            table.getEntry("corner0").setDoubleArray(new double[]{currentX0, currentY0});
-            table.getEntry("corner1").setDoubleArray(new double[]{currentX1, currentY1});
-            table.getEntry("corner2").setDoubleArray(new double[]{currentX2, currentY2});
-            table.getEntry("corner3").setDoubleArray(new double[]{currentX3, currentY3});
-            table.getEntry("lastUpdateTime").setDouble(System.currentTimeMillis() / 1000.0);
+            // Also publish to NetworkTables for debugging
+            logTable.getEntry("pose").setDoubleArray(botpose);
+            logTable.getEntry("tid").setDouble(tid);
+            logTable.getEntry("tagCount").setDouble(tagCount);
+            logTable.getEntry("lastUpdateTime").setDouble(Timer.getFPGATimestamp());
 
         } catch (Exception e) {
             failedCycles++;
             Logger.recordOutput("Localization/Status", "EXCEPTION");
-            Logger.recordOutput("Localization/ErrorMessage", e.getMessage());
+            Logger.recordOutput("Localization/ErrorMessage", e.getMessage() == null ? "unknown" : e.getMessage());
         }
     }
 
-    public double[] getCornersX() {
-        return new double[]{currentX0, currentX1, currentX2, currentX3};
-    }
-
-    public double[] getCornersY() {
-        return new double[]{currentY0, currentY1, currentY2, currentY3};
-    }
-
-    public static void localizationSubsystem() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'localizationSubsystem'");
-    }
+    public double[] getBotPose() { return botpose; }
+    public double getTagID() { return tid; }
+    public int getTagCount() { return tagCount; }
+    public double getTagDistance() { return tagDistance; }
 }
