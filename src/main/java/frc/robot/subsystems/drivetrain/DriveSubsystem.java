@@ -226,95 +226,20 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         Logger.recordOutput(
             RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/DistanceToScoreLine", perp_dist);
 
-        if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE
-            && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
-                || heading > (Math.PI * 2 - (Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN)))) {
-          thirdStage = true;
-        }
+        var directionOfTravel = newPosition.getAngle();
+        var outputVelocity = Math.min(
+            Math.abs(s_autoDrive.HeadingController.calculate(distance, 0.0, dt)), Constants.Drive.MAX_SPEED.magnitude()
+          );
 
-        // if the robot is _very_ close to the target, turn off the drivetrain
-        if ((distance < Constants.Drive.AUTO_ALIGN_TOLERANCE || thirdStage)
-            && Math.abs(perp_dist) < Constants.Drive.AUTO_ALIGN_LR_TOLERANCE
-            && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
-                || heading > (Math.PI * 2 - (Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN)))) {
-          s_drivetrain.setControl(
-              s_driveRobotCentric.withVelocityX(0).withVelocityY(0.0).withRotationalRate(0));
-          Logger.recordOutput(
-              RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", true);
-          Logger.recordOutput(
-            RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/controlMode", "deadband");
-            s_isAligned = DriverStation.isAutonomous() ? timer.hasElapsed(0.01) : RobotContainer.DRIVE_SUBSYSTEM.seesTag() && timer.hasElapsed(0.1);
-        } else if (thirdStage) {
-          s_drivetrain.setControl(
-              s_driveRobotCentric
-                  .withVelocityX(0.0)
-                  .withDeadband(0.0)
-                  .withDriveRequestType(DriveRequestType.Velocity)
-                  .withVelocityY(MathUtil.clamp(perp_dist * 20, -0.05 * Drive.MAX_SPEED.in(MetersPerSecond), 0.05 * Drive.MAX_SPEED.in(MetersPerSecond)))
-                  .withRotationalRate(0));
-          Logger.recordOutput(
-              RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
-          Logger.recordOutput(
-            RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/controlMode", "lr");
-          s_isAligned = false;
-          timer.restart();
-        } else {
-          s_drivetrain.setControl(
-              s_autoDrive
-                  .withTargetDirection(new Rotation2d(m_currentTurnState.position))
-                  .withTargetRateFeedforward(Units.RadiansPerSecond.of(m_currentTurnState.velocity))
-                  .withTargetX(newPosition.getX())
-                  .withFeedforwardX(newVelocity.getX())
-                  .withTargetY(newPosition.getY())
-                  .withFeedforwardY(newVelocity.getY()));
-          Logger.recordOutput(
-              RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/isVeryAligned", false);
-          Logger.recordOutput(
-            RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/controlMode", "normal");
-          s_isAligned = false;
-          timer.restart();
-        }
+        var xComponent = outputVelocity * directionOfTravel.getCos();
+        var YController = outputVelocity * directionOfTravel.getSin();
 
-        Logger.recordOutput(
-            "DriveSubsystem/autoAlign/targetPose",
-            new Pose2d(
-                newPosition,
-                new Rotation2d(m_currentTurnState.position)));
-        Logger.recordOutput(
-            "DriveSubsystem/autoAlign/finalPose",
-            new Pose2d(
-                s_autoAlignTargetDriveX.position,
-                s_autoAlignTargetDriveY.position,
-                new Rotation2d(s_autoAlignTargetTurn.position)));
-        Logger.recordOutput("DriveSubsystem/autoAlign/finalPose2", s_autoAlignTarget);
-
-        Logger.recordOutput(
-            RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/distanceError", distance);
-        Logger.recordOutput(
-            RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/headingError", heading);
-        if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE
-            && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN
-                || heading > (Math.PI * 2 - Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN))) {
-          secondStage = true;
-          thirdStage = true;
-
-          resetMotionProfile();
-        }
-
-        Logger.recordOutput(RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/secondStage", secondStage);
-
-        if (distance < Constants.Drive.AUTO_ALIGN_TOLERANCE * 2
-            && (heading < Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN * 2
-                || heading > (Math.PI * 2 - Constants.Drive.AUTO_ALIGN_TOLERANCE_TURN * 2))) {
-          s_isClose = true;
-        } else {
-          s_isClose = false;
-        }
-
-        if (!s_isClose) {
-          m_closeTime = System.currentTimeMillis();
-        }
-
+        s_drivetrain.setControl(
+            s_driveRobotCentric
+                .withVelocityX(MetersPerSecond.of(xComponent))
+                .withVelocityY(MetersPerSecond.of(YController))
+                .withRotationalRate(Units.RadiansPerSecond.of(m_currentTurnState.velocity)));
+        
         Logger.recordOutput("DriveSubsystem/autoAlign/isClose", s_isClose);
         Logger.recordOutput(
             "DriveSubsystem/autoAlign/closeTime", System.currentTimeMillis() - m_closeTime);
