@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class localizationSubsystem extends SubsystemBase {
 
-    private final String limelightName = "limelight"; // match the camera name in Limelight UI
+    private final String limelightName = "limelight-left"; // match the camera name in Limelight UI
     private final NetworkTable llTable =
         NetworkTableInstance.getDefault().getTable(limelightName);
     private final NetworkTable logTable =
@@ -89,6 +89,7 @@ public class localizationSubsystem extends SubsystemBase {
         } catch (Exception e) {
             failedCycles++;
             Logger.recordOutput("Localization/Status", "EXCEPTION");
+            Logger.recordOutput("Localization/failedCycles", failedCycles);
             Logger.recordOutput("Localization/ErrorMessage", e.getMessage() == null ? "unknown" : e.getMessage());
         }
     }
