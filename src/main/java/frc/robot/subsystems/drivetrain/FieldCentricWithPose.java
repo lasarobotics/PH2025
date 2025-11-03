@@ -86,6 +86,8 @@ public class FieldCentricWithPose implements SwerveRequest {
     public PhoenixPIDController XController = new PhoenixPIDController(0, 0, 0);
     public PhoenixPIDController YController = new PhoenixPIDController(0, 0, 0);
 
+    
+
     private final FieldCentric m_fieldCentric = new FieldCentric();
     
     public FieldCentricWithPose() {
