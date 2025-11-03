@@ -96,41 +96,16 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       long m_lastTime;
       long m_closeTime;
 
-      boolean secondStage = false;
-      boolean thirdStage = false;
       Timer timer = new Timer();
 
-      /**
-       * Set the current motion profile state to the actual state of the robot
-       */
-      private void resetMotionProfile() {
-        var drivetrain_state = s_drivetrain.getState();
-        var pose = drivetrain_state.Pose.rotateAround(s_autoAlignTarget.getTranslation(), s_autoAlignTarget.getRotation().times(-1));
-        var field_speeds =
-            ChassisSpeeds.fromRobotRelativeSpeeds(
-                drivetrain_state.Speeds, drivetrain_state.Pose.getRotation());
-        var field_speeds_pose = new Translation2d(field_speeds.vxMetersPerSecond, field_speeds.vyMetersPerSecond).rotateBy(s_autoAlignTarget.getRotation().times(-1));
-
-
-      }
 
       @Override
       public void initialize() {
         m_lastTime = System.currentTimeMillis();
         m_closeTime = System.currentTimeMillis();
-
-        secondStage = false;
-        thirdStage = false;
         // move auto align away from the reef slightly
         // s_autoAlignTarget = s_autoAlignTarget.plus(new Transform2d(new Translation2d(-0.3, 0), new Rotation2d()));
 
-
-        var drivetrain_state = s_drivetrain.getState();
-        var pose = drivetrain_state.Pose.rotateAround(s_autoAlignTarget.getTranslation(), s_autoAlignTarget.getRotation().times(-1));
-        var field_speeds =
-            ChassisSpeeds.fromRobotRelativeSpeeds(
-                drivetrain_state.Speeds, drivetrain_state.Pose.getRotation());
-        var field_speeds_pose = new Translation2d(field_speeds.vxMetersPerSecond, field_speeds.vyMetersPerSecond).rotateBy(s_autoAlignTarget.getRotation().times(-1));
 
         s_isAligned = false;
         timer.restart();
@@ -157,22 +132,13 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         double distance =
             drivetrain_pose.getTranslation().getDistance(s_autoAlignTarget.getTranslation());
 
-        var perp_dist =
-            Math.cos(s_autoAlignTarget.getRotation().getRadians())
-                    * (s_autoAlignTarget.getY() - drivetrain_pose.getY())
-                - Math.sin(s_autoAlignTarget.getRotation().getRadians())
-                    * (s_autoAlignTarget.getX() - drivetrain_pose.getX());
-        // var perp_dist = s_drivetrain.getState().Pose.getY() - m_currentDriveYState.position;
-        Logger.recordOutput(
-            RobotContainer.DRIVE_SUBSYSTEM.getName() + "/autoAlign/DistanceToScoreLine", perp_dist);
-
         var directionOfTravel = newPosition.getAngle();
         var outputVelocity = Math.min(
             Math.abs(s_autoDrive.calculate(distance, 0.0)), Constants.Drive.MAX_SPEED.magnitude()
           );
 
         var rotationRate = Math.min(
-            Math.abs(headingController.calculate(s_drivetrain.getState().Pose.getRotation().getRadians())), s_autoAlignTarget.getRotation().getRadians()
+            Math.abs(s_headingController.calculate(s_drivetrain.getState().Pose.getRotation().getRadians())), s_autoAlignTarget.getRotation().getRadians()
           );
 
         var xComponent = outputVelocity * directionOfTravel.getCos();
@@ -230,7 +196,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
   private static SwerveRequest.FieldCentric s_drive;
   private static SwerveRequest.RobotCentric s_driveRobotCentric;
   private static PIDController s_autoDrive;
-  private static PIDController headingController;
+  private static PIDController s_headingController;
   private static QuestNav m_quest;
   private Transform2d ROBOT_TO_QUEST;
   private Transform2d OAKD_TO_ROBOT;
@@ -283,6 +249,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             .withRotationalDeadband(0);
 
     s_autoDrive = new PIDController(3.6, 0, 0.);
+
+    s_headingController = new PIDController(3.6, 0, 0);
 
     s_drivetrain.registerTelemetry(logger::telemeterize);
 
