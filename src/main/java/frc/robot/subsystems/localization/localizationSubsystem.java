@@ -8,94 +8,55 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class localizationSubsystem extends SubsystemBase {
 
-    private final String limelightName = "limelight-left"; // match the camera name in Limelight UI
-    private final NetworkTable llTable =
-        NetworkTableInstance.getDefault().getTable(limelightName);
-    private final NetworkTable logTable =
-        NetworkTableInstance.getDefault().getTable("LocalizationSubsystem");
+    private static final String LIMELIGHT_NAME = "limelight-left"; // CHANGE NAME IF NEEDED
+    private final NetworkTable llTable = NetworkTableInstance.getDefault().getTable(LIMELIGHT_NAME);
+    private final NetworkTable logTable = NetworkTableInstance.getDefault().getTable("LocalizationSubsystem");
 
-    private int failedCycles = 0;
     private double lastUpdate = 0.0;
 
-    private double[] botpose = new double[7]; // X,Y,Z,Roll,Pitch,Yaw,Latency
-    private int tagCount = 0;
-    private double tagDistance = 0.0;
-    private double tid = -1;
+    private double tx = 0.0;
+    private double ty = 0.0;
+    private double ta = 0.0;
+    private double[] tcornxy = new double[8]; // [x0, y0, x1, y1, x2, y2, x3, y3]
 
     @Override
     public void periodic() {
         double now = Timer.getFPGATimestamp();
-        if (now - lastUpdate < 0.02) return; // 50 Hz
+        // ~90 FPS -> run every ~0.011 seconds
+        if (now - lastUpdate < 0.011) return;
         lastUpdate = now;
+
         updateFromLimelight();
     }
 
     private void updateFromLimelight() {
-        try {
-            double tv = llTable.getEntry("tv").getDouble(0); // valid target flag
-            double[] pose = llTable.getEntry("botpose_wpiblue").getDoubleArray(new double[0]);
-            double tagID = llTable.getEntry("tid").getDouble(-1);
-            double[] t2d = llTable.getEntry("t2d").getDoubleArray(new double[0]);
+        double tv = llTable.getEntry("tv").getDouble(0);
 
-            if (tv < 1 || pose.length < 6) {
-                failedCycles++;
-                Logger.recordOutput("Localization/Status", "NO TARGET");
-                Logger.recordOutput("Localization/TagCount", 0);
-                if (failedCycles >= 10) Logger.recordOutput("Localization/Status", "NOT RESPONDING");
-                return;
-            }
+        // ONLY IF tv == 1
+        tx = llTable.getEntry("tx").getDouble(0);
+        ty = llTable.getEntry("ty").getDouble(0);
+        ta = llTable.getEntry("ta").getDouble(0);
+        tcornxy = llTable.getEntry("tcornxy").getDoubleArray(new double[8]);
 
-            failedCycles = 0;
-            botpose = pose;
-            tid = tagID;
-            tagCount = (t2d.length >= 2) ? (int) t2d[1] : 1;
-            tagDistance = (pose.length >= 7) ? pose[6] : 0.0;
+        // LOGGING!!
+        Logger.recordOutput("Localization/tv", tv);
+        Logger.recordOutput("Localization/tx", tx);
+        Logger.recordOutput("Localization/ty", ty);
+        Logger.recordOutput("Localization/ta", ta);
+        Logger.recordOutput("Localization/tcornxy", tcornxy);
 
-            // Pose format: [X, Y, Z, Roll, Pitch, Yaw, Latency, TagCount, TagSpan, AvgDist, AvgArea]
-            double x = botpose[0];
-            double y = botpose[1];
-            double z = botpose[2];
-            double roll = botpose[3];
-            double pitch = botpose[4];
-            double yaw = botpose[5];
-
-            Logger.recordOutput("Localization/Status", "OK");
-            Logger.recordOutput("Localization/TagID", tid);
-            Logger.recordOutput("Localization/TagCount", tagCount);
-            Logger.recordOutput("Localization/RobotPose/X", x);
-            Logger.recordOutput("Localization/RobotPose/Y", y);
-            Logger.recordOutput("Localization/RobotPose/Z", z);
-            Logger.recordOutput("Localization/RobotPose/Rotation", new double[]{roll, pitch, yaw});
-            Logger.recordOutput("Localization/TagDistance", tagDistance);
-
-            String formatted = String.format(
-                "Pose (Field - Blue):%n" +
-                " X: %.3f m%n" +
-                " Y: %.3f m%n" +
-                " Z: %.3f m%n" +
-                " Roll: %.2f° Pitch: %.2f° Yaw: %.2f°%n" +
-                " Tag ID: %.0f | Tags Seen: %d%n" +
-                "--------------------------------------%n",
-                x, y, z, roll, pitch, yaw, tid, tagCount
-            );
-            Logger.recordOutput("Localization/PoseString", formatted);
-
-            // Also publish to NetworkTables for debugging
-            logTable.getEntry("pose").setDoubleArray(botpose);
-            logTable.getEntry("tid").setDouble(tid);
-            logTable.getEntry("tagCount").setDouble(tagCount);
-            logTable.getEntry("lastUpdateTime").setDouble(Timer.getFPGATimestamp());
-
-        } catch (Exception e) {
-            failedCycles++;
-            Logger.recordOutput("Localization/Status", "EXCEPTION");
-            Logger.recordOutput("Localization/failedCycles", failedCycles);
-            Logger.recordOutput("Localization/ErrorMessage", e.getMessage() == null ? "unknown" : e.getMessage());
+        if (tv == 1) {
+            // Processing values
+            logTable.getEntry("tx").setDouble(tx);
+            logTable.getEntry("ty").setDouble(ty);
+            logTable.getEntry("ta").setDouble(ta);
+            logTable.getEntry("tcornxy").setDoubleArray(tcornxy);
+            logTable.getEntry("timestamp").setDouble(Timer.getFPGATimestamp());
         }
     }
 
-    public double[] getBotPose() { return botpose; }
-    public double getTagID() { return tid; }
-    public int getTagCount() { return tagCount; }
-    public double getTagDistance() { return tagDistance; }
+    public double getTx() { return tx; }
+    public double getTy() { return ty; }
+    public double getTa() { return ta; }
+    public double[] getTcornxy() { return tcornxy; }
 }
