@@ -9,7 +9,6 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.lasarobotics.fsm.StateMachine;
 import org.lasarobotics.fsm.SystemState;
@@ -111,40 +110,40 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     LTE
   }
 
+  interface ArmComparison {
+    boolean compare(Angle target);
+  }
+
+  interface ElevatorComparison {
+    boolean compare(Distance target);
+  }
+
   public record IDF (
       Angle wantedArmAngle,
-      Angle neededArmAngle,
-      GTE_OR_LTE armComparison,
-      Distance neededElevatorHeight,
+      ArmComparison armComparison,
       Distance wantedElevatorHeight,
-      GTE_OR_LTE elevatorComparison
+      ElevatorComparison elevatorComparison
     ){}
   
   static IDF[] STOW_TURBO_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE),
-      SAFE_INTAKE_ANGLE_BOTTOM,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_INTAKE_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
-      TURBO_HEIGHT,
       CLEAR_HEIGHT,
-      GTE_OR_LTE.GTE
+      (s) -> s.lte(TURBO_HEIGHT)
     )
   };
 
   static IDF[] L1_TURBO_INSTRUCTIONS = new IDF[]{
     new IDF(
       TURBO_ANGLE.plus(ARM_TOLERANCE),
-      SAFE_REEF_ANGLE_BOTTOM,
-      GTE_OR_LTE.GTE,
-      null,
+      (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
       null,
       null
     )
@@ -153,28 +152,22 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static IDF[] L2_TURBO_INSTRUCTIONS = new IDF[]{
     new IDF(
       TURBO_ANGLE.plus(ARM_TOLERANCE),
-      SAFE_REEF_ANGLE_BOTTOM,
-      GTE_OR_LTE.GTE,
-      null,
+      (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
       null,
       null
-  )
+    )
   };
 
   static IDF[] L3_TURBO_INSTRUCTIONS = new IDF[]{
     new IDF(
       null,
       null,
-      null,
       TURBO_HEIGHT,
-      TURBO_HEIGHT,
-      GTE_OR_LTE.GTE
+      (s) -> s.gte(TURBO_HEIGHT)
     ),
     new IDF(
       TURBO_ANGLE.plus(ARM_TOLERANCE),
-      SAFE_REEF_ANGLE_BOTTOM,
-      GTE_OR_LTE.GTE,
-      null,
+      (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
       null,
       null
     )
@@ -182,9 +175,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   static IDF L4_TURBO_INSTRUCTIONS = new IDF(
     TURBO_ANGLE.plus(ARM_TOLERANCE),
-    SAFE_REEF_ANGLE_BOTTOM,
-    GTE_OR_LTE.GTE,
-    null,
+    (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
     null,
     null
   );
@@ -192,495 +183,389 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   static IDF[] STOW_A1_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE),
-      SAFE_INTAKE_ANGLE_BOTTOM,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_INTAKE_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       A1_HEIGHT,
-      A1_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(A1_HEIGHT)
     )
   };
 
   static IDF[] STOW_A2_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE),
-      SAFE_INTAKE_ANGLE_BOTTOM,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_INTAKE_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       A2_HEIGHT,
-      A2_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(A2_HEIGHT)
     )
   };
 
   static IDF[] STOW_L1_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE),
-      SAFE_INTAKE_ANGLE_BOTTOM,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_INTAKE_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       L1_HEIGHT,
-      L1_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(L1_HEIGHT)
     )
   };
 
   static IDF[] STOW_L2_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE),
-      SAFE_INTAKE_ANGLE_BOTTOM,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_INTAKE_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       L2_HEIGHT,
-      L2_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(L2_HEIGHT)
     )
   };
 
   static IDF[] STOW_L3_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE),
-      SAFE_INTAKE_ANGLE_BOTTOM,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_INTAKE_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       CLEAR_HEIGHT,
-      CLEAR_HEIGHT,
-      GTE_OR_LTE.GTE
+      (s) -> s.lte(CLEAR_HEIGHT)
     ),
     new IDF(
       SAFE_REEF_ANGLE_TOP,
-      SAFE_INTAKE_ANGLE_TOP,
-      GTE_OR_LTE.GTE,
-      null,
+      (s) -> s.gte(SAFE_INTAKE_ANGLE_TOP),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       L3_HEIGHT,
-      L3_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(L3_HEIGHT)
     )
   };
 
   static IDF[] STOW_L4_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE),
-      SAFE_INTAKE_ANGLE_BOTTOM,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_INTAKE_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
-      L4_HEIGHT,
       CLEAR_HEIGHT,
-      GTE_OR_LTE.GTE
+      (s) -> s.gte(L4_HEIGHT)
     )
   };
 
   static IDF[] L1_STOW_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE),
-      SAFE_REEF_ANGLE_BOTTOM,
-      GTE_OR_LTE.GTE,
-      null,
+      (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       STOW_HEIGHT,
-      STOW_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(STOW_HEIGHT)
     )
   };
 
   static IDF[] L1_L2_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE),
-      SAFE_REEF_ANGLE_BOTTOM,
-      GTE_OR_LTE.GTE,
-      null,
+      (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       L2_HEIGHT,
-      L2_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(L2_HEIGHT)
     )
   };
 
   static IDF[] L1_L3_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_INTAKE_ANGLE_BOTTOM,
-      SAFE_REEF_ANGLE_BOTTOM,
-      GTE_OR_LTE.GTE,
-      null,
+      (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       CLEAR_HEIGHT,
-      CLEAR_HEIGHT,
-      GTE_OR_LTE.GTE
+      (s) -> s.gte(CLEAR_HEIGHT)
     ),
     new IDF(
       SAFE_REEF_ANGLE_TOP,
-      SAFE_INTAKE_ANGLE_TOP,
-      GTE_OR_LTE.GTE,
-      null,
+      (s) -> s.gte(SAFE_INTAKE_ANGLE_TOP),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       L3_HEIGHT,
-      L3_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(L3_HEIGHT)
     )
   };
 
   static IDF[] L1_L4_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_REEF_ANGLE_BOTTOM,
-      SAFE_REEF_ANGLE_BOTTOM,
-      GTE_OR_LTE.GTE,
-      null,
+      (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
-      L4_HEIGHT,
       CLEAR_HEIGHT,
-      GTE_OR_LTE.GTE
+      (s) -> s.gte(L4_HEIGHT)
     )
   };
 
   static IDF[] L2_L1_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE),
-      SAFE_REEF_ANGLE_BOTTOM,
-      GTE_OR_LTE.GTE,
-      null,
+      (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       L1_HEIGHT,
-      L1_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(L1_HEIGHT)
     )
   };
 
   static IDF[] L2_L3_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE),
-      SAFE_REEF_ANGLE_BOTTOM,
-      GTE_OR_LTE.GTE,
-      null,
+      (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       CLEAR_HEIGHT,
-      CLEAR_HEIGHT,
-      GTE_OR_LTE.GTE
+      (s) -> s.gte(CLEAR_HEIGHT)
     ),
     new IDF(
       SAFE_REEF_ANGLE_TOP,
-      SAFE_INTAKE_ANGLE_TOP,
-      GTE_OR_LTE.GTE,
-      null,
+      (s) -> s.gte(SAFE_INTAKE_ANGLE_TOP),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       L3_HEIGHT,
-      L3_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(L3_HEIGHT)
     )
   };
 
   static IDF[] L2_L4_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE),
-      SAFE_REEF_ANGLE_BOTTOM,
-      GTE_OR_LTE.GTE,
-      null,
+      (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
-      L4_HEIGHT,
       CLEAR_HEIGHT,
-      GTE_OR_LTE.GTE
+      (s) -> s.gte(L4_HEIGHT)
+    )
+  };
+
+  // Levi was here
+  
+  static IDF[] L3_STOW_INSTRUCTIONS = new IDF[]{
+    new IDF(
+      SAFE_INTAKE_ANGLE_TOP.minus(ARM_TOLERANCE),
+      (s) -> s.lte(SAFE_REEF_ANGLE_TOP),
+      null,
+      null
+    ),
+    new IDF(
+      null,
+      null,
+      CLEAR_HEIGHT,
+      (s) -> s.gte(CLEAR_HEIGHT.plus(ELEVATOR_TOLERANCE))
+    ),
+    new IDF(
+      SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE),
+      (s) -> s.lte(SAFE_INTAKE_ANGLE_BOTTOM),
+      null,
+      null
+    ),
+    new IDF(
+      null,
+      null,
+      STOW_HEIGHT,
+      (s) -> s.lte(STOW_HEIGHT)
     )
   };
 
   static IDF[] L3_L1_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_INTAKE_ANGLE_TOP,
-      SAFE_REEF_ANGLE_TOP,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_REEF_ANGLE_TOP),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       CLEAR_HEIGHT,
-      CLEAR_HEIGHT,
-      GTE_OR_LTE.GTE
+      (s) -> s.gte(CLEAR_HEIGHT)
     ),
     new IDF(
       SAFE_REEF_ANGLE_BOTTOM,
-      SAFE_INTAKE_ANGLE_BOTTOM,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_INTAKE_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       L1_HEIGHT,
-      L1_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(L1_HEIGHT)
     )
   };
 
   static IDF[] L3_L2_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_INTAKE_ANGLE_TOP,
-      SAFE_REEF_ANGLE_TOP,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_REEF_ANGLE_TOP),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       CLEAR_HEIGHT,
-      CLEAR_HEIGHT,
-      GTE_OR_LTE.GTE
+      (s) -> s.gte(CLEAR_HEIGHT)
     ),
     new IDF(
       SAFE_REEF_ANGLE_BOTTOM.minus(ARM_TOLERANCE),
-      SAFE_REEF_ANGLE_BOTTOM,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_REEF_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       L2_HEIGHT,
-      L2_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(L2_HEIGHT)
     )
   };
 
   static IDF[] L3_L4_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_REEF_ANGLE_TOP.minus(ARM_TOLERANCE),
-      SAFE_REEF_ANGLE_TOP,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_REEF_ANGLE_TOP),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       L4_HEIGHT,
-      L4_HEIGHT,
-      GTE_OR_LTE.GTE
+      (s) -> s.gte(L4_HEIGHT)
     )
   };
 
   static IDF[] L4_L1_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_REEF_ANGLE_BOTTOM,
-      SAFE_INTAKE_ANGLE_BOTTOM,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_INTAKE_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       L1_HEIGHT,
-      L1_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(L1_HEIGHT)
     )
   };
 
   static IDF[] L4_L2_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_REEF_ANGLE_BOTTOM,
-      SAFE_INTAKE_ANGLE_BOTTOM,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_INTAKE_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       L2_HEIGHT,
-      L2_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(L2_HEIGHT)
     )
   };
 
   static IDF[] L4_L3_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_REEF_ANGLE_TOP.minus(ARM_TOLERANCE),
-      SAFE_REEF_ANGLE_TOP,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_REEF_ANGLE_TOP),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       L3_HEIGHT,
-      L3_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(L3_HEIGHT)
     )
   };
 
   static IDF[] L4_STOW_INSTRUCTIONS = new IDF[]{
     new IDF(
       SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE),
-      SAFE_INTAKE_ANGLE_BOTTOM,
-      GTE_OR_LTE.LTE,
-      null,
+      (s) -> s.lte(SAFE_INTAKE_ANGLE_BOTTOM),
       null,
       null
     ),
     new IDF(
       null,
       null,
-      null,
       STOW_HEIGHT,
-      STOW_HEIGHT,
-      GTE_OR_LTE.LTE
-    )
-  };
-
-  static IDF[] L3_STOW_INSTRUCTIONS = new IDF[]{
-    new IDF(
-      SAFE_INTAKE_ANGLE_TOP.minus(ARM_TOLERANCE),
-      SAFE_REEF_ANGLE_TOP,
-      GTE_OR_LTE.LTE,
-      null,
-      null,
-      null
-    ),
-    new IDF(
-      null,
-      null,
-      null,
-      CLEAR_HEIGHT.plus(ELEVATOR_TOLERANCE),
-      CLEAR_HEIGHT,
-      GTE_OR_LTE.GTE
-    ),
-    new IDF(
-      SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE),
-      SAFE_INTAKE_ANGLE_BOTTOM,
-      GTE_OR_LTE.LTE,
-      null,
-      null,
-      null
-    ),
-    new IDF(
-      null,
-      null,
-      null,
-      STOW_HEIGHT,
-      STOW_HEIGHT,
-      GTE_OR_LTE.LTE
+      (s) -> s.lte(STOW_HEIGHT)
     )
   };
 
@@ -825,27 +710,14 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
             s_liftinstance.setElevatorHeight(currentInstruction.wantedElevatorHeight);
           }
           stepInitialized = true;
-        } else {
-          boolean armConditionMet = true;
-          boolean elevatorConditionMet = true;
-          if (currentInstruction.neededArmAngle != null) {
-            if (currentInstruction.armComparison == GTE_OR_LTE.GTE) {
-              armConditionMet = s_liftinstance.getArmAngle().gte(currentInstruction.neededArmAngle);
-            } else {
-              armConditionMet = s_liftinstance.getArmAngle().lte(currentInstruction.neededArmAngle);
-            }
-          }
-          if (currentInstruction.neededElevatorHeight != null) {
-            if (currentInstruction.elevatorComparison == GTE_OR_LTE.GTE) {
-              elevatorConditionMet = s_liftinstance.getElevatorHeight().gte(currentInstruction.neededElevatorHeight);
-            } else {
-              elevatorConditionMet = s_liftinstance.getElevatorHeight().lte(currentInstruction.neededElevatorHeight);
-            }
-          }
-          if (armConditionMet && elevatorConditionMet) {
+        } else if (
+          (currentInstruction.wantedArmAngle != null
+            && currentInstruction.armComparison.compare(s_liftinstance.getArmAngle()))
+          && 
+          (currentInstruction.wantedElevatorHeight != null
+            && currentInstruction.elevatorComparison.compare(s_liftinstance.getElevatorHeight()))) {
             currentStep++;
             stepInitialized = false;
-          }
         }
       }
 
@@ -1350,7 +1222,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.L2;
-        if(!isLiftReady) {
+        if (!isLiftReady) {
           return this;
         }
         if (nextState == TargetLiftStates.STOW) {
