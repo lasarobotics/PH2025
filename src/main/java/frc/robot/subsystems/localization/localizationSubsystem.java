@@ -1,4 +1,3 @@
-// x0 bottom left cord, x1 bottom right cord, x2 top right cord, x3 top left cord
 package frc.robot.subsystems.localization;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -9,7 +8,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class localizationSubsystem extends SubsystemBase {
 
-    private static final String LIMELIGHT_NAME = "limelight-left"; // CHANGE IF NEEDED
+    private static final String LIMELIGHT_NAME = "limelight-left"; // match your Limelight name
     private final NetworkTable llTable = NetworkTableInstance.getDefault().getTable(LIMELIGHT_NAME);
     private final NetworkTable logTable = NetworkTableInstance.getDefault().getTable("LocalizationSubsystem");
 
@@ -23,29 +22,31 @@ public class localizationSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         double now = Timer.getFPGATimestamp();
-        // 90 fps
+        // run ~90 FPS (every ~11ms)
         if (now - lastUpdate < 0.011) return;
         lastUpdate = now;
 
         updateFromLimelight();
+        calculate3DPosition();
+        calculateTagArea();
     }
 
     private void updateFromLimelight() {
         double tv = llTable.getEntry("tv").getDouble(0);
 
-        // latest stuff
+        // read latest 2D info
         tx = llTable.getEntry("tx").getDouble(0);
         ty = llTable.getEntry("ty").getDouble(0);
         ta = llTable.getEntry("ta").getDouble(0);
         tcornxy = llTable.getEntry("tcornxy").getDoubleArray(new double[8]);
 
-        // Logging
+        // always log, even if tv == 0
         Logger.recordOutput("Localization/tv", tv);
         Logger.recordOutput("Localization/tx", tx);
         Logger.recordOutput("Localization/ty", ty);
         Logger.recordOutput("Localization/ta", ta);
 
-        // tcornxy logging
+        // individual tcornxy elements
         if (tcornxy.length >= 8) {
             Logger.recordOutput("Localization/x0", tcornxy[0]);
             Logger.recordOutput("Localization/y0", tcornxy[1]);
@@ -57,7 +58,7 @@ public class localizationSubsystem extends SubsystemBase {
             Logger.recordOutput("Localization/y3", tcornxy[7]);
         }
 
-        // check if valid target works
+        // if valid target, publish to NT
         if (tv == 1) {
             logTable.getEntry("tx").setDouble(tx);
             logTable.getEntry("ty").setDouble(ty);
@@ -66,19 +67,60 @@ public class localizationSubsystem extends SubsystemBase {
             logTable.getEntry("timestamp").setDouble(Timer.getFPGATimestamp());
         }
     }
-    
+
+    // Computes side lengths between corners
     public void calculate3DPosition() {
-        double TLtoBL = Math.abs(tcornxy[7] - tcornxy[1]);
-        double TRtoBR = Math.abs(tcornxy[5] - tcornxy[3]);
-        double TLtoTR = Math.abs(tcornxy[6] - tcornxy[4]);
-        double BLtoBR = Math.abs(tcornxy[0] - tcornxy[2]);
+        if (tcornxy.length < 8) return;
+
+        // using corner layout:
+        // (3)----(2)
+        //  |      |
+        // (0)----(1)
+
+        double TLtoBL = Math.abs(tcornxy[7] - tcornxy[1]); // y3 - y0
+        double TRtoBR = Math.abs(tcornxy[5] - tcornxy[3]); // y2 - y1
+        double TLtoTR = Math.abs(tcornxy[6] - tcornxy[4]); // x3 - x2
+        double BLtoBR = Math.abs(tcornxy[0] - tcornxy[2]); // x0 - x1
+
         Logger.recordOutput("Localization/TLtoBL", TLtoBL);
         Logger.recordOutput("Localization/TRtoBR", TRtoBR);
         Logger.recordOutput("Localization/TLtoTR", TLtoTR);
         Logger.recordOutput("Localization/BLtoBR", BLtoBR);
     }
 
-    // Acces3ors
+    // Calculates approximate area of the detected tag on the image
+    public void calculateTagArea() {
+        if (tcornxy.length < 8) return;
+
+        double x0 = tcornxy[0], y0 = tcornxy[1];
+        double x1 = tcornxy[2], y1 = tcornxy[3];
+        double x2 = tcornxy[4], y2 = tcornxy[5];
+        double x3 = tcornxy[6], y3 = tcornxy[7];
+
+        // Heights
+        double hLeft = Math.abs(y3 - y0);
+        double hRight = Math.abs(y2 - y1);
+        double avgHeight = (hLeft + hRight) / 2.0;
+
+        // Widths
+        double wTop = Math.abs(x2 - x3);
+        double wBottom = Math.abs(x1 - x0);
+        double avgWidth = (wTop + wBottom) / 2.0;
+
+        // Area in pixel units
+        double area = avgWidth * avgHeight;
+
+        // Log all values
+        Logger.recordOutput("Localization/hLeft", hLeft);
+        Logger.recordOutput("Localization/hRight", hRight);
+        Logger.recordOutput("Localization/avgHeight", avgHeight);
+        Logger.recordOutput("Localization/wTop", wTop);
+        Logger.recordOutput("Localization/wBottom", wBottom);
+        Logger.recordOutput("Localization/avgWidth", avgWidth);
+        Logger.recordOutput("Localization/TagArea", area);
+    }
+
+    // Accessors
     public double getTx() { return tx; }
     public double getTy() { return ty; }
     public double getTa() { return ta; }
