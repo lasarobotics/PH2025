@@ -1,3 +1,4 @@
+// x0 bottom left cord, x1 bottom right cord, x2 top right cord, x3 top left cord
 package frc.robot.subsystems.localization;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -65,8 +66,19 @@ public class localizationSubsystem extends SubsystemBase {
             logTable.getEntry("timestamp").setDouble(Timer.getFPGATimestamp());
         }
     }
+    
+    public void calculate3DPosition() {
+        double TLtoBL = Math.abs(tcornxy[7] - tcornxy[1]);
+        double TRtoBR = Math.abs(tcornxy[5] - tcornxy[3]);
+        double TLtoTR = Math.abs(tcornxy[6] - tcornxy[4]);
+        double BLtoBR = Math.abs(tcornxy[0] - tcornxy[2]);
+        Logger.recordOutput("Localization/TLtoBL", TLtoBL);
+        Logger.recordOutput("Localization/TRtoBR", TRtoBR);
+        Logger.recordOutput("Localization/TLtoTR", TLtoTR);
+        Logger.recordOutput("Localization/BLtoBR", BLtoBR);
+    }
 
-    // Accessors
+    // Acces3ors
     public double getTx() { return tx; }
     public double getTy() { return ty; }
     public double getTa() { return ta; }
