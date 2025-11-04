@@ -145,7 +145,7 @@ public class localizationSubsystem extends SubsystemBase {
         Logger.recordOutput("Localization/MidpointX", midX);
         Logger.recordOutput("Localization/MidpointY", midY);
 
-        System.out.printf("Diag1=%.2f Diag2=%.2f  Midpoint=(%.2f, %.2f)%n", diag1, diag2, midX, midY);
+        //System.out.printf("Diag1=%.2f Diag2=%.2f  Midpoint=(%.2f, %.2f)%n", diag1, diag2, midX, midY);
     }
 
     // Accessors
