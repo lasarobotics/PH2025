@@ -173,12 +173,14 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     )
   };
 
-  static IDF L4_TURBO_INSTRUCTIONS = new IDF(
+  static IDF[] L4_TURBO_INSTRUCTIONS = new IDF[]{
+    new IDF(
     TURBO_ANGLE.plus(ARM_TOLERANCE),
     (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
     null,
     null
-  );
+    )
+  };
 
   static IDF[] STOW_A1_INSTRUCTIONS = new IDF[]{
     new IDF(
@@ -661,22 +663,22 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
           return this;
         }
         if (nextState == TargetLiftStates.L1) {
-          return STOW_L1_S0;
+          return STOW_L1;
         }
         if (nextState == TargetLiftStates.L2) {
-          return STOW_L2_S0;
+          return STOW_L2;
         }
         if (nextState == TargetLiftStates.L3) {
-          return STOW_L3_S0;
+          return STOW_L3;
         }
         if (nextState == TargetLiftStates.L4) {
-          return STOW_L4_S0;
+          return STOW_L4;
         }
         if (nextState == TargetLiftStates.A1) {
-          return STOW_A1_S1;
+          return STOW_A1;
         }
         if (nextState == TargetLiftStates.A2) {
-          return STOW_A2_S1;
+          return STOW_A2;
         }
         if (nextState == TargetLiftStates.TURBO) {
           return STOW_TURBO;
@@ -741,123 +743,183 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       public SystemState nextState() {
         curState = TargetLiftStates.TURBO;
         if (nextState == TargetLiftStates.L1) {
-          return L4_L1_S1;
+          return L4_L1;
         }
         if (nextState == TargetLiftStates.L2) {
-          return L4_L2_S1;
+          return L4_L2;
         }
         if (nextState == TargetLiftStates.L3) {
-          return STOW_L3_S2;
+          return STOW_L3;
         }
         if (nextState == TargetLiftStates.L4) {
           return L4;
         }
         if (nextState == TargetLiftStates.STOW) {
-          return L4_STOW_S1;
+          return L4_STOW;
         }
         return this;
       }
     },
-    L1_TURBO_S1 {
+    L1_TURBO {
+      IDF[] instructionSet = L1_TURBO_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(TURBO_ANGLE.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
+        }
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
+        if (currentStep >= instructionSet.length) {
           return TURBO;
         }
         return this;
       }
     },
-    L2_TURBO_S1 {
+    L2_TURBO {
+      IDF[] instructionSet = L2_TURBO_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(TURBO_ANGLE.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
+        }
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
+        if (currentStep >= instructionSet.length) {
           return TURBO;
         }
         return this;
       }
     },
-    L3_TURBO_S1 {
+    L3_TURBO {
+      IDF[] instructionSet = L3_TURBO_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setElevatorHeight(TURBO_HEIGHT);
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(TURBO_HEIGHT)) {
-          return L3_TURBO_S2;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    L3_TURBO_S2 {
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-        s_liftinstance.setArmAngle(TURBO_ANGLE.plus(ARM_TOLERANCE));
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
+        if (currentStep >= instructionSet.length) {
           return TURBO;
         }
         return this;
       }
     },
-    L4_TURBO_S1 {
+    L4_TURBO {
+      IDF[] instructionSet = L4_TURBO_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(TURBO_ANGLE.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
+        }
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
+        if (currentStep >= instructionSet.length) {
           return TURBO;
         }
         return this;
       }
     },
-    STOW_A1_S1 {
+    STOW_A1 {
+      IDF[] instructionSet = STOW_A1_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
-          return STOW_A1_S2;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    STOW_A1_S2 {
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-        s_liftinstance.setElevatorHeight(A1_HEIGHT);
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(A1_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return A1;
         }
         return this;
@@ -883,7 +945,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       public SystemState nextState() {
         curState = TargetLiftStates.A1;
         if (nextState == TargetLiftStates.STOW) {
-          return L1_STOW_S1;
+          return L1_STOW;
         }
         if (nextState == TargetLiftStates.A2) {
           return A2;
@@ -947,31 +1009,34 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         return this;
       }
     },
-    STOW_A2_S1 {
+    STOW_A2 {
+      IDF[] instructionSet = STOW_A2_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
-          return STOW_A2_S2;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    STOW_A2_S2 {
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-        s_liftinstance.setElevatorHeight(A2_HEIGHT);
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(A2_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return A2;
         }
         return this;
@@ -997,7 +1062,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       public SystemState nextState() {
         curState = TargetLiftStates.A2;
         if (nextState == TargetLiftStates.STOW) {
-          return L1_STOW_S1;
+          return L1_STOW;
         }
         if (nextState == TargetLiftStates.A1) {
           return A1;
@@ -1008,30 +1073,34 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         return this;
       }
     },
-    STOW_L1_S0 {
+    STOW_L1 {
+      IDF[] instructionSet = STOW_L1_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
-          return STOW_L1_S1;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    STOW_L1_S1 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L1_HEIGHT);
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(L1_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return L1;
         }
         return this;
@@ -1060,135 +1129,183 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
           return this;
         }
         if (nextState == TargetLiftStates.STOW) {
-          return L1_STOW_S1;
+          return L1_STOW;
         }
         if (nextState == TargetLiftStates.L2) {
-          return L1_L2_S1;
+          return L1_L2;
         }
         if (nextState == TargetLiftStates.L3) {
-          return L1_L3_S1;
+          return L1_L3;
         }
         if (nextState == TargetLiftStates.L4) {
-          return L1_L4_S1;
+          return L1_L4;
         }
         if (nextState == TargetLiftStates.TURBO) {
-          return L1_TURBO_S1;
+          return L1_TURBO;
         }
         return this;
       }
     },
-    L1_STOW_S1 {
+    L1_STOW {
+      IDF[] instructionSet = L1_STOW_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
-          return L1_STOW_S2;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    L1_STOW_S2 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(STOW_HEIGHT);
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(STOW_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return STOW;
         }
         return this;
       }
     },
-    L1_L2_S1 {
+    L1_L2 {
+      IDF[] instructionSet = L1_L2_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
-          return L1_L2_S2;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    L1_L2_S2 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L2_HEIGHT);
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(L2_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return L2;
         }
         return this;
       }
     },
-    L1_L3_S1 {
+    L1_L3 {
+      IDF[] instructionSet = L1_L3_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM);
+      }
+
+      @Override
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
+        }
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM.minus(ARM_TOLERANCE))) {
-          return STOW_L3_S1;
+        if (currentStep >= instructionSet.length) {
+          return L3;
         }
         return this;
       }
     },
-    L1_L4_S1 {
+    L1_L4 {
+      IDF[] instructionSet = L1_L4_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM);
+      }
+
+      @Override
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
+        }
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM.minus(ARM_TOLERANCE))) {
-          return STOW_L4_S1;
+        if (currentStep >= instructionSet.length) {
+          return L4;
         }
         return this;
       }
     },
-    STOW_L2_S0 {
+    STOW_L2 {
+      IDF[] instructionSet = STOW_L2_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
-          return STOW_L2_S1;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    STOW_L2_S1 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L2_HEIGHT);
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(L2_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return L2;
         }
         return this;
@@ -1217,120 +1334,150 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
           return this;
         }
         if (nextState == TargetLiftStates.STOW) {
-          return L1_STOW_S1;
+          return L1_STOW;
         }
         if (nextState == TargetLiftStates.L1) {
-          return L2_L1_S1;
+          return L2_L1;
         }
         if (nextState == TargetLiftStates.L3) {
-          return L2_L3_S1;
+          return L2_L3;
         }
         if (nextState == TargetLiftStates.L4) {
-          return L2_L4_S1;
+          return L2_L4;
         }
         if (nextState == TargetLiftStates.TURBO) {
-          return L2_TURBO_S1;
+          return L2_TURBO;
         }
         return this;
       }
     },
-    L2_L1_S1 {
+    L2_L1 {
+      IDF[] instructionSet = L2_L1_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
+        }
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
-          return STOW_L1_S1;
+        if (currentStep >= instructionSet.length) {
+          return L1;
         }
         return this;
       }
     },
-    L2_L3_S1 {
+    L2_L3 {
+      IDF[] instructionSet = L2_L3_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
+        }
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
-          return STOW_L3_S1;
+        if (currentStep >= instructionSet.length) {
+          return L3;
         }
         return this;
       }
     },
-    L2_L4_S1 {
+    L2_L4 {
+      IDF[] instructionSet = L2_L4_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.plus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
+        }
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_REEF_ANGLE_BOTTOM)) {
-          return STOW_L4_S1;
+        if (currentStep >= instructionSet.length) {
+          return L4;
         }
         return this;
       }
     },
-    STOW_L3_S0 {
+    STOW_L3 {
+      IDF[] instructionSet = STOW_L3_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
-          return STOW_L3_S1;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    STOW_L3_S1 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(CLEAR_HEIGHT);
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(CLEAR_HEIGHT)) {
-          return STOW_L3_S2;
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
         }
-        return this;
-      }
-    },
-    STOW_L3_S2 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_TOP);
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().gte(SAFE_INTAKE_ANGLE_TOP.minus(ARM_TOLERANCE))) {
-          return STOW_L3_S3;
-        }
-        return this;
-      }
-    },
-    STOW_L3_S3 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L3_HEIGHT);
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(L3_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return L3;
         }
         return this;
@@ -1359,247 +1506,183 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
           return this;
         }
         if (nextState == TargetLiftStates.STOW) {
-          return L3_STOW_S1;
+          return L3_STOW;
         }
         if (nextState == TargetLiftStates.L1) {
-          return L3_L1_S1;
+          return L3_L1;
         }
         if (nextState == TargetLiftStates.L2) {
-          return L3_L2_S1;
+          return L3_L2;
         }
         if (nextState == TargetLiftStates.L4) {
-          return L3_L4_S1;
+          return L3_L4;
         }
         if (nextState == TargetLiftStates.TURBO) {
-          return L3_TURBO_S1;
+          return L3_TURBO;
         }
         return this;
       }
     },
-    L3_STOW_S1 {
+    L3_STOW {
+      IDF[] instructionSet = L3_STOW_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_TOP.minus(ARM_TOLERANCE));
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_REEF_ANGLE_TOP)) {
-          return L3_STOW_S2;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    L3_STOW_S2 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(CLEAR_HEIGHT.plus(ELEVATOR_TOLERANCE));
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getElevatorHeight().gte(CLEAR_HEIGHT)) {
-          return L3_STOW_S3;
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
         }
-        return this;
-      }
-    },
-    L3_STOW_S3 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
-          return L3_STOW_S4;
-        }
-        return this;
-      }
-    },
-    L3_STOW_S4 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(STOW_HEIGHT);
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(STOW_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return STOW;
         }
         return this;
       }
     },
-    L3_L1_S1 {
+    L3_L1 {
+      IDF[] instructionSet = L3_L1_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_TOP);
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_REEF_ANGLE_TOP)) {
-          return L3_L1_S2;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    L3_L1_S2 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(CLEAR_HEIGHT.plus(ELEVATOR_TOLERANCE));
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getElevatorHeight().gte(CLEAR_HEIGHT)) {
-          return L3_L1_S3;
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
         }
-        return this;
-      }
-    },
-    L3_L1_S3 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM);
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
-          return L3_L1_S4;
-        }
-        return this;
-      }
-    },
-    L3_L1_S4 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L1_HEIGHT);
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(L1_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return L1;
         }
         return this;
       }
     },
-    L3_L2_S1 {
+    L3_L2 {
+      IDF[] instructionSet = L3_L2_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_TOP);
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_REEF_ANGLE_TOP)) {
-          return L3_L2_S2;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    L3_L2_S2 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(CLEAR_HEIGHT.plus(ELEVATOR_TOLERANCE));
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getElevatorHeight().gte(CLEAR_HEIGHT)) {
-          return L3_L2_S3;
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
         }
-        return this;
-      }
-    },
-    L3_L2_S3 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_REEF_ANGLE_BOTTOM)) {
-          return L3_L2_S4;
-        }
-        return this;
-      }
-    },
-    L3_L2_S4 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L2_HEIGHT);
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(L2_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return L2;
         }
         return this;
       }
     },
-    L3_L4_S1 {
+    L3_L4 {
+      IDF[] instructionSet = L3_L4_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_TOP.minus(ARM_TOLERANCE));
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_REEF_ANGLE_TOP)) {
-          return L3_L4_S2;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    L3_L4_S2 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L4_HEIGHT);
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(L4_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return L4;
         }
         return this;
       }
     },
-    STOW_L4_S0 {
+    STOW_L4 {
+      IDF[] instructionSet = STOW_L4_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
-          return STOW_L4_S1;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    STOW_L4_S1 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L4_HEIGHT);
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getElevatorHeight().gte(CLEAR_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return L4;
         }
         return this;
@@ -1628,19 +1711,19 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
           return this;
         }
         if (nextState == TargetLiftStates.STOW) {
-          return L4_STOW_S1;
+          return L4_STOW;
         }
         if (nextState == TargetLiftStates.L1) {
-          return L4_L1_S1;
+          return L4_L1;
         }
         if (nextState == TargetLiftStates.L2) {
-          return L4_L2_S1;
+          return L4_L2;
         }
         if (nextState == TargetLiftStates.L3) {
-          return L4_L3_S1;
+          return L4_L3;
         }
         if (nextState == TargetLiftStates.TURBO) {
-          return L4_TURBO_S1;
+          return L4_TURBO;
         }
         if (nextState == TargetLiftStates.PANIC) {
           return PANIC;
@@ -1664,134 +1747,150 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       public SystemState nextState() {
         curState = TargetLiftStates.PANIC;
         if (nextState == TargetLiftStates.STOW) {
-          return L4_STOW_S1;
+          return L4_STOW;
         }
         if (nextState == TargetLiftStates.L1) {
-          return L4_L1_S1;
+          return L4_L1;
         }
         if (nextState == TargetLiftStates.L2) {
-          return L4_L2_S1;
+          return L4_L2;
         }
         if (nextState == TargetLiftStates.L3) {
-          return L4_L3_S1;
+          return L4_L3;
         }
         if (nextState == TargetLiftStates.TURBO) {
-          return L4_TURBO_S1;
+          return L4_TURBO;
         }
         return this;
       }
     },
-    L4_STOW_S1 {
+    L4_STOW {
+      IDF[] instructionSet = L4_STOW_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
+      }
+
+      @Override
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
+        }
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
-          return L4_STOW_S2;
+        if (currentStep >= instructionSet.length) {
+          return STOW;
         }
         return this;
       }
     },
-    L4_STOW_S2 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setArmAngle(SAFE_INTAKE_ANGLE_BOTTOM.minus(ARM_TOLERANCE));
-      }
+    L4_L1 {
+      IDF[] instructionSet = L4_L1_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
 
-      @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
-          return L1_STOW_S2;
-        }
-        return this;
-      }
-    },
-    L4_L1_S1 {
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM);
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
-          return L4_L1_S2;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    L4_L1_S2 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L1_HEIGHT);
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(L1_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return L1;
         }
         return this;
       }
     },
-    L4_L2_S1 {
+    L4_L2 {
+      IDF[] instructionSet = L4_L2_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_BOTTOM);
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_INTAKE_ANGLE_BOTTOM)) {
-          return L4_L2_S2;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    L4_L2_S2 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L2_HEIGHT);
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(L2_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return L2;
         }
         return this;
       }
     },
-    L4_L3_S1 {
+    L4_L3 {
+      IDF[] instructionSet = L4_L3_INSTRUCTIONS;
+      int currentStep = 0;
+      boolean stepInitialized = false;
+
       @Override
       public void initialize() {
         isLiftReady = false;
-        s_liftinstance.setArmAngle(SAFE_REEF_ANGLE_TOP.minus(ARM_TOLERANCE));
       }
 
       @Override
-      public SystemState nextState() {
-        if (s_liftinstance.getArmAngle().lte(SAFE_REEF_ANGLE_TOP)) {
-          return L4_L3_S2;
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
         }
-        return this;
-      }
-    },
-    L4_L3_S2 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L3_HEIGHT);
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
       }
 
       @Override
       public SystemState nextState() {
-        if (s_liftinstance.elevatorAt(L3_HEIGHT)) {
+        if (currentStep >= instructionSet.length) {
           return L3;
         }
         return this;
