@@ -147,8 +147,7 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         s_drivetrain.setControl(
             s_driveRobotCentric
                 .withVelocityX(MetersPerSecond.of(xComponent))
-                .withVelocityY(MetersPerSecond.of(yComponent))
-                .withRotationalRate(rotationRate));
+                .withVelocityY(MetersPerSecond.of(yComponent)));
 
         if(distance <= 0.05) {
           s_shouldAutoAlign = false;
@@ -157,6 +156,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         Logger.recordOutput("DriveSubsystem/autoAlign/isClose", s_isClose);
         Logger.recordOutput(
             "DriveSubsystem/autoAlign/closeTime", System.currentTimeMillis() - m_closeTime);
+
+        Logger.recordOutput(
+          "DriveSubsystem/autoAlign/distanceToTarget", distance
+        );
 
         Logger.recordOutput(
             "DriveSubsystem/autoAlign/error/x",
