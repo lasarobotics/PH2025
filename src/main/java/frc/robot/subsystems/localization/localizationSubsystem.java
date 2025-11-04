@@ -24,7 +24,8 @@ public class localizationSubsystem extends SubsystemBase {
     public void periodic() {
         double now = Timer.getFPGATimestamp();
         // Run ~90 FPS (~11 ms per update)
-        if (now - lastUpdate < 0.011) return;
+        if (now - lastUpdate < 0.011)
+            return;
         lastUpdate = now;
 
         updateFromLimelight();
@@ -47,21 +48,21 @@ public class localizationSubsystem extends SubsystemBase {
         tcornxy = llTable.getEntry("tcornxy").getDoubleArray(new double[8]);
 
         // Always log
-        //Logger.recordOutput("Localization/tv", tv);
-        //Logger.recordOutput("Localization/tx", tx);
-        //Logger.recordOutput("Localization/ty", ty);
-        //Logger.recordOutput("Localization/ta", ta);
+        // Logger.recordOutput("Localization/tv", tv);
+        // Logger.recordOutput("Localization/tx", tx);
+        // Logger.recordOutput("Localization/ty", ty);
+        // Logger.recordOutput("Localization/ta", ta);
 
         // Individual corner points
         if (tcornxy.length >= 8) {
-            //Logger.recordOutput("Localization/x0", tcornxy[0]);
-            //Logger.recordOutput("Localization/y0", tcornxy[1]);
-            //Logger.recordOutput("Localization/x1", tcornxy[2]);
-            //Logger.recordOutput("Localization/y1", tcornxy[3]);
-            //Logger.recordOutput("Localization/x2", tcornxy[4]);
-            //Logger.recordOutput("Localization/y2", tcornxy[5]);
-            //Logger.recordOutput("Localization/x3", tcornxy[6]);
-            //Logger.recordOutput("Localization/y3", tcornxy[7]);
+            // Logger.recordOutput("Localization/x0", tcornxy[0]);
+            // Logger.recordOutput("Localization/y0", tcornxy[1]);
+            // Logger.recordOutput("Localization/x1", tcornxy[2]);
+            // Logger.recordOutput("Localization/y1", tcornxy[3]);
+            // Logger.recordOutput("Localization/x2", tcornxy[4]);
+            // Logger.recordOutput("Localization/y2", tcornxy[5]);
+            // Logger.recordOutput("Localization/x3", tcornxy[6]);
+            // Logger.recordOutput("Localization/y3", tcornxy[7]);
         }
 
         // Publish to NetworkTables only if valid target
@@ -80,9 +81,11 @@ public class localizationSubsystem extends SubsystemBase {
 
     /** Checks whether corner data is valid (not all zeros and length = 8) */
     private boolean isCornersValid() {
-        if (tcornxy == null || tcornxy.length < 8) return false;
+        if (tcornxy == null || tcornxy.length < 8)
+            return false;
         for (double v : tcornxy) {
-            if (Math.abs(v) > 1e-3) return true; // some non-zero value
+            if (Math.abs(v) > 1e-3)
+                return true; // some non-zero value
         }
         return false;
     }
@@ -102,7 +105,8 @@ public class localizationSubsystem extends SubsystemBase {
         Logger.recordOutput("Localization/wTop", wTop);
         Logger.recordOutput("Localization/wBottom", wBottom);
 
-        System.out.printf("Heights: L=%.2f R=%.2f  Widths: T=%.2f B=%.2f%n", hLeft, hRight, wTop, wBottom);
+        // System.out.printf("Heights: L=%.2f R=%.2f Widths: T=%.2f B=%.2f%n", hLeft,
+        // hRight, wTop, wBottom);
     }
 
     /** Approximates tag area in pixel² */
@@ -125,7 +129,8 @@ public class localizationSubsystem extends SubsystemBase {
         Logger.recordOutput("Localization/avgWidth", avgWidth);
         Logger.recordOutput("Localization/TagArea", area);
 
-        System.out.printf("Tag pixel area: %.2f (avgW=%.2f avgH=%.2f)%n", area, avgWidth, avgHeight);
+        // System.out.printf("Tag pixel area: %.2f (avgW=%.2f avgH=%.2f)%n", area,
+        // avgWidth, avgHeight);
     }
 
     /** Calculates diagonals and midpoint */
@@ -145,12 +150,24 @@ public class localizationSubsystem extends SubsystemBase {
         Logger.recordOutput("Localization/MidpointX", midX);
         Logger.recordOutput("Localization/MidpointY", midY);
 
-        //System.out.printf("Diag1=%.2f Diag2=%.2f  Midpoint=(%.2f, %.2f)%n", diag1, diag2, midX, midY);
+        // System.out.printf("Diag1=%.2f Diag2=%.2f Midpoint=(%.2f, %.2f)%n", diag1,
+        // diag2, midX, midY);
     }
 
     // Accessors
-    public double getTx() { return tx; }
-    public double getTy() { return ty; }
-    public double getTa() { return ta; }
-    public double[] getTcornxy() { return tcornxy; }
+    public double getTx() {
+        return tx;
+    }
+
+    public double getTy() {
+        return ty;
+    }
+
+    public double getTa() {
+        return ta;
+    }
+
+    public double[] getTcornxy() {
+        return tcornxy;
+    }
 }
