@@ -688,6 +688,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       }
     },
     STOW_TURBO {
+      IDF[] instructionSet = STOW_TURBO_INSTRUCTIONS;
       int currentStep = 0;
       boolean stepInitialized = false;
 
@@ -698,32 +699,22 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public void execute() {
-        if (currentStep >= STOW_TURBO_INSTRUCTIONS.length) {
+        if (currentStep >= instructionSet.length) {
           return;
         }
-        IDF currentInstruction = STOW_TURBO_INSTRUCTIONS[currentStep];
+        IDF currentInstruction = instructionSet[currentStep];
         if (!stepInitialized) {
-          if (currentInstruction.wantedArmAngle != null) {
-            s_liftinstance.setArmAngle(currentInstruction.wantedArmAngle);
-          }
-          if (currentInstruction.wantedElevatorHeight != null) {
-            s_liftinstance.setElevatorHeight(currentInstruction.wantedElevatorHeight);
-          }
+          s_liftinstance.executeInstruction(currentInstruction);
           stepInitialized = true;
-        } else if (
-          (currentInstruction.wantedArmAngle != null
-            && currentInstruction.armComparison.compare(s_liftinstance.getArmAngle()))
-          && 
-          (currentInstruction.wantedElevatorHeight != null
-            && currentInstruction.elevatorComparison.compare(s_liftinstance.getElevatorHeight()))) {
-            currentStep++;
-            stepInitialized = false;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
         }
       }
 
       @Override
       public SystemState nextState() {
-        if (currentStep >= STOW_TURBO_INSTRUCTIONS.length) {
+        if (currentStep >= instructionSet.length) {
           return TURBO;
         }
         return this;
@@ -1945,6 +1936,34 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     );
 
     return liftHardware;
+  }
+
+  /**
+   * Set the arm and elevator to the positions specified in the instruction
+   * 
+   * @param instruction The instruction containing the target positions
+   */
+  private void executeInstruction(IDF instruction) {
+    if (instruction.wantedArmAngle != null) {
+      setArmAngle(instruction.wantedArmAngle);
+    }
+    if (instruction.wantedElevatorHeight != null) {
+      setElevatorHeight(instruction.wantedElevatorHeight);
+    }
+  }
+
+  /**
+   * Check if the current arm angle and elevator height meet the conditions in the instruction
+   * 
+   * @param instruction The instruction containing the target conditions
+   * @return If the conditions in the instruction are met
+   */
+  private boolean checkInstruction(IDF instruction) {
+    return  (instruction.wantedArmAngle != null
+            && instruction.armComparison.compare(getArmAngle()))
+          && 
+            (instruction.wantedElevatorHeight != null
+            && instruction.elevatorComparison.compare(getElevatorHeight()));
   }
 
   /**
