@@ -29,6 +29,7 @@ public class localizationSubsystem extends SubsystemBase {
         updateFromLimelight();
         calculate3DPosition();
         calculateTagArea();
+        calculateDiagonalsAndMidpoint();
     }
 
     private void updateFromLimelight() {
@@ -118,6 +119,33 @@ public class localizationSubsystem extends SubsystemBase {
         Logger.recordOutput("Localization/wBottom", wBottom);
         Logger.recordOutput("Localization/avgWidth", avgWidth);
         Logger.recordOutput("Localization/TagArea", area);
+    }
+
+    // Calculate diagonals and midpoint of tag corners
+    public void calculateDiagonalsAndMidpoint() {
+        if (tcornxy.length < 8) return;
+
+        double x0 = tcornxy[0], y0 = tcornxy[1];
+        double x1 = tcornxy[2], y1 = tcornxy[3];
+        double x2 = tcornxy[4], y2 = tcornxy[5];
+        double x3 = tcornxy[6], y3 = tcornxy[7];
+
+        // Diagonals
+        double diag1 = Math.sqrt(Math.pow(x2 - x0, 2) + Math.pow(y2 - y0, 2));
+        double diag2 = Math.sqrt(Math.pow(x3 - x1, 2) + Math.pow(y3 - y1, 2));
+
+        // Midpoint of all four corners
+        double midX = (x0 + x1 + x2 + x3) / 4.0;
+        double midY = (y0 + y1 + y2 + y3) / 4.0;
+
+        // Log results
+        Logger.recordOutput("Localization/Diagonal1", diag1);
+        Logger.recordOutput("Localization/Diagonal2", diag2);
+        Logger.recordOutput("Localization/MidpointX", midX);
+        Logger.recordOutput("Localization/MidpointY", midY);
+
+        // Optional console print for quick testing
+        System.out.printf("Diagonals: %.2f, %.2f | Midpoint: (%.2f, %.2f)%n", diag1, diag2, midX, midY);
     }
 
     // Accessors
