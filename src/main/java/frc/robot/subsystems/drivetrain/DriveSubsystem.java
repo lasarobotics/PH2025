@@ -147,7 +147,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         s_drivetrain.setControl(
             s_driveRobotCentric
                 .withVelocityX(MetersPerSecond.of(xComponent))
-                .withVelocityY(MetersPerSecond.of(yComponent)));
+                .withVelocityY(MetersPerSecond.of(yComponent))
+                .withRotationalRate(rotationRate)
+        );
 
         if(distance <= 0.05) {
           s_shouldAutoAlign = false;
@@ -251,9 +253,9 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             .withDeadband(0)
             .withRotationalDeadband(0);
 
-    s_autoDrive = new PIDController(3.6, 0, 0.);
+    s_autoDrive = new PIDController(0.6, 0.2, 0.2);
 
-    s_headingController = new PIDController(3.6, 0, 0);
+    s_headingController = new PIDController(0.6, 0.2, 0.2);
 
     s_drivetrain.registerTelemetry(logger::telemeterize);
 
