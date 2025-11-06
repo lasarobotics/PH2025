@@ -104,12 +104,6 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   static final Distance BEAM_BREAK_HEIGHT = LiftSubsystem.convertToDistance(Rotations.of(0));
 
-  // definitely a better way to do this TODO
-  public enum GTE_OR_LTE {
-    GTE,
-    LTE
-  }
-
   interface ArmComparison {
     boolean compare(Angle target);
   }
