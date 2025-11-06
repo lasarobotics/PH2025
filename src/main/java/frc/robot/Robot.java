@@ -25,6 +25,9 @@ public class Robot extends LoggedRobot {
 
   private final Servo phlapServo;
 
+  // ✅ Added: reference to your localization subsystem
+  private final localizationSubsystem m_localization = new localizationSubsystem();
+
   public Robot() {
 
     phlapServo = new Servo(3);
@@ -55,13 +58,21 @@ public class Robot extends LoggedRobot {
     LoopTimer.resetTimer();
     CommandScheduler.getInstance().run();
     LoopTimer.addTimestamp("CommandScheduler");
+
+    // ✅ Added: Feed real-time heading into localizationSubsystem
+    try {
+      double headingDeg = m_robotContainer.DRIVE_SUBSYSTEM.getPose().getRotation().getDegrees();
+      m_localization.setRobotHeadingDeg(headingDeg);
+    } catch (Exception e) {
+      // If DriveSubsystem isn't ready yet, just skip safely
+      Logger.recordOutput("Localization/HeadingUpdateError", e.getMessage() == null ? "unknown" : e.getMessage());
+    }
+
     Threads.setCurrentThreadPriority(false, 0);
   }
 
   @Override
-  public void disabledInit() {
-
-    }
+  public void disabledInit() {}
 
   @Override
   public void disabledPeriodic() {
@@ -103,7 +114,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopPeriodic() {
     m_robotContainer.checkRumble();
-    //localizationSubsystem.localizationSubsystem();
   }
 
   @Override
