@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 public class localizationSubsystem extends SubsystemBase {
 
-    private static final String LIMELIGHT_NAME = "limelight-left";
+    private static final String LIMELIGHT_NAME = "limelight-left"; // must match Limelight name in UI
     private final NetworkTable llTable = NetworkTableInstance.getDefault().getTable(LIMELIGHT_NAME);
     private final NetworkTable logTable = NetworkTableInstance.getDefault().getTable("LocalizationSubsystem");
 
@@ -20,44 +20,17 @@ public class localizationSubsystem extends SubsystemBase {
     private double ta = 0.0;
     private double[] tcornxy = new double[8]; // [x0,y0,x1,y1,x2,y2,x3,y3]
 
-    // ---- Vision → Motion planning parameters ----
-    private static final double DEG_PER_PIXEL = 0.16875;
-    private static final double PIXEL_TOLERANCE = 10.0;
-    private static final boolean USE_PIXEL_TOL_FOR_TX = false;
-    private static final double TX_TOLERANCE_DEG = USE_PIXEL_TOL_FOR_TX ? (PIXEL_TOLERANCE * DEG_PER_PIXEL) : 1.0;
-    private static final double DESIRED_RANGE_M = 0.0254; // 1 inch
-
-    private static final double MIN_TA = 1e-6;
-    private static final double MAX_REASONABLE_METERS = 15.0;
-
-    // ---- TA calibration ranges ----
-    private double[] TA_1FT  = {29000, 31000};
-    private double[] TA_3FT  = {12200, 12400};
-    private double[] TA_5FT  = {6200, 6400};
-    private double[] TA_7FT  = {3600, 3800};
-    private double[] TA_10FT = {1900, 2100};
-
-    // ---- Plan output ----
-    public static final class Plan {
-        public double forwardErrorMeters;
-        public double strafeErrorMeters;
-        public double headingErrorDeg;
-        public boolean atRange;
-        public boolean centered;
-        public boolean facing;
-        public String recommendation;
-    }
-
-    private final Plan currentPlan = new Plan();
-
     @Override
     public void periodic() {
         double now = Timer.getFPGATimestamp();
-        if (now - lastUpdate < 0.011) return; // ~90 FPS
+        // Run ~90 FPS (~11 ms per update)
+        if (now - lastUpdate < 0.011)
+            return;
         lastUpdate = now;
 
         updateFromLimelight();
 
+        // only compute geometry if valid corners
         if (isCornersValid()) {
             calculate3DPosition();
             calculateTagArea();
@@ -65,9 +38,6 @@ public class localizationSubsystem extends SubsystemBase {
         } else {
             Logger.recordOutput("Localization/Status", "No valid corners");
         }
-
-        computePlanFromVision();
-        logPlan(currentPlan);
     }
 
     private void updateFromLimelight() {
@@ -77,6 +47,25 @@ public class localizationSubsystem extends SubsystemBase {
         ta = llTable.getEntry("ta").getDouble(0);
         tcornxy = llTable.getEntry("tcornxy").getDoubleArray(new double[8]);
 
+        // Always log
+        // Logger.recordOutput("Localization/tv", tv);
+        // Logger.recordOutput("Localization/tx", tx);
+        // Logger.recordOutput("Localization/ty", ty);
+        // Logger.recordOutput("Localization/ta", ta);
+
+        // Individual corner points
+        if (tcornxy.length >= 8) {
+            // Logger.recordOutput("Localization/x0", tcornxy[0]);
+            // Logger.recordOutput("Localization/y0", tcornxy[1]);
+            // Logger.recordOutput("Localization/x1", tcornxy[2]);
+            // Logger.recordOutput("Localization/y1", tcornxy[3]);
+            // Logger.recordOutput("Localization/x2", tcornxy[4]);
+            // Logger.recordOutput("Localization/y2", tcornxy[5]);
+            // Logger.recordOutput("Localization/x3", tcornxy[6]);
+            // Logger.recordOutput("Localization/y3", tcornxy[7]);
+        }
+
+        // Publish to NetworkTables only if valid target
         if (tv == 1) {
             logTable.getEntry("tx").setDouble(tx);
             logTable.getEntry("ty").setDouble(ty);
@@ -85,28 +74,42 @@ public class localizationSubsystem extends SubsystemBase {
             logTable.getEntry("timestamp").setDouble(Timer.getFPGATimestamp());
         }
 
-        //System.out.println("tv=" + tv + " tx=" + tx + " ty=" + ty + " ta=" + ta);
+        // Console debug
+        System.out.println("tv=" + tv + " tx=" + tx + " ty=" + ty + " ta=" + ta);
+        System.out.println("tcornxy: " + Arrays.toString(tcornxy));
     }
 
+    /** Checks whether corner data is valid (not all zeros and length = 8) */
     private boolean isCornersValid() {
-        if (tcornxy == null || tcornxy.length < 8) return false;
-        for (double v : tcornxy) if (Math.abs(v) > 1e-3) return true;
+        if (tcornxy == null || tcornxy.length < 8)
+            return false;
+        for (double v : tcornxy) {
+            if (Math.abs(v) > 1e-3)
+                return true; // some non-zero value
+        }
         return false;
     }
 
+    /** Vertical & horizontal side lengths */
     private void calculate3DPosition() {
         double y0 = tcornxy[1], y1 = tcornxy[3], y2 = tcornxy[5], y3 = tcornxy[7];
         double x0 = tcornxy[0], x1 = tcornxy[2], x2 = tcornxy[4], x3 = tcornxy[6];
+
         double hLeft = Math.abs(y3 - y0);
         double hRight = Math.abs(y2 - y1);
         double wTop = Math.abs(x2 - x3);
         double wBottom = Math.abs(x1 - x0);
+
         Logger.recordOutput("Localization/hLeft", hLeft);
         Logger.recordOutput("Localization/hRight", hRight);
         Logger.recordOutput("Localization/wTop", wTop);
         Logger.recordOutput("Localization/wBottom", wBottom);
+
+        // System.out.printf("Heights: L=%.2f R=%.2f Widths: T=%.2f B=%.2f%n", hLeft,
+        // hRight, wTop, wBottom);
     }
 
+    /** Approximates tag area in pixel² */
     private void calculateTagArea() {
         double x0 = tcornxy[0], y0 = tcornxy[1];
         double x1 = tcornxy[2], y1 = tcornxy[3];
@@ -125,8 +128,12 @@ public class localizationSubsystem extends SubsystemBase {
         Logger.recordOutput("Localization/avgHeight", avgHeight);
         Logger.recordOutput("Localization/avgWidth", avgWidth);
         Logger.recordOutput("Localization/TagArea", area);
+
+        // System.out.printf("Tag pixel area: %.2f (avgW=%.2f avgH=%.2f)%n", area,
+        // avgWidth, avgHeight);
     }
 
+    /** Calculates diagonals and midpoint */
     private void calculateDiagonalsAndMidpoint() {
         double x0 = tcornxy[0], y0 = tcornxy[1];
         double x1 = tcornxy[2], y1 = tcornxy[3];
@@ -142,102 +149,25 @@ public class localizationSubsystem extends SubsystemBase {
         Logger.recordOutput("Localization/Diagonal2", diag2);
         Logger.recordOutput("Localization/MidpointX", midX);
         Logger.recordOutput("Localization/MidpointY", midY);
+
+        // System.out.printf("Diagonals: %.2f %.2f Midpoint: %.2f %.2f%n", diag1,
+        // diag2, midX, midY);
     }
 
-    private double robotHeadingDeg = 0.0;
-    public void setRobotHeadingDeg(double headingDeg) { this.robotHeadingDeg = headingDeg; }
-
-    private static double feetToMeters(double ft) { return ft * 0.3048; }
-
-    /** Compute distance from TA using average of min/max calibration ranges */
-    private double estimateDistanceMetersFromTA(double taNow) {
-        double[] ds_ft = {1, 3, 5, 7, 10};
-        double[] tas = {
-            avg(TA_1FT), avg(TA_3FT), avg(TA_5FT), avg(TA_7FT), avg(TA_10FT)
-        };
-        double[] ks = new double[5];
-        int n = 0;
-
-        for (int i = 0; i < 5; i++) {
-            double ta_i = Math.max(tas[i], MIN_TA);
-            if (ta_i > MIN_TA)
-                ks[n++] = feetToMeters(ds_ft[i]) * Math.sqrt(ta_i);
-        }
-        if (n == 0) return MAX_REASONABLE_METERS;
-
-        Arrays.sort(ks, 0, n);
-        double kMed = (n % 2 == 1) ? ks[n / 2] : 0.5 * (ks[n / 2 - 1] + ks[n / 2]);
-        double taSafe = Math.max(taNow, MIN_TA);
-        double d = kMed / Math.sqrt(taSafe);
-        if (Double.isNaN(d) || Double.isInfinite(d)) d = MAX_REASONABLE_METERS;
-        return Math.min(d, MAX_REASONABLE_METERS);
+    // Accessors
+    public double getTx() {
+        return tx;
     }
 
-    private static double avg(double[] range) { return (range[0] + range[1]) / 2.0; }
-
-    private static double normalizeDeg(double deg) {
-        double a = deg % 360.0;
-        if (a > 180.0) a -= 360.0;
-        if (a < -180.0) a += 360.0;
-        return a;
+    public double getTy() {
+        return ty;
     }
 
-    private void computePlanFromVision() {
-        double rangeM = estimateDistanceMetersFromTA(ta);
-        double txRad = Math.toRadians(tx);
-        double strafeM = rangeM * Math.tan(txRad);
-        double headingErrDeg = normalizeDeg(0.0 - robotHeadingDeg);
-        double forwardErrM = rangeM - DESIRED_RANGE_M;
-
-        boolean centered = Math.abs(tx) <= TX_TOLERANCE_DEG;
-        boolean atRange = Math.abs(forwardErrM) <= 0.01;
-        boolean facing = Math.abs(headingErrDeg) <= 2.0;
-
-        String rec;
-        if (!atRange) rec = "MOVE";
-        else if (!facing) rec = "ROTATE";
-        else if (!centered) rec = "STRAFE";
-        else rec = "ALIGNED";
-
-        currentPlan.forwardErrorMeters = forwardErrM;
-        currentPlan.strafeErrorMeters = strafeM;
-        currentPlan.headingErrorDeg = headingErrDeg;
-        currentPlan.atRange = atRange;
-        currentPlan.centered = centered;
-        currentPlan.facing = facing;
-        currentPlan.recommendation = rec;
+    public double getTa() {
+        return ta;
     }
 
-    private void logPlan(Plan p) {
-        Logger.recordOutput("Align/forwardError_m", p.forwardErrorMeters);
-        Logger.recordOutput("Align/strafeError_m", p.strafeErrorMeters);
-        Logger.recordOutput("Align/headingError_deg", p.headingErrorDeg);
-        Logger.recordOutput("Align/atRange", p.atRange);
-        Logger.recordOutput("Align/centered", p.centered);
-        Logger.recordOutput("Align/facing", p.facing);
-        Logger.recordOutput("Align/recommendation", p.recommendation);
+    public double[] getTcornxy() {
+        return tcornxy;
     }
-
-    // ---- Manual range setters ----
-    public void setCalibrationRanges(
-        double[] ft1, double[] ft3, double[] ft5, double[] ft7, double[] ft10) {
-        TA_1FT = ft1.clone();
-        TA_3FT = ft3.clone();
-        TA_5FT = ft5.clone();
-        TA_7FT = ft7.clone();
-        TA_10FT = ft10.clone();
-
-        Logger.recordOutput("Calibration/1ft_range", TA_1FT);
-        Logger.recordOutput("Calibration/3ft_range", TA_3FT);
-        Logger.recordOutput("Calibration/5ft_range", TA_5FT);
-        Logger.recordOutput("Calibration/7ft_range", TA_7FT);
-        Logger.recordOutput("Calibration/10ft_range", TA_10FT);
-    }
-
-    public Plan getPlan() { return currentPlan; }
-
-    public double getTx() { return tx; }
-    public double getTy() { return ty; }
-    public double getTa() { return ta; }
-    public double[] getTcornxy() { return tcornxy; }
 }
