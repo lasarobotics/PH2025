@@ -13,7 +13,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.climb.ClimbSubsystem;
@@ -397,8 +396,6 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
         if (s_cancelButton.getAsBoolean()) return STOW;
 
-        if (s_L1Button.getAsBoolean()) return ALGAE_SCORE_READY;
-
 
         return this;
       }
@@ -421,54 +418,6 @@ public class HeadHoncho extends StateMachine implements AutoCloseable {
 
         if (s_cancelButton.getAsBoolean()) return STOW;
 
-        if (s_L1Button.getAsBoolean()) return ALGAE_SCORE_READY;
-
-        return this;
-      }
-    },
-    ALGAE_SCORE_READY {
-      @Override
-      public void initialize() {
-        LIFT_SUBSYSTEM.setState(TargetLiftStates.A_SCORE);
-        DRIVE_SUBSYSTEM.setDriveSpeed(Constants.Drive.FAST_SPEED_SCALAR);
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (s_scoreButton.getAsBoolean()) return ALGAE_SCORE;
-        if (s_cancelButton.getAsBoolean()) return STOW;
-
-        return this;
-      }
-    },
-    ALGAE_SCORE {
-      Timer timer = new Timer();
-      @Override
-      public void initialize() {
-        timer.restart();
-        END_EFFECTOR_SUBSYSTEM.requestScoreReverse();
-        LIFT_SUBSYSTEM.setState(TargetLiftStates.STOW);
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (s_cancelButton.getAsBoolean()) return STOW;
-        if (timer.hasElapsed(0.5)) return ALGAE_KICK;
-        return this;
-      }
-    },
-    ALGAE_KICK {
-      Timer timer = new Timer();
-      @Override
-      public void initialize() {
-        timer.restart();
-        LIFT_SUBSYSTEM.setState(TargetLiftStates.A_KICK);
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (s_cancelButton.getAsBoolean()) return STOW;
-        if (timer.hasElapsed(0.5)) return STOW;
         return this;
       }
     },

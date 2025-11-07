@@ -56,12 +56,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     PANIC,
     A1,
     A2,
-    A_SCORE,
-    A_KICK
+    A_SCORE
   }
 
   private static TargetLiftStates nextState;
   private static TargetLiftStates curState;
+  private static IDF[] currentInstructionSet;
   private static boolean isLiftReady;
   private static boolean isDisabled;
 
@@ -634,6 +634,67 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         return this;
       }
     },
+    TRANSITION {
+      IDF[] instructionSet;
+      int currentStep;
+      boolean stepInitialized;
+      LiftSubsystem.TargetLiftStates storedNextState;
+
+      @Override
+      public void initialize() {
+        isLiftReady = false;
+        currentStep = 0;
+        stepInitialized = false;
+        instructionSet = currentInstructionSet;
+        storedNextState = nextState;
+      }
+
+      @Override
+      public void execute() {
+        if (currentStep >= instructionSet.length) {
+          return;
+        }
+        IDF currentInstruction = instructionSet[currentStep];
+        if (!stepInitialized) {
+          s_liftinstance.executeInstruction(currentInstruction);
+          stepInitialized = true;
+        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
+          currentStep++;
+          stepInitialized = false;
+        }
+      }
+
+      @Override
+      public SystemState nextState() {
+        if (currentStep >= instructionSet.length) {
+          switch (storedNextState) {
+            case STOW:
+              return STOW;
+            case L1:
+              return L1;
+            case L2:
+              return L2;
+            case L3:
+              return L3;
+            case L4:
+              return L4;
+            case TURBO:
+              return TURBO;
+            case A1:
+              return A1;
+            case A2:
+              return A2;
+            case A_SCORE:
+              return A_SCORE;
+            case NOTHING:
+              return NOTHING;
+            case PANIC:
+              return PANIC;
+          }
+        }
+        return this;
+      }
+    },
     STOW {
       @Override
       public void initialize() {
@@ -653,34 +714,34 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.STOW;
-        if(!isLiftReady) {
+        if (!isLiftReady) {
           return this;
         }
-        if (nextState == TargetLiftStates.L1) {
-          return STOW_L1;
+        switch (nextState) {
+          case L1:
+            currentInstructionSet = STOW_L1_INSTRUCTIONS;
+            return TRANSITION;
+          case L2:
+            currentInstructionSet = STOW_L2_INSTRUCTIONS;
+            return TRANSITION;
+          case L3:
+            currentInstructionSet = STOW_L3_INSTRUCTIONS;
+            return TRANSITION;
+          case L4:
+            currentInstructionSet = STOW_L4_INSTRUCTIONS;
+            return TRANSITION;
+          case A1:  
+            currentInstructionSet = STOW_A1_INSTRUCTIONS;
+            return TRANSITION;
+          case A2:
+            currentInstructionSet = STOW_A2_INSTRUCTIONS;
+            return TRANSITION;
+          case TURBO:
+            currentInstructionSet = STOW_TURBO_INSTRUCTIONS;
+            return TRANSITION;
+          default:
+            return this;
         }
-        if (nextState == TargetLiftStates.L2) {
-          return STOW_L2;
-        }
-        if (nextState == TargetLiftStates.L3) {
-          return STOW_L3;
-        }
-        if (nextState == TargetLiftStates.L4) {
-          return STOW_L4;
-        }
-        if (nextState == TargetLiftStates.A1) {
-          return STOW_A1;
-        }
-        if (nextState == TargetLiftStates.A2) {
-          return STOW_A2;
-        }
-        if (nextState == TargetLiftStates.TURBO) {
-          return STOW_TURBO;
-        }
-        if (nextState == TargetLiftStates.A_KICK) {
-          return A_KICK;
-        }
-        return this;
       }
     },
     STOW_TURBO {
@@ -969,34 +1030,6 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.A_SCORE;
-        if (nextState == TargetLiftStates.STOW) {
-          return STOW;
-        }
-        if (nextState == TargetLiftStates.A_KICK) {
-          return A_KICK;
-        }
-        return this;
-      }
-    },
-    A_KICK {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(STOW_HEIGHT);
-        s_liftinstance.setArmAngle(SCORING_A1_ANGLE);
-      }
-
-      @Override
-      public void execute() {
-        if (s_liftinstance.armAt(SCORING_A1_ANGLE) && s_liftinstance.elevatorAt(STOW_HEIGHT)) {
-          isLiftReady = true;
-        } else {
-          isLiftReady = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        curState = TargetLiftStates.A_KICK;
         if (nextState == TargetLiftStates.STOW) {
           return STOW;
         }
