@@ -154,6 +154,18 @@ public class localizationSubsystem extends SubsystemBase {
         // diag2, midX, midY);
     }
 
+    public void calculateMovment() {
+        int footOne = 30000;
+        int footThree = 12300;
+        int footFive = 6300;
+        int footSeven = 3700;
+        int footTen = 2000;
+        double realTimeTA = ta;
+        double realTimeDistance = 12.23504 * Math.pow(0.999818, realTimeTA) + 1.19735;
+        Logger.recordOutput("Localization/realTimeDistance", realTimeDistance);
+
+    }
+
     // Accessors
     public double getTx() {
         return tx;
