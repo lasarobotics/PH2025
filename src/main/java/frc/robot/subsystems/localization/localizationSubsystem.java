@@ -22,6 +22,7 @@ public class localizationSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        calculateMovement();
         double now = Timer.getFPGATimestamp();
         // Run ~90 FPS (~11 ms per update)
         if (now - lastUpdate < 0.011)
@@ -154,7 +155,7 @@ public class localizationSubsystem extends SubsystemBase {
         // diag2, midX, midY);
     }
 
-    public void calculateMovment() {
+    public void calculateMovement() {
         int footOne = 30000;
         int footThree = 12300;
         int footFive = 6300;
