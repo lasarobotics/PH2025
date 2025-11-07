@@ -744,39 +744,6 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         }
       }
     },
-    STOW_TURBO {
-      IDF[] instructionSet = STOW_TURBO_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return TURBO;
-        }
-        return this;
-      }
-    },
     TURBO {
       @Override
       public void initialize() {
@@ -797,187 +764,24 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.TURBO;
-        if (nextState == TargetLiftStates.L1) {
-          return L4_L1;
+        switch (nextState) {
+          case L1:
+            currentInstructionSet = L4_L1_INSTRUCTIONS;
+            return TRANSITION;
+          case L2:
+            currentInstructionSet = L4_L2_INSTRUCTIONS;
+            return TRANSITION;
+          case L3:
+            currentInstructionSet = STOW_L3_INSTRUCTIONS;
+            return TRANSITION;
+          case L4:
+            return L4;
+          case STOW:
+            currentInstructionSet = L4_STOW_INSTRUCTIONS;
+            return TRANSITION;
+          default:
+            return this;
         }
-        if (nextState == TargetLiftStates.L2) {
-          return L4_L2;
-        }
-        if (nextState == TargetLiftStates.L3) {
-          return STOW_L3;
-        }
-        if (nextState == TargetLiftStates.L4) {
-          return L4;
-        }
-        if (nextState == TargetLiftStates.STOW) {
-          return L4_STOW;
-        }
-        return this;
-      }
-    },
-    L1_TURBO {
-      IDF[] instructionSet = L1_TURBO_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return TURBO;
-        }
-        return this;
-      }
-    },
-    L2_TURBO {
-      IDF[] instructionSet = L2_TURBO_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return TURBO;
-        }
-        return this;
-      }
-    },
-    L3_TURBO {
-      IDF[] instructionSet = L3_TURBO_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return TURBO;
-        }
-        return this;
-      }
-    },
-    L4_TURBO {
-      IDF[] instructionSet = L4_TURBO_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return TURBO;
-        }
-        return this;
-      }
-    },
-    STOW_A1 {
-      IDF[] instructionSet = STOW_A1_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return A1;
-        }
-        return this;
       }
     },
     A1 {
@@ -999,16 +803,17 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.A1;
-        if (nextState == TargetLiftStates.STOW) {
-          return L1_STOW;
+        switch (nextState) {
+          case STOW:
+            currentInstructionSet = L1_STOW_INSTRUCTIONS;
+            return TRANSITION;
+          case A2:
+            return A2;
+          case A_SCORE:
+            return A_SCORE;
+          default:
+            return this;
         }
-        if (nextState == TargetLiftStates.A2) {
-          return A2;
-        }
-        if (nextState == TargetLiftStates.A_SCORE) {
-          return A_SCORE;
-        }
-        return this;
       }
     },
     A_SCORE {
@@ -1036,39 +841,6 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         return this;
       }
     },
-    STOW_A2 {
-      IDF[] instructionSet = STOW_A2_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return A2;
-        }
-        return this;
-      }
-    },
     A2 {
       @Override
       public void initialize() {
@@ -1088,49 +860,17 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.A2;
-        if (nextState == TargetLiftStates.STOW) {
-          return L1_STOW;
+        switch (nextState) {
+          case STOW:
+            currentInstructionSet = L1_STOW_INSTRUCTIONS;
+            return TRANSITION;
+          case A1:
+            return A1;
+          case A_SCORE:
+            return A_SCORE;
+          default:
+            return this;
         }
-        if (nextState == TargetLiftStates.A1) {
-          return A1;
-        }
-        if (nextState == TargetLiftStates.A_SCORE) {
-          return A_SCORE;
-        }
-        return this;
-      }
-    },
-    STOW_L1 {
-      IDF[] instructionSet = STOW_L1_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L1;
-        }
-        return this;
       }
     },
     L1 {
@@ -1152,190 +892,28 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.L1;
-        if(!isLiftReady) {
+        if (!isLiftReady) {
           return this;
         }
-        if (nextState == TargetLiftStates.STOW) {
-          return L1_STOW;
+        switch (nextState) {
+          case STOW:
+            currentInstructionSet = L1_STOW_INSTRUCTIONS;
+            return TRANSITION;
+          case L2:
+            currentInstructionSet = L1_L2_INSTRUCTIONS;
+            return TRANSITION;
+          case L3:
+            currentInstructionSet = L1_L3_INSTRUCTIONS;
+            return TRANSITION;
+          case L4:
+            currentInstructionSet = L1_L4_INSTRUCTIONS;
+            return TRANSITION;
+          case TURBO:
+            currentInstructionSet = L1_TURBO_INSTRUCTIONS;
+            return TRANSITION;
+          default:
+            return this;
         }
-        if (nextState == TargetLiftStates.L2) {
-          return L1_L2;
-        }
-        if (nextState == TargetLiftStates.L3) {
-          return L1_L3;
-        }
-        if (nextState == TargetLiftStates.L4) {
-          return L1_L4;
-        }
-        if (nextState == TargetLiftStates.TURBO) {
-          return L1_TURBO;
-        }
-        return this;
-      }
-    },
-    L1_STOW {
-      IDF[] instructionSet = L1_STOW_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return STOW;
-        }
-        return this;
-      }
-    },
-    L1_L2 {
-      IDF[] instructionSet = L1_L2_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L2;
-        }
-        return this;
-      }
-    },
-    L1_L3 {
-      IDF[] instructionSet = L1_L3_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L3;
-        }
-        return this;
-      }
-    },
-    L1_L4 {
-      IDF[] instructionSet = L1_L4_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L4;
-        }
-        return this;
-      }
-    },
-    STOW_L2 {
-      IDF[] instructionSet = STOW_L2_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L2;
-        }
-        return this;
       }
     },
     L2 {
@@ -1360,154 +938,25 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         if (!isLiftReady) {
           return this;
         }
-        if (nextState == TargetLiftStates.STOW) {
-          return L1_STOW;
+        switch (nextState) {
+          case STOW:
+            currentInstructionSet = L1_STOW_INSTRUCTIONS;
+            return TRANSITION;
+          case L1:
+            currentInstructionSet = L2_L1_INSTRUCTIONS;
+            return TRANSITION;
+          case L3:
+            currentInstructionSet = L2_L3_INSTRUCTIONS;
+            return TRANSITION;
+          case L4:
+            currentInstructionSet = L2_L4_INSTRUCTIONS;
+            return TRANSITION;
+          case TURBO:
+            currentInstructionSet = L2_TURBO_INSTRUCTIONS;
+            return TRANSITION;
+          default:
+            return this;
         }
-        if (nextState == TargetLiftStates.L1) {
-          return L2_L1;
-        }
-        if (nextState == TargetLiftStates.L3) {
-          return L2_L3;
-        }
-        if (nextState == TargetLiftStates.L4) {
-          return L2_L4;
-        }
-        if (nextState == TargetLiftStates.TURBO) {
-          return L2_TURBO;
-        }
-        return this;
-      }
-    },
-    L2_L1 {
-      IDF[] instructionSet = L2_L1_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L1;
-        }
-        return this;
-      }
-    },
-    L2_L3 {
-      IDF[] instructionSet = L2_L3_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L3;
-        }
-        return this;
-      }
-    },
-    L2_L4 {
-      IDF[] instructionSet = L2_L4_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L4;
-        }
-        return this;
-      }
-    },
-    STOW_L3 {
-      IDF[] instructionSet = STOW_L3_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L3;
-        }
-        return this;
       }
     },
     L3 {
@@ -1532,187 +981,25 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         if(!isLiftReady) {
           return this;
         }
-        if (nextState == TargetLiftStates.STOW) {
-          return L3_STOW;
+        switch (nextState) {
+          case STOW:
+            currentInstructionSet = L3_STOW_INSTRUCTIONS;
+            return TRANSITION;
+          case L1:
+            currentInstructionSet = L3_STOW_INSTRUCTIONS;
+            return TRANSITION;
+          case L2:
+            currentInstructionSet = L3_L2_INSTRUCTIONS;
+            return TRANSITION;
+          case L4:
+            currentInstructionSet = L3_L4_INSTRUCTIONS;
+            return TRANSITION;
+          case TURBO:
+            currentInstructionSet = L3_TURBO_INSTRUCTIONS;
+            return TRANSITION;
+          default:
+            return this;
         }
-        if (nextState == TargetLiftStates.L1) {
-          return L3_L1;
-        }
-        if (nextState == TargetLiftStates.L2) {
-          return L3_L2;
-        }
-        if (nextState == TargetLiftStates.L4) {
-          return L3_L4;
-        }
-        if (nextState == TargetLiftStates.TURBO) {
-          return L3_TURBO;
-        }
-        return this;
-      }
-    },
-    L3_STOW {
-      IDF[] instructionSet = L3_STOW_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return STOW;
-        }
-        return this;
-      }
-    },
-    L3_L1 {
-      IDF[] instructionSet = L3_L1_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L1;
-        }
-        return this;
-      }
-    },
-    L3_L2 {
-      IDF[] instructionSet = L3_L2_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L2;
-        }
-        return this;
-      }
-    },
-    L3_L4 {
-      IDF[] instructionSet = L3_L4_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L4;
-        }
-        return this;
-      }
-    },
-    STOW_L4 {
-      IDF[] instructionSet = STOW_L4_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L4;
-        }
-        return this;
       }
     },
     L4 {
@@ -1734,28 +1021,30 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.L4;
-        if(!isLiftReady) {
+        if (!isLiftReady) {
           return this;
         }
-        if (nextState == TargetLiftStates.STOW) {
-          return L4_STOW;
+        switch (nextState) {
+          case STOW:
+            currentInstructionSet = L4_STOW_INSTRUCTIONS;
+            return TRANSITION;
+          case L1:
+            currentInstructionSet = L4_L1_INSTRUCTIONS;
+            return TRANSITION;
+          case L2:
+            currentInstructionSet = L4_L2_INSTRUCTIONS;
+            return TRANSITION;
+          case L3:
+            currentInstructionSet = L4_L3_INSTRUCTIONS;
+            return TRANSITION;
+          case TURBO:
+            currentInstructionSet = L4_TURBO_INSTRUCTIONS;
+            return TRANSITION;
+          case PANIC:
+            return PANIC;
+          default:
+            return this;
         }
-        if (nextState == TargetLiftStates.L1) {
-          return L4_L1;
-        }
-        if (nextState == TargetLiftStates.L2) {
-          return L4_L2;
-        }
-        if (nextState == TargetLiftStates.L3) {
-          return L4_L3;
-        }
-        if (nextState == TargetLiftStates.TURBO) {
-          return L4_TURBO;
-        }
-        if (nextState == TargetLiftStates.PANIC) {
-          return PANIC;
-        }
-        return this;
       }
     },
     PANIC {
@@ -1773,156 +1062,27 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         curState = TargetLiftStates.PANIC;
-        if (nextState == TargetLiftStates.STOW) {
-          return L4_STOW;
-        }
-        if (nextState == TargetLiftStates.L1) {
-          return L4_L1;
-        }
-        if (nextState == TargetLiftStates.L2) {
-          return L4_L2;
-        }
-        if (nextState == TargetLiftStates.L3) {
-          return L4_L3;
-        }
-        if (nextState == TargetLiftStates.TURBO) {
-          return L4_TURBO;
-        }
-        return this;
-      }
-    },
-    L4_STOW {
-      IDF[] instructionSet = L4_STOW_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
+        switch (nextState) {
+          case STOW:
+          currentInstructionSet = L4_STOW_INSTRUCTIONS;
+          return TRANSITION;
+          case L1:
+            currentInstructionSet = L4_L1_INSTRUCTIONS;
+            return TRANSITION;
+          case L2:
+            currentInstructionSet = L4_L2_INSTRUCTIONS;
+            return TRANSITION;
+          case L3:
+            currentInstructionSet = L4_L3_INSTRUCTIONS;
+            return TRANSITION;
+          case TURBO:
+            currentInstructionSet = L4_TURBO_INSTRUCTIONS;
+            return TRANSITION;
+          default:
+            return this;
         }
       }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return STOW;
-        }
-        return this;
-      }
-    },
-    L4_L1 {
-      IDF[] instructionSet = L4_L1_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L1;
-        }
-        return this;
-      }
-    },
-    L4_L2 {
-      IDF[] instructionSet = L4_L2_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L2;
-        }
-        return this;
-      }
-    },
-    L4_L3 {
-      IDF[] instructionSet = L4_L3_INSTRUCTIONS;
-      int currentStep = 0;
-      boolean stepInitialized = false;
-
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-      }
-
-      @Override
-      public void execute() {
-        if (currentStep >= instructionSet.length) {
-          return;
-        }
-        IDF currentInstruction = instructionSet[currentStep];
-        if (!stepInitialized) {
-          s_liftinstance.executeInstruction(currentInstruction);
-          stepInitialized = true;
-        } else if (s_liftinstance.checkInstruction(currentInstruction)) {
-          currentStep++;
-          stepInitialized = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (currentStep >= instructionSet.length) {
-          return L3;
-        }
-        return this;
-      }
-    };
+    }
   }
 
   private static LiftSubsystem s_liftinstance;
