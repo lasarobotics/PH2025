@@ -17,6 +17,7 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import edu.wpi.first.math.VecBuilder;
@@ -141,8 +142,10 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             Math.abs(s_headingController.calculate(s_drivetrain.getState().Pose.getRotation().getRadians())), s_autoAlignTarget.getRotation().getRadians()
           );
 
-        var xComponent = outputVelocity * directionOfTravel.getCos();
-        var yComponent = outputVelocity * directionOfTravel.getSin();
+        var angleToRotate =s_drivetrain.getState().Pose.getRotation().getRadians() - s_autoAlignTarget.getRotation().getRadians();
+
+        var xComponent = -outputVelocity * directionOfTravel.getCos();
+        var yComponent = -outputVelocity * directionOfTravel.getSin();
 
         s_drivetrain.setControl(
             s_driveRobotCentric
@@ -154,7 +157,8 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
         if(distance <= 0.05) {
           s_shouldAutoAlign = false;
         }
-        
+
+
         Logger.recordOutput("DriveSubsystem/autoAlign/isClose", s_isClose);
         Logger.recordOutput(
             "DriveSubsystem/autoAlign/closeTime", System.currentTimeMillis() - m_closeTime);
@@ -199,13 +203,29 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
 
   private static CommandSwerveDrivetrain s_drivetrain;
   private static SwerveRequest.FieldCentric s_drive;
-  private static SwerveRequest.RobotCentric s_driveRobotCentric;
+  private static SwerveRequest.FieldCentric s_driveRobotCentric;
   private static PIDController s_autoDrive;
   private static PIDController s_headingController;
   private static QuestNav m_quest;
   private Transform2d ROBOT_TO_QUEST;
   private Transform2d OAKD_TO_ROBOT;
   private StructEntry<Pose3d> oakd_pose_entry;
+
+
+  // temp vars for loggiong
+  Translation2d newPosition;
+  SwerveDriveState drivetrain_state;
+  Pose2d drivetrain_pose;
+  double distance;
+
+  Rotation2d directionOfTravel;
+  double outputVelocity;
+
+  double rotationRate;
+
+  double angleToRotate;
+  double xComponent;
+  double yComponent;
 
   private static DoubleSupplier s_driveRequest = () -> 0;
   private static DoubleSupplier s_strafeRequest = () -> 0;
@@ -247,15 +267,15 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
             .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
 
     s_driveRobotCentric =
-        new SwerveRequest.RobotCentric()
+        new SwerveRequest.FieldCentric()
             .withDriveRequestType(DriveRequestType.Velocity)
             .withSteerRequestType(SteerRequestType.MotionMagicExpo)
             .withDeadband(0)
             .withRotationalDeadband(0);
 
-    s_autoDrive = new PIDController(0.6, 0.2, 0.2);
+    s_autoDrive = new PIDController(.1, 0.0, 0.1);
 
-    s_headingController = new PIDController(0.6, 0.2, 0.2);
+    s_headingController = new PIDController(.1, 0.0, 0.1);
 
     s_drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -556,6 +576,26 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
       Logger.recordOutput(getName() + "/settingOperatorPerspective", false);
     }
 
+     newPosition = s_autoAlignTarget.getTranslation().minus(s_drivetrain.getState().Pose.getTranslation());
+     drivetrain_state = s_drivetrain.getState();
+     drivetrain_pose = drivetrain_state.Pose;
+     distance =
+        drivetrain_pose.getTranslation().getDistance(s_autoAlignTarget.getTranslation());
+  
+     directionOfTravel = newPosition.getAngle();
+     outputVelocity = Math.min(
+        Math.abs(s_autoDrive.calculate(distance, 0.0)), Constants.Drive.MAX_SPEED.magnitude()
+      );
+  
+     rotationRate = Math.min(
+        Math.abs(s_headingController.calculate(s_drivetrain.getState().Pose.getRotation().getRadians())), s_autoAlignTarget.getRotation().getRadians()
+      );
+  
+     angleToRotate =s_drivetrain.getState().Pose.getRotation().getRadians() - s_autoAlignTarget.getRotation().getRadians();
+  
+     xComponent = outputVelocity * directionOfTravel.getCos();
+     yComponent = outputVelocity * directionOfTravel.getSin();
+
     double cameraTime = 0;
     double configTime = 0;
     double getPoseEstimateTime = 0;
@@ -563,6 +603,12 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     double addMeasurementTime = 0;
 
     m_quest.commandPeriodic(); 
+
+    Logger.recordOutput("DriveSubsystem/autoAlign/angle_to_rotate", angleToRotate);
+    Logger.recordOutput("DriveSubsystem/autoAlign/direction_of_travel", directionOfTravel);
+    Logger.recordOutput("DriveSubsystem/autoAlign/xComponent", xComponent);
+    Logger.recordOutput("DriveSubsystem/autoAlign/yComponent", yComponent);
+    
 
 
     Logger.recordOutput(getName() + "/cameraTimes/config", configTime);
