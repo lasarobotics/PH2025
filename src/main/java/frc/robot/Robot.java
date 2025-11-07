@@ -20,12 +20,10 @@ import frc.robot.subsystems.localization.localizationSubsystem;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
-
   private final RobotContainer m_robotContainer;
-
   private final Servo phlapServo;
 
-  // ✅ Added: reference to your localization subsystem
+  // ✅ Added: reference to localization subsystem
   private final localizationSubsystem m_localization = new localizationSubsystem();
 
   public Robot() {
@@ -33,21 +31,28 @@ public class Robot extends LoggedRobot {
     phlapServo = new Servo(3);
 
     PurpleManager.initialize(
-      this,
-      Constants.Field.FIELD_LAYOUT,
-      Path.of("/media/sda1"),
-      BuildConstants.MAVEN_NAME,
-      BuildConstants.GIT_SHA,
-      BuildConstants.BUILD_DATE,
-      false,
-      false
-      );
-      
+        this,
+        Constants.Field.FIELD_LAYOUT,
+        Path.of("/media/sda1"),
+        BuildConstants.MAVEN_NAME,
+        BuildConstants.GIT_SHA,
+        BuildConstants.BUILD_DATE,
+        false,
+        false);
+
     m_robotContainer = new RobotContainer();
 
     CameraServer.startAutomaticCapture();
 
     RobotController.setBrownoutVoltage(6.75);
+
+    // ✅ Initialize Limelight calibration ranges once here
+    m_localization.setCalibrationRanges(
+        new double[] {29000, 31000},
+        new double[] {12200, 12400},
+        new double[] {6200, 6400},
+        new double[] {3600, 3800},
+        new double[] {1900, 2100});
 
     // Threads.setCurrentThreadPriority(true, 99);
   }
@@ -59,13 +64,15 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
     LoopTimer.addTimestamp("CommandScheduler");
 
-    // ✅ Added: Feed real-time heading into localizationSubsystem
+    // ✅ Feed real-time heading into localization subsystem each loop
     try {
-      double headingDeg = m_robotContainer.DRIVE_SUBSYSTEM.getPose().getRotation().getDegrees();
+      double headingDeg =
+          m_robotContainer.DRIVE_SUBSYSTEM.getPose().getRotation().getDegrees();
       m_localization.setRobotHeadingDeg(headingDeg);
     } catch (Exception e) {
-      // If DriveSubsystem isn't ready yet, just skip safely
-      Logger.recordOutput("Localization/HeadingUpdateError", e.getMessage() == null ? "unknown" : e.getMessage());
+      Logger.recordOutput(
+          "Localization/HeadingUpdateError",
+          e.getMessage() == null ? "unknown" : e.getMessage());
     }
 
     Threads.setCurrentThreadPriority(false, 0);
@@ -86,7 +93,7 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     Logger.recordOutput("Auto/Lift/State", "starting");
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    
+
     phlapServo.set(1);
 
     if (m_autonomousCommand != null) {
@@ -114,6 +121,13 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopPeriodic() {
     m_robotContainer.checkRumble();
+
+    // ✅ Optional: log plan outputs for testing
+    var plan = m_localization.getPlan();
+    Logger.recordOutput("Teleop/AlignRecommendation", plan.recommendation);
+    Logger.recordOutput("Teleop/ForwardError_m", plan.forwardErrorMeters);
+    Logger.recordOutput("Teleop/StrafeError_m", plan.strafeErrorMeters);
+    Logger.recordOutput("Teleop/HeadingError_deg", plan.headingErrorDeg);
   }
 
   @Override

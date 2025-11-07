@@ -20,39 +20,32 @@ public class localizationSubsystem extends SubsystemBase {
     private double ta = 0.0;
     private double[] tcornxy = new double[8]; // [x0,y0,x1,y1,x2,y2,x3,y3]
 
-    // ---- Vision → Motion planning parameters (logic-only) ----
-
-    // If you want “±10 pixels” centering, set DEG_PER_PIXEL and we derive deg tolerance.
-    // For LL @ 320x240 & ~54° HFOV, ~0.16875 deg/pixel; adjust for your cam/pipeline.
-    private static final double DEG_PER_PIXEL = 0.16875; // tune if you want pixel-based centering
-    private static final double PIXEL_TOLERANCE = 10.0;  // requested ±10 (if using pixel logic)
-    private static final boolean USE_PIXEL_TOL_FOR_TX = false; // set true to use pixel mapping
+    // ---- Vision → Motion planning parameters ----
+    private static final double DEG_PER_PIXEL = 0.16875;
+    private static final double PIXEL_TOLERANCE = 10.0;
+    private static final boolean USE_PIXEL_TOL_FOR_TX = false;
     private static final double TX_TOLERANCE_DEG = USE_PIXEL_TOL_FOR_TX ? (PIXEL_TOLERANCE * DEG_PER_PIXEL) : 1.0;
+    private static final double DESIRED_RANGE_M = 0.0254; // 1 inch
 
-    // Stop 1 inch from tag
-    private static final double DESIRED_RANGE_M = 0.0254;
+    private static final double MIN_TA = 1e-6;
+    private static final double MAX_REASONABLE_METERS = 15.0;
 
-    // Calibration: provide TA (area) measured at these distances (feet) facing the tag
-    // Fill these with your measured values (TA is Limelight “ta” at each distance).
-    private static final double TA_AT_1FT  =  /* TODO */ 0.0;
-    private static final double TA_AT_3FT  =  /* TODO */ 0.0;
-    private static final double TA_AT_5FT  =  /* TODO */ 0.0;
-    private static final double TA_AT_7FT  =  /* TODO */ 0.0;
-    private static final double TA_AT_10FT =  /* TODO */ 0.0;
+    // ---- TA calibration ranges ----
+    private double[] TA_1FT  = {29000, 31000};
+    private double[] TA_3FT  = {12200, 12400};
+    private double[] TA_5FT  = {6200, 6400};
+    private double[] TA_7FT  = {3600, 3800};
+    private double[] TA_10FT = {1900, 2100};
 
-    // Small clamps/safety
-    private static final double MIN_TA = 1e-6;      // avoid divide-by-zero
-    private static final double MAX_REASONABLE_METERS = 15.0; // field-wide sanity cap
-
-    // Outputs for your drive code (logic only, no actuation here)
+    // ---- Plan output ----
     public static final class Plan {
-        public double forwardErrorMeters; // + means move forward toward tag, - back away
-        public double strafeErrorMeters;  // + means strafe left, - strafe right (field/camera-aligned)
-        public double headingErrorDeg;    // rotate to make heading 0° (as requested)
-        public boolean atRange;           // ~1 inch from tag
-        public boolean centered;          // tx within tolerance
-        public boolean facing;            // heading ~ 0°
-        public String recommendation;     // "MOVE", "STRAFE", "ROTATE", or "ALIGNED"
+        public double forwardErrorMeters;
+        public double strafeErrorMeters;
+        public double headingErrorDeg;
+        public boolean atRange;
+        public boolean centered;
+        public boolean facing;
+        public String recommendation;
     }
 
     private final Plan currentPlan = new Plan();
@@ -65,7 +58,6 @@ public class localizationSubsystem extends SubsystemBase {
 
         updateFromLimelight();
 
-        // compute geometric logs if corners valid (optional)
         if (isCornersValid()) {
             calculate3DPosition();
             calculateTagArea();
@@ -74,13 +66,10 @@ public class localizationSubsystem extends SubsystemBase {
             Logger.recordOutput("Localization/Status", "No valid corners");
         }
 
-        // Update the alignment plan from vision (uses tx, ta, and robot heading you pass in)
-        // You MUST call setRobotHeadingDeg(...) from elsewhere before this, or use a gyro reading here.
         computePlanFromVision();
         logPlan(currentPlan);
     }
 
-    // ---- Limelight IO ----
     private void updateFromLimelight() {
         double tv = llTable.getEntry("tv").getDouble(0);
         tx = llTable.getEntry("tx").getDouble(0);
@@ -88,11 +77,6 @@ public class localizationSubsystem extends SubsystemBase {
         ta = llTable.getEntry("ta").getDouble(0);
         tcornxy = llTable.getEntry("tcornxy").getDoubleArray(new double[8]);
 
-        // Console for quick checks
-        System.out.println("tv=" + tv + " tx=" + tx + " ty=" + ty + " ta=" + ta);
-        System.out.println("tcornxy: " + Arrays.toString(tcornxy));
-
-        // Publish to NT only if valid target
         if (tv == 1) {
             logTable.getEntry("tx").setDouble(tx);
             logTable.getEntry("ty").setDouble(ty);
@@ -100,6 +84,8 @@ public class localizationSubsystem extends SubsystemBase {
             logTable.getEntry("tcornxy").setDoubleArray(tcornxy);
             logTable.getEntry("timestamp").setDouble(Timer.getFPGATimestamp());
         }
+
+        System.out.println("tv=" + tv + " tx=" + tx + " ty=" + ty + " ta=" + ta);
     }
 
     private boolean isCornersValid() {
@@ -108,16 +94,13 @@ public class localizationSubsystem extends SubsystemBase {
         return false;
     }
 
-    // ---- Geometry logs (unchanged from your version) ----
     private void calculate3DPosition() {
         double y0 = tcornxy[1], y1 = tcornxy[3], y2 = tcornxy[5], y3 = tcornxy[7];
         double x0 = tcornxy[0], x1 = tcornxy[2], x2 = tcornxy[4], x3 = tcornxy[6];
-
         double hLeft = Math.abs(y3 - y0);
         double hRight = Math.abs(y2 - y1);
         double wTop = Math.abs(x2 - x3);
         double wBottom = Math.abs(x1 - x0);
-
         Logger.recordOutput("Localization/hLeft", hLeft);
         Logger.recordOutput("Localization/hRight", hRight);
         Logger.recordOutput("Localization/wTop", wTop);
@@ -161,37 +144,36 @@ public class localizationSubsystem extends SubsystemBase {
         Logger.recordOutput("Localization/MidpointY", midY);
     }
 
-    // ---- Robot heading source (you provide this from gyro elsewhere) ----
     private double robotHeadingDeg = 0.0;
     public void setRobotHeadingDeg(double headingDeg) { this.robotHeadingDeg = headingDeg; }
 
-    // ---- TA → distance model and alignment plan (logic only) ----
-
     private static double feetToMeters(double ft) { return ft * 0.3048; }
 
+    /** Compute distance from TA using average of min/max calibration ranges */
     private double estimateDistanceMetersFromTA(double taNow) {
-        // Build ks from provided calibration points (d = k / sqrt(ta))
-        // Use median k for robustness
-        double[] ds_ft  = new double[] {1, 3, 5, 7, 10};
-        double[] tas     = new double[] {TA_AT_1FT, TA_AT_3FT, TA_AT_5FT, TA_AT_7FT, TA_AT_10FT};
-        double[] ks      = new double[5];
+        double[] ds_ft = {1, 3, 5, 7, 10};
+        double[] tas = {
+            avg(TA_1FT), avg(TA_3FT), avg(TA_5FT), avg(TA_7FT), avg(TA_10FT)
+        };
+        double[] ks = new double[5];
         int n = 0;
+
         for (int i = 0; i < 5; i++) {
             double ta_i = Math.max(tas[i], MIN_TA);
-            if (ta_i > MIN_TA) {
+            if (ta_i > MIN_TA)
                 ks[n++] = feetToMeters(ds_ft[i]) * Math.sqrt(ta_i);
-            }
         }
-        if (n == 0) return MAX_REASONABLE_METERS; // no calibration yet
+        if (n == 0) return MAX_REASONABLE_METERS;
 
         Arrays.sort(ks, 0, n);
-        double kMed = (n % 2 == 1) ? ks[n/2] : 0.5 * (ks[n/2 - 1] + ks[n/2]);
-
+        double kMed = (n % 2 == 1) ? ks[n / 2] : 0.5 * (ks[n / 2 - 1] + ks[n / 2]);
         double taSafe = Math.max(taNow, MIN_TA);
         double d = kMed / Math.sqrt(taSafe);
         if (Double.isNaN(d) || Double.isInfinite(d)) d = MAX_REASONABLE_METERS;
         return Math.min(d, MAX_REASONABLE_METERS);
     }
+
+    private static double avg(double[] range) { return (range[0] + range[1]) / 2.0; }
 
     private static double normalizeDeg(double deg) {
         double a = deg % 360.0;
@@ -201,55 +183,59 @@ public class localizationSubsystem extends SubsystemBase {
     }
 
     private void computePlanFromVision() {
-        // 1) Estimate current forward range from tag via TA calibration
         double rangeM = estimateDistanceMetersFromTA(ta);
-
-        // 2) Compute strafe error from tx: lateral ≈ range * tan(tx)
         double txRad = Math.toRadians(tx);
-        double strafeM = rangeM * Math.tan(txRad); // +left, -right (camera frame)
-
-        // 3) Heading error to 0° (as requested)
+        double strafeM = rangeM * Math.tan(txRad);
         double headingErrDeg = normalizeDeg(0.0 - robotHeadingDeg);
+        double forwardErrM = rangeM - DESIRED_RANGE_M;
 
-        // 4) Forward error to stop at 1 inch
-        double forwardErrM = rangeM - DESIRED_RANGE_M; // + means move forward
-
-        // 5) Tolerances
         boolean centered = Math.abs(tx) <= TX_TOLERANCE_DEG;
-        boolean atRange  = Math.abs(forwardErrM) <= 0.01; // ±1 cm around 1 inch
-        boolean facing   = Math.abs(headingErrDeg) <= 2.0;
+        boolean atRange = Math.abs(forwardErrM) <= 0.01;
+        boolean facing = Math.abs(headingErrDeg) <= 2.0;
 
-        // 6) Recommendation ordering
         String rec;
-        if (!atRange)       rec = "MOVE";    // prioritize range first
-        else if (!facing)   rec = "ROTATE";  // then heading
-        else if (!centered) rec = "STRAFE";  // then crosshair centering
-        else                rec = "ALIGNED";
+        if (!atRange) rec = "MOVE";
+        else if (!facing) rec = "ROTATE";
+        else if (!centered) rec = "STRAFE";
+        else rec = "ALIGNED";
 
-        // Populate plan
         currentPlan.forwardErrorMeters = forwardErrM;
-        currentPlan.strafeErrorMeters  = strafeM;
-        currentPlan.headingErrorDeg    = headingErrDeg;
-        currentPlan.atRange            = atRange;
-        currentPlan.centered           = centered;
-        currentPlan.facing             = facing;
-        currentPlan.recommendation     = rec;
+        currentPlan.strafeErrorMeters = strafeM;
+        currentPlan.headingErrorDeg = headingErrDeg;
+        currentPlan.atRange = atRange;
+        currentPlan.centered = centered;
+        currentPlan.facing = facing;
+        currentPlan.recommendation = rec;
     }
 
     private void logPlan(Plan p) {
         Logger.recordOutput("Align/forwardError_m", p.forwardErrorMeters);
-        Logger.recordOutput("Align/strafeError_m",  p.strafeErrorMeters);
+        Logger.recordOutput("Align/strafeError_m", p.strafeErrorMeters);
         Logger.recordOutput("Align/headingError_deg", p.headingErrorDeg);
-        Logger.recordOutput("Align/atRange",  p.atRange);
+        Logger.recordOutput("Align/atRange", p.atRange);
         Logger.recordOutput("Align/centered", p.centered);
-        Logger.recordOutput("Align/facing",   p.facing);
+        Logger.recordOutput("Align/facing", p.facing);
         Logger.recordOutput("Align/recommendation", p.recommendation);
     }
 
-    // ---- Accessors your drive code can consume later ----
+    // ---- Manual range setters ----
+    public void setCalibrationRanges(
+        double[] ft1, double[] ft3, double[] ft5, double[] ft7, double[] ft10) {
+        TA_1FT = ft1.clone();
+        TA_3FT = ft3.clone();
+        TA_5FT = ft5.clone();
+        TA_7FT = ft7.clone();
+        TA_10FT = ft10.clone();
+
+        Logger.recordOutput("Calibration/1ft_range", TA_1FT);
+        Logger.recordOutput("Calibration/3ft_range", TA_3FT);
+        Logger.recordOutput("Calibration/5ft_range", TA_5FT);
+        Logger.recordOutput("Calibration/7ft_range", TA_7FT);
+        Logger.recordOutput("Calibration/10ft_range", TA_10FT);
+    }
+
     public Plan getPlan() { return currentPlan; }
 
-    // Existing accessors
     public double getTx() { return tx; }
     public double getTy() { return ty; }
     public double getTa() { return ta; }
