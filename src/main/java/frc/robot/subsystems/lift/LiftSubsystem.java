@@ -1245,11 +1245,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    * @return If the conditions in the instruction are met
    */
   private boolean checkInstruction(IDF instruction) {
-    return  (instruction.wantedArmAngle != null
-            && instruction.armComparison.compare(getArmAngle()))
-          && 
-            (instruction.wantedElevatorHeight != null
-            && instruction.elevatorComparison.compare(getElevatorHeight()));
+    return (instruction.wantedArmAngle == null || instruction.armComparison.compare(getArmAngle()))
+  && (instruction.wantedElevatorHeight == null || instruction.elevatorComparison.compare(getElevatorHeight()));
   }
 
   /**
