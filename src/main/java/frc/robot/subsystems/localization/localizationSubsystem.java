@@ -111,7 +111,7 @@ public class localizationSubsystem extends SubsystemBase {
     }
 
     /** Approximates tag area in pixel² */
-    private void calculateTagArea() {
+    private double calculateTagArea() {
         double x0 = tcornxy[0], y0 = tcornxy[1];
         double x1 = tcornxy[2], y1 = tcornxy[3];
         double x2 = tcornxy[4], y2 = tcornxy[5];
@@ -132,6 +132,7 @@ public class localizationSubsystem extends SubsystemBase {
 
         // System.out.printf("Tag pixel area: %.2f (avgW=%.2f avgH=%.2f)%n", area,
         // avgWidth, avgHeight);
+        return area;
     }
 
     /** Calculates diagonals and midpoint */
@@ -161,10 +162,11 @@ public class localizationSubsystem extends SubsystemBase {
         int footFive = 6300;
         int footSeven = 3700;
         int footTen = 2000;
-        double realTimeTA = ta;
-        double realTimeDistance = 12.23504 * Math.pow(0.999818, realTimeTA) + 1.19735;
-        Logger.recordOutput("Localization/realTimeDistance", realTimeDistance);
-
+        if (isCornersValid()) {
+            double realTimeTA = calculateTagArea();
+            double realTimeDistance = 12.23504 * Math.pow(0.999818, realTimeTA) + 1.19735;
+            Logger.recordOutput("Localization/realTimeDistance", realTimeDistance);
+        }
     }
 
     // Accessors
