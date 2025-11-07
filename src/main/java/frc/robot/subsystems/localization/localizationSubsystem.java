@@ -85,7 +85,7 @@ public class localizationSubsystem extends SubsystemBase {
             logTable.getEntry("timestamp").setDouble(Timer.getFPGATimestamp());
         }
 
-        System.out.println("tv=" + tv + " tx=" + tx + " ty=" + ty + " ta=" + ta);
+        //System.out.println("tv=" + tv + " tx=" + tx + " ty=" + ty + " ta=" + ta);
     }
 
     private boolean isCornersValid() {
