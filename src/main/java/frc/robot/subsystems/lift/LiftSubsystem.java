@@ -131,6 +131,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       CLEAR_HEIGHT,
       (s) -> s.lte(TURBO_HEIGHT)
+    ),
+    new IDF(
+      TURBO_ANGLE,
+      (s) -> s.isNear(TURBO_ANGLE, ARM_TOLERANCE),
+      TURBO_HEIGHT,
+      (s) -> s.isNear(TURBO_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -140,6 +146,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
       null,
       null
+    ),
+    new IDF(
+      TURBO_ANGLE,
+      (s) -> s.isNear(TURBO_ANGLE, ARM_TOLERANCE),
+      TURBO_HEIGHT,
+      (s) -> s.isNear(TURBO_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -149,6 +161,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
       null,
       null
+    ),
+    new IDF(
+      TURBO_ANGLE,
+      (s) -> s.isNear(TURBO_ANGLE, ARM_TOLERANCE),
+      TURBO_HEIGHT,
+      (s) -> s.isNear(TURBO_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -164,6 +182,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
       null,
       null
+    ),
+    new IDF(
+      TURBO_ANGLE,
+      (s) -> s.isNear(TURBO_ANGLE, ARM_TOLERANCE),
+      TURBO_HEIGHT,
+      (s) -> s.isNear(TURBO_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -173,6 +197,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     (s) -> s.gte(SAFE_REEF_ANGLE_BOTTOM),
     null,
     null
+    ),
+    new IDF(
+      TURBO_ANGLE,
+      (s) -> s.isNear(TURBO_ANGLE, ARM_TOLERANCE),
+      TURBO_HEIGHT,
+      (s) -> s.isNear(TURBO_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -188,6 +218,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       A1_HEIGHT,
       (s) -> s.lte(A1_HEIGHT)
+    ),
+    new IDF(
+      SCORING_A1_ANGLE,
+      (s) -> s.isNear(SCORING_A1_ANGLE, ARM_TOLERANCE),
+      A1_HEIGHT,
+      (s) -> s.isNear(A1_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -203,6 +239,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       A2_HEIGHT,
       (s) -> s.lte(A2_HEIGHT)
+    ),
+    new IDF(
+      SCORING_A2_ANGLE,
+      (s) -> s.isNear(SCORING_A2_ANGLE, ARM_TOLERANCE),
+      A2_HEIGHT,
+      (s) -> s.isNear(A2_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -218,6 +260,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       L1_HEIGHT,
       (s) -> s.lte(L1_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L1_ANGLE,
+      (s) -> s.isNear(SCORING_L1_ANGLE, ARM_TOLERANCE),
+      L1_HEIGHT,
+      (s) -> s.isNear(L1_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -233,6 +281,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       L2_HEIGHT,
       (s) -> s.lte(L2_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L2_ANGLE,
+      (s) -> s.isNear(SCORING_L2_ANGLE, ARM_TOLERANCE),
+      L2_HEIGHT,
+      (s) -> s.isNear(L2_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -260,6 +314,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       L3_HEIGHT,
       (s) -> s.lte(L3_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L3_ANGLE,
+      (s) -> s.isNear(SCORING_L3_ANGLE, ARM_TOLERANCE),
+      L3_HEIGHT,
+      (s) -> s.isNear(L3_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -275,6 +335,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       CLEAR_HEIGHT,
       (s) -> s.gte(L4_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L4_ANGLE,
+      (s) -> s.isNear(SCORING_L4_ANGLE, ARM_TOLERANCE),
+      L4_HEIGHT,
+      (s) -> s.isNear(L4_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -290,6 +356,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       STOW_HEIGHT,
       (s) -> s.lte(STOW_HEIGHT)
+    ),
+    new IDF(
+      STOW_ANGLE,
+      (s) -> s.isNear(STOW_ANGLE, ARM_TOLERANCE),
+      STOW_HEIGHT,
+      (s) -> s.isNear(STOW_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -305,6 +377,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       L2_HEIGHT,
       (s) -> s.lte(L2_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L2_ANGLE,
+      (s) -> s.isNear(SCORING_L2_ANGLE, ARM_TOLERANCE),
+      L2_HEIGHT,
+      (s) -> s.isNear(L2_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -332,6 +410,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       L3_HEIGHT,
       (s) -> s.lte(L3_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L3_ANGLE,
+      (s) -> s.isNear(SCORING_L3_ANGLE, ARM_TOLERANCE),
+      L3_HEIGHT,
+      (s) -> s.isNear(L3_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -347,6 +431,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       CLEAR_HEIGHT,
       (s) -> s.gte(L4_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L4_ANGLE,
+      (s) -> s.isNear(SCORING_L4_ANGLE, ARM_TOLERANCE),
+      L4_HEIGHT,
+      (s) -> s.isNear(L4_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -362,6 +452,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       L1_HEIGHT,
       (s) -> s.lte(L1_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L1_ANGLE,
+      (s) -> s.isNear(SCORING_L1_ANGLE, ARM_TOLERANCE),
+      L1_HEIGHT,
+      (s) -> s.isNear(L1_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -389,6 +485,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       L3_HEIGHT,
       (s) -> s.lte(L3_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L3_ANGLE,
+      (s) -> s.isNear(SCORING_L3_ANGLE, ARM_TOLERANCE),
+      L3_HEIGHT,
+      (s) -> s.isNear(L3_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -404,6 +506,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       CLEAR_HEIGHT,
       (s) -> s.gte(L4_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L4_ANGLE,
+      (s) -> s.isNear(SCORING_L4_ANGLE, ARM_TOLERANCE),
+      L4_HEIGHT,
+      (s) -> s.isNear(L4_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -433,6 +541,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       STOW_HEIGHT,
       (s) -> s.lte(STOW_HEIGHT)
+    ),
+    new IDF(
+      STOW_ANGLE,
+      (s) -> s.isNear(STOW_ANGLE, ARM_TOLERANCE),
+      STOW_HEIGHT,
+      (s) -> s.isNear(STOW_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -460,6 +574,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       L1_HEIGHT,
       (s) -> s.lte(L1_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L1_ANGLE,
+      (s) -> s.isNear(SCORING_L1_ANGLE, ARM_TOLERANCE),
+      L1_HEIGHT,
+      (s) -> s.isNear(L1_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -487,6 +607,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       L2_HEIGHT,
       (s) -> s.lte(L2_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L2_ANGLE,
+      (s) -> s.isNear(SCORING_L2_ANGLE, ARM_TOLERANCE),
+      L2_HEIGHT,
+      (s) -> s.isNear(L2_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -502,6 +628,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       L4_HEIGHT,
       (s) -> s.gte(L4_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L4_ANGLE,
+      (s) -> s.isNear(SCORING_L4_ANGLE, ARM_TOLERANCE),
+      L4_HEIGHT,
+      (s) -> s.isNear(L4_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -517,6 +649,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       L1_HEIGHT,
       (s) -> s.lte(L1_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L1_ANGLE,
+      (s) -> s.isNear(SCORING_L1_ANGLE, ARM_TOLERANCE),
+      L1_HEIGHT,
+      (s) -> s.isNear(L1_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -532,6 +670,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       L2_HEIGHT,
       (s) -> s.lte(L2_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L2_ANGLE,
+      (s) -> s.isNear(SCORING_L2_ANGLE, ARM_TOLERANCE),
+      L2_HEIGHT,
+      (s) -> s.isNear(L2_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -547,6 +691,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       L3_HEIGHT,
       (s) -> s.lte(L3_HEIGHT)
+    ),
+    new IDF(
+      SCORING_L3_ANGLE,
+      (s) -> s.isNear(SCORING_L3_ANGLE, ARM_TOLERANCE),
+      L3_HEIGHT,
+      (s) -> s.isNear(L3_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
@@ -562,12 +712,116 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       null,
       STOW_HEIGHT,
       (s) -> s.lte(STOW_HEIGHT)
+    ),
+    new IDF(
+      STOW_ANGLE,
+      (s) -> s.isNear(STOW_ANGLE, ARM_TOLERANCE),
+      STOW_HEIGHT,
+      (s) -> s.isNear(STOW_HEIGHT, ELEVATOR_TOLERANCE)
+    )
+  };
+
+  static IDF[] L4_PANIC_INSTRUCTIONS = new IDF[]{
+    new IDF(
+      SCORING_L4_ANGLE,
+      (s) -> { return true; },
+      PANIC_HEIGHT,
+      (s) -> { return true; }
+    )
+  };
+
+  static IDF[] A1_A2_INSTRUCTIONS = new IDF[]{
+    new IDF(
+      null,
+      null,
+      A2_HEIGHT,
+      (s) -> s.lte(A2_HEIGHT)
+    ),
+    new IDF(
+      SCORING_A2_ANGLE,
+      (s) -> s.isNear(SCORING_A2_ANGLE, ARM_TOLERANCE),
+      A2_HEIGHT,
+      (s) -> s.isNear(A2_HEIGHT, ELEVATOR_TOLERANCE)
+    )
+  };
+
+  static IDF[] A1_A_SCORE_INSTRUCTIONS = new IDF[]{
+    new IDF(
+      SCORING_A_ANGLE,
+      (s) -> s.isNear(SCORING_A_ANGLE, ARM_TOLERANCE),
+      null,
+      null
+    ),
+    new IDF(
+      null,
+      null,
+      STOW_HEIGHT,
+      (s) -> s.lte(STOW_HEIGHT)
+    ),
+    new IDF(
+      SCORING_A_ANGLE,
+      (s) -> s.isNear(SCORING_A_ANGLE, ARM_TOLERANCE),
+      STOW_HEIGHT,
+      (s) -> s.isNear(STOW_HEIGHT, ELEVATOR_TOLERANCE)
+    )
+  };
+
+  static IDF[] A2_A1_INSTRUCTIONS = new IDF[]{
+    new IDF(
+      null,
+      null,
+      A1_HEIGHT,
+      (s) -> s.lte(A1_HEIGHT)
+    ),
+    new IDF(
+      SCORING_A1_ANGLE,
+      (s) -> s.isNear(SCORING_A1_ANGLE, ARM_TOLERANCE),
+      A1_HEIGHT,
+      (s) -> s.isNear(A1_HEIGHT, ELEVATOR_TOLERANCE)
+    )
+  };
+
+  static IDF[] A2_A_SCORE_INSTRUCTIONS = new IDF[]{
+    new IDF(
+      SCORING_A_ANGLE,
+      (s) -> s.isNear(SCORING_A_ANGLE, ARM_TOLERANCE),
+      null,
+      null
+    ),
+    new IDF(
+      null,
+      null,
+      STOW_HEIGHT,
+      (s) -> s.lte(STOW_HEIGHT)
+    ),
+    new IDF(
+      SCORING_A_ANGLE,
+      (s) -> s.isNear(SCORING_A_ANGLE, ARM_TOLERANCE),
+      STOW_HEIGHT,
+      (s) -> s.isNear(STOW_HEIGHT, ELEVATOR_TOLERANCE)
+    )
+  };
+
+  static IDF[] A_SCORE_STOW_INSTRUCTIONS = new IDF[]{
+    new IDF(
+      STOW_ANGLE,
+      (s) -> s.isNear(STOW_ANGLE, ARM_TOLERANCE),
+      STOW_HEIGHT,
+      (s) -> s.isNear(STOW_HEIGHT, ELEVATOR_TOLERANCE)
+    )
+  };
+
+  static IDF[] TURBO_L4_INSTRUCTIONS = new IDF[]{
+    new IDF(
+      SCORING_L4_ANGLE,
+      (s) -> s.isNear(SCORING_L4_ANGLE, ARM_TOLERANCE),
+      L4_HEIGHT,
+      (s) -> s.isNear(L4_HEIGHT, ELEVATOR_TOLERANCE)
     )
   };
 
   public enum LiftStates implements SystemState {
     NOTHING {
-
       @Override
       public SystemState nextState() {
         return this;
@@ -592,13 +846,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public LiftStates nextState() {
         if (nextState == TargetLiftStates.STOW) {
-          return STOW;
+          return STOW_INIT;
         }
         return this;
       }
     },
     HOME {
-
       private boolean isDoneHoming = false;
 
       @Override
@@ -638,7 +891,6 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       IDF[] instructionSet;
       int currentStep;
       boolean stepInitialized;
-      LiftSubsystem.TargetLiftStates storedNextState;
 
       @Override
       public void initialize() {
@@ -646,12 +898,12 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         currentStep = 0;
         stepInitialized = false;
         instructionSet = currentInstructionSet;
-        storedNextState = nextState;
       }
 
       @Override
       public void execute() {
         if (currentStep >= instructionSet.length) {
+          isLiftReady = true;
           return;
         }
         IDF currentInstruction = instructionSet[currentStep];
@@ -667,35 +919,32 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
       @Override
       public SystemState nextState() {
         if (currentStep >= instructionSet.length) {
-          switch (storedNextState) {
-            case STOW:
-              return STOW;
-            case L1:
-              return L1;
-            case L2:
-              return L2;
-            case L3:
-              return L3;
-            case L4:
-              return L4;
-            case TURBO:
-              return TURBO;
-            case A1:
-              return A1;
-            case A2:
-              return A2;
-            case A_SCORE:
-              return A_SCORE;
-            case NOTHING:
-              return NOTHING;
-            case PANIC:
-              return PANIC;
-          }
+          curState = nextState;
+          return AT_STATE;
         }
         return this;
       }
     },
-    STOW {
+    AT_STATE {
+      @Override
+      public SystemState nextState() {
+        // would technically already return due to mapStatesToTransition returning null,
+        // but this saves some time
+        if (curState == nextState) {
+          return this;
+        }
+
+        IDF[] idf;
+        if ((idf = mapStatesToTransition(curState, nextState)) != null) {
+          currentInstructionSet = idf;
+          return TRANSITION;
+        } else {
+          return this;
+        }
+      }
+    },
+    STOW_INIT {
+      // This is lowkey just an initialization class
       @Override
       public void initialize() {
         s_liftinstance.setElevatorHeight(STOW_HEIGHT);
@@ -713,374 +962,10 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public SystemState nextState() {
-        curState = TargetLiftStates.STOW;
         if (!isLiftReady) {
           return this;
         }
-        switch (nextState) {
-          case L1:
-            currentInstructionSet = STOW_L1_INSTRUCTIONS;
-            return TRANSITION;
-          case L2:
-            currentInstructionSet = STOW_L2_INSTRUCTIONS;
-            return TRANSITION;
-          case L3:
-            currentInstructionSet = STOW_L3_INSTRUCTIONS;
-            return TRANSITION;
-          case L4:
-            currentInstructionSet = STOW_L4_INSTRUCTIONS;
-            return TRANSITION;
-          case A1:  
-            currentInstructionSet = STOW_A1_INSTRUCTIONS;
-            return TRANSITION;
-          case A2:
-            currentInstructionSet = STOW_A2_INSTRUCTIONS;
-            return TRANSITION;
-          case TURBO:
-            currentInstructionSet = STOW_TURBO_INSTRUCTIONS;
-            return TRANSITION;
-          default:
-            return this;
-        }
-      }
-    },
-    TURBO {
-      @Override
-      public void initialize() {
-        isLiftReady = false;
-        s_liftinstance.setArmAngle(TURBO_ANGLE);
-        s_liftinstance.setElevatorHeight(TURBO_HEIGHT);
-      }
-
-      @Override
-      public void execute() {
-        if (s_liftinstance.armAt(TURBO_ANGLE) && s_liftinstance.elevatorAt(TURBO_HEIGHT)) {
-          isLiftReady = true;
-        } else {
-          isLiftReady = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        curState = TargetLiftStates.TURBO;
-        switch (nextState) {
-          case L1:
-            currentInstructionSet = L4_L1_INSTRUCTIONS;
-            return TRANSITION;
-          case L2:
-            currentInstructionSet = L4_L2_INSTRUCTIONS;
-            return TRANSITION;
-          case L3:
-            currentInstructionSet = STOW_L3_INSTRUCTIONS;
-            return TRANSITION;
-          case L4:
-            return L4;
-          case STOW:
-            currentInstructionSet = L4_STOW_INSTRUCTIONS;
-            return TRANSITION;
-          default:
-            return this;
-        }
-      }
-    },
-    A1 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(A1_HEIGHT);
-        s_liftinstance.setArmAngle(SCORING_A1_ANGLE);
-      }
-
-      @Override
-      public void execute() {
-        if (s_liftinstance.armAt(SCORING_A1_ANGLE) && s_liftinstance.elevatorAt(A1_HEIGHT)) {
-          isLiftReady = true;
-        } else {
-          isLiftReady = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        curState = TargetLiftStates.A1;
-        switch (nextState) {
-          case STOW:
-            currentInstructionSet = L1_STOW_INSTRUCTIONS;
-            return TRANSITION;
-          case A2:
-            return A2;
-          case A_SCORE:
-            return A_SCORE;
-          default:
-            return this;
-        }
-      }
-    },
-    A_SCORE {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(STOW_HEIGHT);
-        s_liftinstance.setArmAngle(SCORING_A_ANGLE);
-      }
-
-      @Override
-      public void execute() {
-        if (s_liftinstance.armAt(SCORING_A_ANGLE) && s_liftinstance.elevatorAt(STOW_HEIGHT)) {
-          isLiftReady = true;
-        } else {
-          isLiftReady = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        curState = TargetLiftStates.A_SCORE;
-        if (nextState == TargetLiftStates.STOW) {
-          return STOW;
-        }
-        return this;
-      }
-    },
-    A2 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(A2_HEIGHT);
-        s_liftinstance.setArmAngle(SCORING_A2_ANGLE);
-      }
-
-      @Override
-      public void execute() {
-        if (s_liftinstance.armAt(SCORING_A2_ANGLE) && s_liftinstance.elevatorAt(A2_HEIGHT)) {
-          isLiftReady = true;
-        } else {
-          isLiftReady = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        curState = TargetLiftStates.A2;
-        switch (nextState) {
-          case STOW:
-            currentInstructionSet = L1_STOW_INSTRUCTIONS;
-            return TRANSITION;
-          case A1:
-            return A1;
-          case A_SCORE:
-            return A_SCORE;
-          default:
-            return this;
-        }
-      }
-    },
-    L1 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L1_HEIGHT);
-        s_liftinstance.setArmAngle(SCORING_L1_ANGLE);
-      }
-
-      @Override
-      public void execute() {
-        if (s_liftinstance.armAt(SCORING_L1_ANGLE) && s_liftinstance.elevatorAt(L1_HEIGHT)) {
-          isLiftReady = true;
-        } else {
-          isLiftReady = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        curState = TargetLiftStates.L1;
-        if (!isLiftReady) {
-          return this;
-        }
-        switch (nextState) {
-          case STOW:
-            currentInstructionSet = L1_STOW_INSTRUCTIONS;
-            return TRANSITION;
-          case L2:
-            currentInstructionSet = L1_L2_INSTRUCTIONS;
-            return TRANSITION;
-          case L3:
-            currentInstructionSet = L1_L3_INSTRUCTIONS;
-            return TRANSITION;
-          case L4:
-            currentInstructionSet = L1_L4_INSTRUCTIONS;
-            return TRANSITION;
-          case TURBO:
-            currentInstructionSet = L1_TURBO_INSTRUCTIONS;
-            return TRANSITION;
-          default:
-            return this;
-        }
-      }
-    },
-    L2 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L2_HEIGHT);
-        s_liftinstance.setArmAngle(SCORING_L2_ANGLE);
-      }
-
-      @Override
-      public void execute() {
-        if (s_liftinstance.armAt(SCORING_L2_ANGLE) && s_liftinstance.elevatorAt(L2_HEIGHT)) {
-          isLiftReady = true;
-        } else {
-          isLiftReady = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        curState = TargetLiftStates.L2;
-        if (!isLiftReady) {
-          return this;
-        }
-        switch (nextState) {
-          case STOW:
-            currentInstructionSet = L1_STOW_INSTRUCTIONS;
-            return TRANSITION;
-          case L1:
-            currentInstructionSet = L2_L1_INSTRUCTIONS;
-            return TRANSITION;
-          case L3:
-            currentInstructionSet = L2_L3_INSTRUCTIONS;
-            return TRANSITION;
-          case L4:
-            currentInstructionSet = L2_L4_INSTRUCTIONS;
-            return TRANSITION;
-          case TURBO:
-            currentInstructionSet = L2_TURBO_INSTRUCTIONS;
-            return TRANSITION;
-          default:
-            return this;
-        }
-      }
-    },
-    L3 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L3_HEIGHT);
-        s_liftinstance.setArmAngle(SCORING_L3_ANGLE);
-      }
-
-      @Override
-      public void execute() {
-        if (s_liftinstance.armAt(SCORING_L3_ANGLE) && s_liftinstance.elevatorAt(L3_HEIGHT)) {
-          isLiftReady = true;
-        } else {
-          isLiftReady = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        curState = TargetLiftStates.L3;
-        if(!isLiftReady) {
-          return this;
-        }
-        switch (nextState) {
-          case STOW:
-            currentInstructionSet = L3_STOW_INSTRUCTIONS;
-            return TRANSITION;
-          case L1:
-            currentInstructionSet = L3_STOW_INSTRUCTIONS;
-            return TRANSITION;
-          case L2:
-            currentInstructionSet = L3_L2_INSTRUCTIONS;
-            return TRANSITION;
-          case L4:
-            currentInstructionSet = L3_L4_INSTRUCTIONS;
-            return TRANSITION;
-          case TURBO:
-            currentInstructionSet = L3_TURBO_INSTRUCTIONS;
-            return TRANSITION;
-          default:
-            return this;
-        }
-      }
-    },
-    L4 {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(L4_HEIGHT);
-        s_liftinstance.setArmAngle(SCORING_L4_ANGLE);
-      }
-
-      @Override
-      public void execute() {
-        if (s_liftinstance.armAt(SCORING_L4_ANGLE) && s_liftinstance.elevatorAt(L4_HEIGHT)) {
-          isLiftReady = true;
-        } else {
-          isLiftReady = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        curState = TargetLiftStates.L4;
-        if (!isLiftReady) {
-          return this;
-        }
-        switch (nextState) {
-          case STOW:
-            currentInstructionSet = L4_STOW_INSTRUCTIONS;
-            return TRANSITION;
-          case L1:
-            currentInstructionSet = L4_L1_INSTRUCTIONS;
-            return TRANSITION;
-          case L2:
-            currentInstructionSet = L4_L2_INSTRUCTIONS;
-            return TRANSITION;
-          case L3:
-            currentInstructionSet = L4_L3_INSTRUCTIONS;
-            return TRANSITION;
-          case TURBO:
-            currentInstructionSet = L4_TURBO_INSTRUCTIONS;
-            return TRANSITION;
-          case PANIC:
-            return PANIC;
-          default:
-            return this;
-        }
-      }
-    },
-    PANIC {
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(PANIC_HEIGHT);
-        s_liftinstance.setArmAngle(SCORING_L4_ANGLE);
-      }
-
-      @Override
-      public void execute() {
-        isLiftReady = true;
-      }
-
-      @Override
-      public SystemState nextState() {
-        curState = TargetLiftStates.PANIC;
-        switch (nextState) {
-          case STOW:
-          currentInstructionSet = L4_STOW_INSTRUCTIONS;
-          return TRANSITION;
-          case L1:
-            currentInstructionSet = L4_L1_INSTRUCTIONS;
-            return TRANSITION;
-          case L2:
-            currentInstructionSet = L4_L2_INSTRUCTIONS;
-            return TRANSITION;
-          case L3:
-            currentInstructionSet = L4_L3_INSTRUCTIONS;
-            return TRANSITION;
-          case TURBO:
-            currentInstructionSet = L4_TURBO_INSTRUCTIONS;
-            return TRANSITION;
-          default:
-            return this;
-        }
+        return AT_STATE;
       }
     }
   }
@@ -1100,7 +985,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /** Creates a new LiftSubsystem */
   private LiftSubsystem(Hardware liftHardware) {
-    super(LiftStates.STOW);
+    super(LiftStates.STOW_INIT);
+    curState = TargetLiftStates.STOW;
     nextState = TargetLiftStates.STOW;
     m_elevatorMotor = liftHardware.elevatorMotor;
     m_pivotMotor = liftHardware.pivotMotor;
@@ -1247,6 +1133,160 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
   private boolean checkInstruction(IDF instruction) {
     return (instruction.wantedArmAngle == null || instruction.armComparison.compare(getArmAngle()))
   && (instruction.wantedElevatorHeight == null || instruction.elevatorComparison.compare(getElevatorHeight()));
+  }
+
+  /**
+   * Maps a starting lift state and an ending lift state to an instruction set.
+   * 
+   * @param startingState The starting state
+   * @param endingState The ending state
+   * @return The instruction set representing the transition from startingState to endingState. If there is no valid transition, return null
+   */
+  public static IDF[] mapStatesToTransition(TargetLiftStates startingState, TargetLiftStates endingState) {
+    switch (startingState) {
+      case STOW:
+        switch (endingState) {
+          case TURBO:
+            return STOW_TURBO_INSTRUCTIONS;
+          case L1:
+            return STOW_L1_INSTRUCTIONS;
+          case L2:
+            return STOW_L2_INSTRUCTIONS;
+          case L3:
+            return STOW_L3_INSTRUCTIONS;
+          case L4:
+            return STOW_L4_INSTRUCTIONS;
+          case A1:
+            return STOW_A1_INSTRUCTIONS;
+          case A2:
+            return STOW_A2_INSTRUCTIONS;
+          default:
+            return null;
+        }
+      case L1:
+        switch (endingState) {
+          case STOW:
+            return L1_STOW_INSTRUCTIONS;
+          case L2:
+            return L1_L2_INSTRUCTIONS;
+          case L3:
+            return L1_L3_INSTRUCTIONS;
+          case L4:
+            return L1_L4_INSTRUCTIONS;
+          case TURBO:
+            return L1_TURBO_INSTRUCTIONS;
+          default:
+            return null;
+        }
+      case L2:
+        switch (endingState) {
+          case STOW:
+            return L1_STOW_INSTRUCTIONS;
+          case L1:
+            return L2_L1_INSTRUCTIONS;
+          case L3:
+            return L2_L3_INSTRUCTIONS;
+          case L4:
+            return L2_L4_INSTRUCTIONS;
+          case TURBO:
+            return L2_TURBO_INSTRUCTIONS;
+          default:
+            return null;
+        }
+      case L3:
+        switch (endingState) {
+          case STOW:
+            return L3_STOW_INSTRUCTIONS;
+          case L1:
+            return L3_L1_INSTRUCTIONS;
+          case L2:
+            return L3_L2_INSTRUCTIONS;
+          case L4:
+            return L3_L4_INSTRUCTIONS;
+          case TURBO:
+            return L3_TURBO_INSTRUCTIONS;
+          default:
+            return null;
+        }
+      case L4:
+        switch (endingState) {
+          case STOW:
+            return L4_STOW_INSTRUCTIONS;
+          case L1:
+            return L4_L1_INSTRUCTIONS;
+          case L2:
+            return L4_L2_INSTRUCTIONS;
+          case L3:
+            return L4_L3_INSTRUCTIONS;
+          case TURBO:
+            return L4_TURBO_INSTRUCTIONS;
+          case PANIC:
+            return L4_PANIC_INSTRUCTIONS;
+          default:
+            return null;
+        }
+      case TURBO:
+        switch (endingState) {
+          case STOW:
+            return L4_STOW_INSTRUCTIONS;
+          case L1:
+            return L4_L1_INSTRUCTIONS;
+          case L2:
+            return L4_L2_INSTRUCTIONS;
+          case L3:
+            return STOW_L3_INSTRUCTIONS;
+          case L4:
+            return TURBO_L4_INSTRUCTIONS;
+          default:
+            return null;
+        }
+      case A1:
+        switch (endingState) {
+          case STOW:
+            return L1_STOW_INSTRUCTIONS;
+          case A2:
+            return A1_A2_INSTRUCTIONS;
+          case A_SCORE:
+            return A1_A_SCORE_INSTRUCTIONS;
+          default:
+            return null;
+        }
+      case A2:
+        switch (endingState) {
+          case STOW:
+            return L1_STOW_INSTRUCTIONS;
+          case A1:
+            return A2_A1_INSTRUCTIONS;
+          case A_SCORE:
+            return A2_A_SCORE_INSTRUCTIONS;
+          default:
+            return null;
+        }
+      case A_SCORE:
+        switch (endingState) {
+          case STOW:
+            return A_SCORE_STOW_INSTRUCTIONS;
+          default:
+            return null;
+        }
+      case PANIC:
+        switch (endingState) {
+          case STOW:
+            return L4_STOW_INSTRUCTIONS;
+          case L1:
+            return L4_L1_INSTRUCTIONS;
+          case L2:
+            return L4_L2_INSTRUCTIONS;
+          case L3:
+            return L4_L3_INSTRUCTIONS;
+          case TURBO:
+            return L4_TURBO_INSTRUCTIONS;
+          default:
+            return null;
+        }
+      default:
+        return null;
+    }
   }
 
   /**
