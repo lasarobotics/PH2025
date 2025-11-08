@@ -129,8 +129,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     new IDF(
       null,
       null,
-      CLEAR_HEIGHT,
-      (s) -> s.lte(TURBO_HEIGHT)
+      TURBO_HEIGHT,
+      (s) -> s.gte(CLEAR_HEIGHT)
     ),
     new IDF(
       TURBO_ANGLE,
@@ -333,8 +333,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     new IDF(
       null,
       null,
-      CLEAR_HEIGHT,
-      (s) -> s.gte(L4_HEIGHT)
+      L4_HEIGHT,
+      (s) -> s.gte(CLEAR_HEIGHT)
     ),
     new IDF(
       SCORING_L4_ANGLE,
@@ -429,8 +429,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     new IDF(
       null,
       null,
-      CLEAR_HEIGHT,
-      (s) -> s.gte(L4_HEIGHT)
+      L4_HEIGHT,
+      (s) -> s.gte(CLEAR_HEIGHT)
     ),
     new IDF(
       SCORING_L4_ANGLE,
@@ -504,8 +504,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     new IDF(
       null,
       null,
-      CLEAR_HEIGHT,
-      (s) -> s.gte(L4_HEIGHT)
+      L4_HEIGHT,
+      (s) -> s.gte(CLEAR_HEIGHT)
     ),
     new IDF(
       SCORING_L4_ANGLE,
