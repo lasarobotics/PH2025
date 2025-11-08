@@ -58,6 +58,6 @@
     "edu.wpi.first.math.**.struct.*",
   ],
   "wpilib.deployOffline": true,
-  "wpilib.offline": true,
+  "wpilib.offline": false,
   "wpilib.autoStartRioLog": false
 }
