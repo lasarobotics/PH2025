@@ -783,6 +783,8 @@ public class LiftInstructions {
    * @return The instruction set representing the transition from startingState to endingState. If there is no valid transition, return null
    */
   public static IDF[] mapStatesToTransition(TargetLiftStates startingState, TargetLiftStates endingState) {
+    // shortcut identical case
+    if (startingState == endingState) return null;
     switch (startingState) {
         case STOW:
             switch (endingState) {

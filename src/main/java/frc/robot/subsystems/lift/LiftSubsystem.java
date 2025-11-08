@@ -192,12 +192,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
     AT_STATE {
       @Override
       public SystemState nextState() {
-        // would technically already return due to mapStatesToTransition returning null,
-        // but this saves some time
-        if (curState == nextState) {
-          return this;
-        }
-
+        // mapStatesToTransition returns null if identical
         IDF[] idf = LiftInstructions.mapStatesToTransition(curState, nextState);
         if (idf != null) {
           currentInstructionSet = idf;
@@ -217,7 +212,8 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
       @Override
       public void execute() {
-        if (s_liftinstance.armAt(STOW_ANGLE) && s_liftinstance.elevatorAt(STOW_HEIGHT)) {
+        if (s_liftinstance.getArmAngle().isNear(STOW_ANGLE, ARM_TOLERANCE)
+         && s_liftinstance.getElevatorHeight().isNear(STOW_HEIGHT, ELEVATOR_TOLERANCE)) {
           isLiftReady = true;
         } else {
           isLiftReady = false;
@@ -481,26 +477,6 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
    */
   public boolean elevatorAtHome() {
     return elevatorHomingBeamBreak();
-  }
-
-  /**
-   * Return whether the elevator is at a target height or not
-   *
-   * @return Boolean of if elevator is at target height
-   */
-  public boolean elevatorAt(Distance targetHeight) {
-    Distance currentHeight = getElevatorHeight();
-    return (currentHeight.isNear(targetHeight, ELEVATOR_TOLERANCE));
-  }
-
-  /**
-   * Return whether the arm is at a target angle or not
-   *
-   * @return Boolean of if arm is at target angle
-   */
-  public boolean armAt(Angle targetAngle) {
-    Angle currentAngle = getArmAngle();
-    return (currentAngle.isNear(targetAngle, ARM_TOLERANCE));
   }
 
   /**
