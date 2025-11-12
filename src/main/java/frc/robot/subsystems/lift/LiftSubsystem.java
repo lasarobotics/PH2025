@@ -106,15 +106,7 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
         return this;
       }
     },
-    IDLE {
-      @Override
-      public LiftStates nextState() {
-        if (nextState == TargetLiftStates.STOW) {
-          return STOW_INIT;
-        }
-        return this;
-      }
-    },
+    /*
     HOME {
       private boolean isDoneHoming = false;
 
@@ -146,11 +138,15 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
           return DISABLED;
         }
         if (isDoneHoming) {
-          return IDLE;
+          currentInstructionSet = LiftInstructions.INIT_STOW_INSTRUCTIONS;
+          curState = TargetLiftStates.STOW;
+          nextState = TargetLiftStates.STOW;
+          return TRANSITION;
         }
         return this;
       }
     },
+    */
     TRANSITION {
       IDF[] instructionSet;
       int currentStep;
@@ -201,32 +197,6 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
           return this;
         }
       }
-    },
-    STOW_INIT {
-      // This is lowkey just an initialization class
-      @Override
-      public void initialize() {
-        s_liftinstance.setElevatorHeight(STOW_HEIGHT);
-        s_liftinstance.setArmAngle(STOW_ANGLE);
-      }
-
-      @Override
-      public void execute() {
-        if (s_liftinstance.getArmAngle().isNear(STOW_ANGLE, ARM_TOLERANCE)
-         && s_liftinstance.getElevatorHeight().isNear(STOW_HEIGHT, ELEVATOR_TOLERANCE)) {
-          isLiftReady = true;
-        } else {
-          isLiftReady = false;
-        }
-      }
-
-      @Override
-      public SystemState nextState() {
-        if (!isLiftReady) {
-          return this;
-        }
-        return AT_STATE;
-      }
     }
   }
 
@@ -245,9 +215,11 @@ public class LiftSubsystem extends StateMachine implements AutoCloseable {
 
   /** Creates a new LiftSubsystem */
   private LiftSubsystem(Hardware liftHardware) {
-    super(LiftStates.STOW_INIT);
+    super(LiftStates.TRANSITION);
+    // curState doesn't really matter here, but it doesn't hurt to have it
     curState = TargetLiftStates.STOW;
     nextState = TargetLiftStates.STOW;
+    currentInstructionSet = LiftInstructions.INIT_STOW_INSTRUCTIONS;
     m_elevatorMotor = liftHardware.elevatorMotor;
     m_pivotMotor = liftHardware.pivotMotor;
     m_armCANcoder = liftHardware.armCANCoder;

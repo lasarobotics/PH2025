@@ -57,6 +57,15 @@ public class LiftInstructions {
         Distance wantedElevatorHeight,
         ElevatorComparison elevatorComparison
     ) {}
+
+    public static IDF[] INIT_STOW_INSTRUCTIONS = new IDF[]{
+        new IDF(
+            STOW_ANGLE,
+            (s) -> s.isNear(STOW_ANGLE, ARM_TOLERANCE),
+            STOW_HEIGHT,
+            (s) -> s.isNear(STOW_HEIGHT, ELEVATOR_TOLERANCE)
+        )
+    };
     
     public static IDF[] STOW_TURBO_INSTRUCTIONS = new IDF[]{
         new IDF(
