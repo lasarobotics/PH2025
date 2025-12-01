@@ -13,16 +13,23 @@ public class localizationSubsystem extends SubsystemBase {
     private final NetworkTable llTable = NetworkTableInstance.getDefault().getTable(LIMELIGHT_NAME);
     private final NetworkTable logTable = NetworkTableInstance.getDefault().getTable("LocalizationSubsystem");
 
+    private static final double TARGET_DISTANCE_FEET = 2.0;
+    private static final double ANGLE_TOLERANCE_DEGREES = 2.0;
+    private static final double DISTANCE_TOLERANCE_FEET = 0.3;
+    
+    private static final double CAMERA_MOUNT_ANGLE_DEGREES = 0.0;
+    private static final double CAMERA_HEIGHT_INCHES = 24.0;
+    private static final double TAG_HEIGHT_INCHES = 6.0;
+
     private double lastUpdate = 0.0;
 
     private double tx = 0.0;
     private double ty = 0.0;
     private double ta = 0.0;
-    private double[] tcornxy = new double[8]; // [x0,y0,x1,y1,x2,y2,x3,y3]
+    private double[] tcornxy = new double[8];
 
     @Override
     public void periodic() {
-        calculateMovement();
         double now = Timer.getFPGATimestamp();
         // Run ~90 FPS (~11 ms per update)
         if (now - lastUpdate < 0.011)
@@ -36,8 +43,10 @@ public class localizationSubsystem extends SubsystemBase {
             calculate3DPosition();
             calculateTagArea();
             calculateDiagonalsAndMidpoint();
+            calculateOptimalMovement();
         } else {
             Logger.recordOutput("Localization/Status", "No valid corners");
+            Logger.recordOutput("Movement/Command", "STOP - No target detected");
         }
     }
 
@@ -75,9 +84,10 @@ public class localizationSubsystem extends SubsystemBase {
             logTable.getEntry("timestamp").setDouble(Timer.getFPGATimestamp());
         }
 
-        // Console debug
-        System.out.println("tv=" + tv + " tx=" + tx + " ty=" + ty + " ta=" + ta);
-        System.out.println("tcornxy: " + Arrays.toString(tcornxy));
+        Logger.recordOutput("Localization/tv", tv);
+        Logger.recordOutput("Localization/tx", tx);
+        Logger.recordOutput("Localization/ty", ty);
+        Logger.recordOutput("Localization/ta", ta);
     }
 
     /** Checks whether corner data is valid (not all zeros and length = 8) */
@@ -86,7 +96,7 @@ public class localizationSubsystem extends SubsystemBase {
             return false;
         for (double v : tcornxy) {
             if (Math.abs(v) > 1e-3)
-                return true; // some non-zero value
+                return true;
         }
         return false;
     }
@@ -105,9 +115,6 @@ public class localizationSubsystem extends SubsystemBase {
         Logger.recordOutput("Localization/hRight", hRight);
         Logger.recordOutput("Localization/wTop", wTop);
         Logger.recordOutput("Localization/wBottom", wBottom);
-
-        // System.out.printf("Heights: L=%.2f R=%.2f Widths: T=%.2f B=%.2f%n", hLeft,
-        // hRight, wTop, wBottom);
     }
 
     /** Approximates tag area in pixel² */
@@ -130,8 +137,6 @@ public class localizationSubsystem extends SubsystemBase {
         Logger.recordOutput("Localization/avgWidth", avgWidth);
         Logger.recordOutput("Localization/TagArea", area);
 
-        // System.out.printf("Tag pixel area: %.2f (avgW=%.2f avgH=%.2f)%n", area,
-        // avgWidth, avgHeight);
         return area;
     }
 
@@ -151,22 +156,92 @@ public class localizationSubsystem extends SubsystemBase {
         Logger.recordOutput("Localization/Diagonal2", diag2);
         Logger.recordOutput("Localization/MidpointX", midX);
         Logger.recordOutput("Localization/MidpointY", midY);
-
-        // System.out.printf("Diagonals: %.2f %.2f Midpoint: %.2f %.2f%n", diag1,
-        // diag2, midX, midY);
     }
 
-    public void calculateMovement() {
-        int footOne = 30000;
-        int footThree = 12300;
-        int footFive = 6300;
-        int footSeven = 3700;
-        int footTen = 2000;
-        if (isCornersValid()) {
-            double realTimeTA = calculateTagArea();
-            double realTimeDistance = 12.23504 * Math.pow(0.999818, realTimeTA) + 1.19735;
-            Logger.recordOutput("Localization/realTimeDistance", realTimeDistance);
+    private void calculateOptimalMovement() {
+        double realTimeTA = calculateTagArea();
+        double currentDistance = calculateDistanceFromArea(realTimeTA);
+        
+        Logger.recordOutput("Movement/CurrentDistance_Feet", currentDistance);
+        Logger.recordOutput("Movement/TargetDistance_Feet", TARGET_DISTANCE_FEET);
+        
+        double horizontalAngleError = tx;
+        Logger.recordOutput("Movement/HorizontalAngleError_Degrees", horizontalAngleError);
+        
+        double forwardMovement = currentDistance - TARGET_DISTANCE_FEET;
+        Logger.recordOutput("Movement/RequiredForward_Feet", forwardMovement);
+        
+        double strafeMovement = currentDistance * Math.tan(Math.toRadians(horizontalAngleError));
+        Logger.recordOutput("Movement/RequiredStrafe_Feet", strafeMovement);
+        
+        double rotationRequired = horizontalAngleError;
+        Logger.recordOutput("Movement/RequiredRotation_Degrees", rotationRequired);
+        
+        String movementCommand = generateMovementCommand(forwardMovement, strafeMovement, rotationRequired);
+        Logger.recordOutput("Movement/Command", movementCommand);
+        
+        boolean isAligned = checkAlignment(forwardMovement, rotationRequired);
+        Logger.recordOutput("Movement/IsAligned", isAligned);
+        
+        logMovementBreakdown(forwardMovement, strafeMovement, rotationRequired);
+    }
+
+    private String generateMovementCommand(double forward, double strafe, double rotation) {
+        StringBuilder command = new StringBuilder();
+        
+        if (Math.abs(forward) < DISTANCE_TOLERANCE_FEET && 
+            Math.abs(rotation) < ANGLE_TOLERANCE_DEGREES) {
+            return "ALIGNED - Hold position";
         }
+        
+        if (Math.abs(rotation) > ANGLE_TOLERANCE_DEGREES) {
+            command.append(String.format("ROTATE %.1f° %s", 
+                Math.abs(rotation), 
+                rotation > 0 ? "RIGHT" : "LEFT"));
+            command.append(" → THEN → ");
+        }
+        
+        if (Math.abs(forward) > DISTANCE_TOLERANCE_FEET) {
+            command.append(String.format("DRIVE %.2f ft %s", 
+                Math.abs(forward), 
+                forward > 0 ? "BACKWARD" : "FORWARD"));
+        } else {
+            command.append("HOLD DISTANCE");
+        }
+        
+        if (Math.abs(strafe) > 0.1) {
+            command.append(String.format(" + STRAFE %.2f ft %s", 
+                Math.abs(strafe), 
+                strafe > 0 ? "RIGHT" : "LEFT"));
+        }
+        
+        return command.toString();
+    }
+
+    private boolean checkAlignment(double forwardError, double rotationError) {
+        return Math.abs(forwardError) < DISTANCE_TOLERANCE_FEET && 
+               Math.abs(rotationError) < ANGLE_TOLERANCE_DEGREES;
+    }
+
+    private void logMovementBreakdown(double forward, double strafe, double rotation) {
+        Logger.recordOutput("Movement/Phase1_RotationNeeded", Math.abs(rotation) > ANGLE_TOLERANCE_DEGREES);
+        Logger.recordOutput("Movement/Phase2_ForwardNeeded", Math.abs(forward) > DISTANCE_TOLERANCE_FEET);
+        Logger.recordOutput("Movement/Phase3_StrafeNeeded", Math.abs(strafe) > 0.1);
+        
+        Logger.recordOutput("Movement/Direction_Forward", forward < 0);
+        Logger.recordOutput("Movement/Direction_Backward", forward > 0);
+        Logger.recordOutput("Movement/Direction_StrafeLeft", strafe < 0);
+        Logger.recordOutput("Movement/Direction_StrafeRight", strafe > 0);
+        Logger.recordOutput("Movement/Direction_RotateLeft", rotation < 0);
+        Logger.recordOutput("Movement/Direction_RotateRight", rotation > 0);
+        
+        Logger.recordOutput("Movement/ForwardError_Inches", forward * 12);
+        Logger.recordOutput("Movement/StrafeError_Inches", strafe * 12);
+        Logger.recordOutput("Movement/RotationError_Degrees", rotation);
+    }
+
+    private double calculateDistanceFromArea(double area) {
+        return 12.23504 * Math.pow(0.999818, area) + 1.19735;
     }
 
     // Accessors
@@ -184,5 +259,22 @@ public class localizationSubsystem extends SubsystemBase {
 
     public double[] getTcornxy() {
         return tcornxy;
+    }
+    
+    public double getCurrentDistance() {
+        if (isCornersValid()) {
+            return calculateDistanceFromArea(calculateTagArea());
+        }
+        return -1.0;
+    }
+    
+    public boolean isAligned() {
+        if (!isCornersValid()) return false;
+        
+        double currentDistance = getCurrentDistance();
+        double forwardError = currentDistance - TARGET_DISTANCE_FEET;
+        double rotationError = tx;
+        
+        return checkAlignment(forwardError, rotationError);
     }
 }
