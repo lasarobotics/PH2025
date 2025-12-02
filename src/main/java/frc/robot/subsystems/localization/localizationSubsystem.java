@@ -21,16 +21,15 @@ public class localizationSubsystem extends SubsystemBase {
     private static final double TARGET_DISTANCE_FEET = 2.0;
     private static final double ANGLE_TOLERANCE_DEGREES = 2.0;
     private static final double DISTANCE_TOLERANCE_FEET = 0.3;
-
+    
     private static final double CAMERA_MOUNT_ANGLE_X_DEGREES = 40.0;
     private static final double CAMERA_MOUNT_ANGLE_Y_DEGREES = 99.846552;
     private static final double CAMERA_HEIGHT_INCHES = 9.5;
-    private static final double TAG_HEIGHT_INCHES = 1.0;
     private static final double CAMERA_OFFSET_X_INCHES = 8.41;
     private static final double CAMERA_OFFSET_Y_INCHES = 11.6;
 
     private AprilTagFieldLayout aprilTagFieldLayout;
-
+    
     private double lastUpdate = 0.0;
 
     private double tx = 0.0;
@@ -41,7 +40,7 @@ public class localizationSubsystem extends SubsystemBase {
 
     public localizationSubsystem() {
         try {
-            aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile);
+            aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeAndyMark.m_resourceFile);
         } catch (Exception e) {
             Logger.recordOutput("Localization/AprilTagLayoutError", e.getMessage());
         }
@@ -159,104 +158,104 @@ public class localizationSubsystem extends SubsystemBase {
     private void calculateOptimalMovement() {
         double realTimeTA = calculateTagArea();
         double cameraDistanceToTag = calculateDistanceFromArea(realTimeTA);
-
+        
         double cameraOffsetDistance = Math.sqrt(
-                Math.pow(CAMERA_OFFSET_X_INCHES / 12.0, 2) +
-                        Math.pow(CAMERA_OFFSET_Y_INCHES / 12.0, 2));
-
+            Math.pow(CAMERA_OFFSET_X_INCHES / 12.0, 2) + 
+            Math.pow(CAMERA_OFFSET_Y_INCHES / 12.0, 2)
+        );
+        
         double horizontalAngleError = tx;
-        double verticalAngleError = ty;
-
-        double heightDifference = (CAMERA_HEIGHT_INCHES - TAG_HEIGHT_INCHES) / 12.0;
-
-        double adjustedCameraDistance = Math.sqrt(
-                Math.pow(cameraDistanceToTag, 2) - Math.pow(heightDifference, 2));
-
+        
+        double adjustedCameraDistance = cameraDistanceToTag / Math.cos(Math.toRadians(CAMERA_MOUNT_ANGLE_Y_DEGREES));
+        
         double robotCenterDistanceToTag = Math.sqrt(
-                Math.pow(adjustedCameraDistance, 2) + Math.pow(cameraOffsetDistance, 2) -
-                        2 * adjustedCameraDistance * cameraOffsetDistance *
-                                Math.cos(Math.toRadians(horizontalAngleError + CAMERA_MOUNT_ANGLE_X_DEGREES)));
-
+            Math.pow(adjustedCameraDistance, 2) + Math.pow(cameraOffsetDistance, 2) - 
+            2 * adjustedCameraDistance * cameraOffsetDistance * 
+            Math.cos(Math.toRadians(horizontalAngleError + CAMERA_MOUNT_ANGLE_X_DEGREES))
+        );
+        
         double currentDistance = robotCenterDistanceToTag + 1.0;
-
+        
         Logger.recordOutput("Movement/CameraDistance_Feet", cameraDistanceToTag);
         Logger.recordOutput("Movement/RobotCenterDistance_Feet", robotCenterDistanceToTag);
         Logger.recordOutput("Movement/CurrentDistance_Feet", currentDistance);
         Logger.recordOutput("Movement/TargetDistance_Feet", TARGET_DISTANCE_FEET);
         Logger.recordOutput("Movement/CameraOffset_Feet", cameraOffsetDistance);
-        Logger.recordOutput("Movement/HeightDifference_Feet", heightDifference);
-
+        
         Logger.recordOutput("Movement/HorizontalAngleError_Degrees", horizontalAngleError);
-        Logger.recordOutput("Movement/VerticalAngleError_Degrees", verticalAngleError);
-
+        
         double forwardMovement = currentDistance - TARGET_DISTANCE_FEET;
         Logger.recordOutput("Movement/RequiredForward_Feet", forwardMovement);
-
+        
         double strafeMovement = currentDistance * Math.tan(Math.toRadians(horizontalAngleError));
         Logger.recordOutput("Movement/RequiredStrafe_Feet", strafeMovement);
-
+        
         double rotationRequired = horizontalAngleError;
         Logger.recordOutput("Movement/RequiredRotation_Degrees", rotationRequired);
-
+        
         String movementCommand = generateMovementCommand(forwardMovement, strafeMovement, rotationRequired);
         Logger.recordOutput("Movement/Command", movementCommand);
-
+        
         boolean isAligned = checkAlignment(forwardMovement, rotationRequired);
         Logger.recordOutput("Movement/IsAligned", isAligned);
-
+        
         logMovementBreakdown(forwardMovement, strafeMovement, rotationRequired);
     }
 
     private void calculateAndLogPoseEstimation() {
-        if (aprilTagFieldLayout == null || tagId == -1) {
-            Logger.recordOutput("PoseEstimation/Status", "AprilTag layout not loaded or invalid tag ID");
+        if (aprilTagFieldLayout == null) {
+            Logger.recordOutput("PoseEstimation/Status", "AprilTag layout not loaded");
+            return;
+        }
+
+        if (tagId == -1) {
+            Logger.recordOutput("PoseEstimation/Status", "No valid tag detected");
             return;
         }
 
         Optional<edu.wpi.first.math.geometry.Pose3d> tagPoseOptional = aprilTagFieldLayout.getTagPose(tagId);
         if (!tagPoseOptional.isPresent()) {
-            Logger.recordOutput("PoseEstimation/Status", "Tag ID " + tagId + " not found in field layout");
+            Logger.recordOutput("PoseEstimation/Status", "Tag ID " + tagId + " not in field layout");
+            Logger.recordOutput("PoseEstimation/TagID", tagId);
             return;
         }
 
         edu.wpi.first.math.geometry.Pose3d tagPose3d = tagPoseOptional.get();
         Pose2d tagPose = tagPose3d.toPose2d();
-
+        
         double realTimeTA = calculateTagArea();
         double cameraDistanceToTag = calculateDistanceFromArea(realTimeTA);
-
+        
         double cameraOffsetDistance = Math.sqrt(
-                Math.pow(CAMERA_OFFSET_X_INCHES / 12.0, 2) +
-                        Math.pow(CAMERA_OFFSET_Y_INCHES / 12.0, 2));
-
+            Math.pow(CAMERA_OFFSET_X_INCHES / 12.0, 2) + 
+            Math.pow(CAMERA_OFFSET_Y_INCHES / 12.0, 2)
+        );
+        
         double horizontalAngleError = tx;
-        double verticalAngleError = ty;
-
-        double heightDifference = (CAMERA_HEIGHT_INCHES - TAG_HEIGHT_INCHES) / 12.0;
-
-        double adjustedCameraDistance = Math.sqrt(
-                Math.pow(cameraDistanceToTag, 2) - Math.pow(heightDifference, 2));
-
+        
+        double adjustedCameraDistance = cameraDistanceToTag / Math.cos(Math.toRadians(CAMERA_MOUNT_ANGLE_Y_DEGREES));
+        
         double robotCenterDistanceToTag = Math.sqrt(
-                Math.pow(adjustedCameraDistance, 2) + Math.pow(cameraOffsetDistance, 2) -
-                        2 * adjustedCameraDistance * cameraOffsetDistance *
-                                Math.cos(Math.toRadians(horizontalAngleError + CAMERA_MOUNT_ANGLE_X_DEGREES)));
-
+            Math.pow(adjustedCameraDistance, 2) + Math.pow(cameraOffsetDistance, 2) - 
+            2 * adjustedCameraDistance * cameraOffsetDistance * 
+            Math.cos(Math.toRadians(horizontalAngleError + CAMERA_MOUNT_ANGLE_X_DEGREES))
+        );
+        
         double currentDistance = robotCenterDistanceToTag + 1.0;
         double distanceMeters = currentDistance * 0.3048;
-
+        
         double robotAngleToTag = tagPose.getRotation().getDegrees() + 180 - horizontalAngleError;
         Rotation2d robotRotation = Rotation2d.fromDegrees(robotAngleToTag);
-
+        
         double angleRad = Math.toRadians(robotAngleToTag);
         double robotX = tagPose.getX() - distanceMeters * Math.cos(angleRad);
         double robotY = tagPose.getY() - distanceMeters * Math.sin(angleRad);
-
+        
         Translation2d robotTranslation = new Translation2d(robotX, robotY);
         Pose2d estimatedPose = new Pose2d(robotTranslation, robotRotation);
-
+        
         double timestamp = Timer.getFPGATimestamp();
-
+        
         Logger.recordOutput("PoseEstimation/TagID", tagId);
         Logger.recordOutput("PoseEstimation/TagPoseX", tagPose.getX());
         Logger.recordOutput("PoseEstimation/TagPoseY", tagPose.getY());
@@ -267,58 +266,58 @@ public class localizationSubsystem extends SubsystemBase {
         Logger.recordOutput("PoseEstimation/DistanceToTag_Meters", distanceMeters);
         Logger.recordOutput("PoseEstimation/Timestamp", timestamp);
         Logger.recordOutput("PoseEstimation/EstimatedPose2d", estimatedPose);
-        Logger.recordOutput("PoseEstimation/Status", "Valid pose estimation");
+        Logger.recordOutput("PoseEstimation/Status", "Valid");
     }
 
     private String generateMovementCommand(double forward, double strafe, double rotation) {
         StringBuilder command = new StringBuilder();
-
-        if (Math.abs(forward) < DISTANCE_TOLERANCE_FEET &&
-                Math.abs(rotation) < ANGLE_TOLERANCE_DEGREES) {
+        
+        if (Math.abs(forward) < DISTANCE_TOLERANCE_FEET && 
+            Math.abs(rotation) < ANGLE_TOLERANCE_DEGREES) {
             return "ALIGNED - Hold position";
         }
-
+        
         if (Math.abs(rotation) > ANGLE_TOLERANCE_DEGREES) {
-            command.append(String.format("ROTATE %.1f° %s",
-                    Math.abs(rotation),
-                    rotation > 0 ? "RIGHT" : "LEFT"));
+            command.append(String.format("ROTATE %.1f° %s", 
+                Math.abs(rotation), 
+                rotation > 0 ? "RIGHT" : "LEFT"));
             command.append(" → THEN → ");
         }
-
+        
         if (Math.abs(forward) > DISTANCE_TOLERANCE_FEET) {
-            command.append(String.format("DRIVE %.2f ft %s",
-                    Math.abs(forward),
-                    forward > 0 ? "BACKWARD" : "FORWARD"));
+            command.append(String.format("DRIVE %.2f ft %s", 
+                Math.abs(forward), 
+                forward > 0 ? "BACKWARD" : "FORWARD"));
         } else {
             command.append("HOLD DISTANCE");
         }
-
+        
         if (Math.abs(strafe) > 0.1) {
-            command.append(String.format(" + STRAFE %.2f ft %s",
-                    Math.abs(strafe),
-                    strafe > 0 ? "RIGHT" : "LEFT"));
+            command.append(String.format(" + STRAFE %.2f ft %s", 
+                Math.abs(strafe), 
+                strafe > 0 ? "RIGHT" : "LEFT"));
         }
-
+        
         return command.toString();
     }
 
     private boolean checkAlignment(double forwardError, double rotationError) {
-        return Math.abs(forwardError) < DISTANCE_TOLERANCE_FEET &&
-                Math.abs(rotationError) < ANGLE_TOLERANCE_DEGREES;
+        return Math.abs(forwardError) < DISTANCE_TOLERANCE_FEET && 
+               Math.abs(rotationError) < ANGLE_TOLERANCE_DEGREES;
     }
 
     private void logMovementBreakdown(double forward, double strafe, double rotation) {
         Logger.recordOutput("Movement/Phase1_RotationNeeded", Math.abs(rotation) > ANGLE_TOLERANCE_DEGREES);
         Logger.recordOutput("Movement/Phase2_ForwardNeeded", Math.abs(forward) > DISTANCE_TOLERANCE_FEET);
         Logger.recordOutput("Movement/Phase3_StrafeNeeded", Math.abs(strafe) > 0.1);
-
+        
         Logger.recordOutput("Movement/Direction_Forward", forward < 0);
         Logger.recordOutput("Movement/Direction_Backward", forward > 0);
         Logger.recordOutput("Movement/Direction_StrafeLeft", strafe < 0);
         Logger.recordOutput("Movement/Direction_StrafeRight", strafe > 0);
         Logger.recordOutput("Movement/Direction_RotateLeft", rotation < 0);
         Logger.recordOutput("Movement/Direction_RotateRight", rotation > 0);
-
+        
         Logger.recordOutput("Movement/ForwardError_Inches", forward * 12);
         Logger.recordOutput("Movement/StrafeError_Inches", strafe * 12);
         Logger.recordOutput("Movement/RotationError_Degrees", rotation);
@@ -343,26 +342,25 @@ public class localizationSubsystem extends SubsystemBase {
     public double[] getTcornxy() {
         return tcornxy;
     }
-
+    
     public int getTagId() {
         return tagId;
     }
-
+    
     public double getCurrentDistance() {
         if (isCornersValid()) {
             return calculateDistanceFromArea(calculateTagArea());
         }
         return -1.0;
     }
-
+    
     public boolean isAligned() {
-        if (!isCornersValid())
-            return false;
-
+        if (!isCornersValid()) return false;
+        
         double currentDistance = getCurrentDistance();
         double forwardError = currentDistance - TARGET_DISTANCE_FEET;
         double rotationError = tx;
-
+        
         return checkAlignment(forwardError, rotationError);
     }
 
@@ -378,41 +376,39 @@ public class localizationSubsystem extends SubsystemBase {
 
         edu.wpi.first.math.geometry.Pose3d tagPose3d = tagPoseOptional.get();
         Pose2d tagPose = tagPose3d.toPose2d();
-
+        
         double realTimeTA = calculateTagArea();
         double cameraDistanceToTag = calculateDistanceFromArea(realTimeTA);
-
+        
         double cameraOffsetDistance = Math.sqrt(
-                Math.pow(CAMERA_OFFSET_X_INCHES / 12.0, 2) +
-                        Math.pow(CAMERA_OFFSET_Y_INCHES / 12.0, 2));
-
+            Math.pow(CAMERA_OFFSET_X_INCHES / 12.0, 2) + 
+            Math.pow(CAMERA_OFFSET_Y_INCHES / 12.0, 2)
+        );
+        
         double horizontalAngleError = tx;
-        double verticalAngleError = ty;
-
-        double heightDifference = (CAMERA_HEIGHT_INCHES - TAG_HEIGHT_INCHES) / 12.0;
-
-        double adjustedCameraDistance = Math.sqrt(
-                Math.pow(cameraDistanceToTag, 2) - Math.pow(heightDifference, 2));
-
+        
+        double adjustedCameraDistance = cameraDistanceToTag / Math.cos(Math.toRadians(CAMERA_MOUNT_ANGLE_Y_DEGREES));
+        
         double robotCenterDistanceToTag = Math.sqrt(
-                Math.pow(adjustedCameraDistance, 2) + Math.pow(cameraOffsetDistance, 2) -
-                        2 * adjustedCameraDistance * cameraOffsetDistance *
-                                Math.cos(Math.toRadians(horizontalAngleError + CAMERA_MOUNT_ANGLE_X_DEGREES)));
-
+            Math.pow(adjustedCameraDistance, 2) + Math.pow(cameraOffsetDistance, 2) - 
+            2 * adjustedCameraDistance * cameraOffsetDistance * 
+            Math.cos(Math.toRadians(horizontalAngleError + CAMERA_MOUNT_ANGLE_X_DEGREES))
+        );
+        
         double currentDistance = robotCenterDistanceToTag + 1.0;
         double distanceMeters = currentDistance * 0.3048;
-
+        
         double robotAngleToTag = tagPose.getRotation().getDegrees() + 180 - horizontalAngleError;
         Rotation2d robotRotation = Rotation2d.fromDegrees(robotAngleToTag);
-
+        
         double angleRad = Math.toRadians(robotAngleToTag);
         double robotX = tagPose.getX() - distanceMeters * Math.cos(angleRad);
         double robotY = tagPose.getY() - distanceMeters * Math.sin(angleRad);
-
+        
         Translation2d robotTranslation = new Translation2d(robotX, robotY);
         return new Pose2d(robotTranslation, robotRotation);
     }
-
+    
     public double getTimestamp() {
         return Timer.getFPGATimestamp();
     }
