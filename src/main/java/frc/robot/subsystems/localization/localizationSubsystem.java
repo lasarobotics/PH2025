@@ -16,10 +16,10 @@ public class localizationSubsystem extends SubsystemBase {
     private static final double TARGET_DISTANCE_FEET = 2.0;
     private static final double ANGLE_TOLERANCE_DEGREES = 2.0;
     private static final double DISTANCE_TOLERANCE_FEET = 0.3;
-    
-    private static final double CAMERA_MOUNT_ANGLE_DEGREES = 0.0;
-    private static final double CAMERA_HEIGHT_INCHES = 24.0;
-    private static final double TAG_HEIGHT_INCHES = 6.0;
+
+    private static final double CAMERA_MOUNT_ANGLE_DEGREES = 30.0;
+    private static final double CAMERA_HEIGHT_INCHES = 6.0;
+    private static final double TAG_HEIGHT_INCHES = 10.0;
 
     private double lastUpdate = 0.0;
 
@@ -92,13 +92,16 @@ public class localizationSubsystem extends SubsystemBase {
 
     /** Checks whether corner data is valid (not all zeros and length = 8) */
     private boolean isCornersValid() {
-        if (tcornxy == null || tcornxy.length < 8)
-            return false;
-        for (double v : tcornxy) {
-            if (Math.abs(v) > 1e-3)
-                return true;
-        }
-        return false;
+        /**
+         * if (tcornxy == null || tcornxy.length < 8)
+         * return false;
+         * for (double v : tcornxy) {
+         * if (Math.abs(v) > 1e-3)
+         * return true;
+         * }
+         * return false;
+         */
+        return true;
     }
 
     /** Vertical & horizontal side lengths */
@@ -161,80 +164,81 @@ public class localizationSubsystem extends SubsystemBase {
     private void calculateOptimalMovement() {
         double realTimeTA = calculateTagArea();
         double currentDistance = calculateDistanceFromArea(realTimeTA);
-        
-        Logger.recordOutput("Movement/CurrentDistance_Feet", currentDistance);
+        // currentDistance -= 1;
+
+        Logger.recordOutput("Movement/CurrentDistance_Feet", currentDistance + 1);
         Logger.recordOutput("Movement/TargetDistance_Feet", TARGET_DISTANCE_FEET);
-        
+
         double horizontalAngleError = tx;
         Logger.recordOutput("Movement/HorizontalAngleError_Degrees", horizontalAngleError);
-        
+
         double forwardMovement = currentDistance - TARGET_DISTANCE_FEET;
         Logger.recordOutput("Movement/RequiredForward_Feet", forwardMovement);
-        
+
         double strafeMovement = currentDistance * Math.tan(Math.toRadians(horizontalAngleError));
         Logger.recordOutput("Movement/RequiredStrafe_Feet", strafeMovement);
-        
+
         double rotationRequired = horizontalAngleError;
         Logger.recordOutput("Movement/RequiredRotation_Degrees", rotationRequired);
-        
+
         String movementCommand = generateMovementCommand(forwardMovement, strafeMovement, rotationRequired);
         Logger.recordOutput("Movement/Command", movementCommand);
-        
+
         boolean isAligned = checkAlignment(forwardMovement, rotationRequired);
         Logger.recordOutput("Movement/IsAligned", isAligned);
-        
+
         logMovementBreakdown(forwardMovement, strafeMovement, rotationRequired);
     }
 
     private String generateMovementCommand(double forward, double strafe, double rotation) {
         StringBuilder command = new StringBuilder();
-        
-        if (Math.abs(forward) < DISTANCE_TOLERANCE_FEET && 
-            Math.abs(rotation) < ANGLE_TOLERANCE_DEGREES) {
+
+        if (Math.abs(forward) < DISTANCE_TOLERANCE_FEET &&
+                Math.abs(rotation) < ANGLE_TOLERANCE_DEGREES) {
             return "ALIGNED - Hold position";
         }
-        
+
         if (Math.abs(rotation) > ANGLE_TOLERANCE_DEGREES) {
-            command.append(String.format("ROTATE %.1f° %s", 
-                Math.abs(rotation), 
-                rotation > 0 ? "RIGHT" : "LEFT"));
+            command.append(String.format("ROTATE %.1f° %s",
+                    Math.abs(rotation),
+                    rotation > 0 ? "RIGHT" : "LEFT"));
             command.append(" → THEN → ");
         }
-        
+
         if (Math.abs(forward) > DISTANCE_TOLERANCE_FEET) {
-            command.append(String.format("DRIVE %.2f ft %s", 
-                Math.abs(forward), 
-                forward > 0 ? "BACKWARD" : "FORWARD"));
+            command.append(String.format("DRIVE %.2f ft %s",
+                    Math.abs(forward),
+                    forward > 0 ? "BACKWARD" : "FORWARD"));
         } else {
             command.append("HOLD DISTANCE");
         }
-        
+
         if (Math.abs(strafe) > 0.1) {
-            command.append(String.format(" + STRAFE %.2f ft %s", 
-                Math.abs(strafe), 
-                strafe > 0 ? "RIGHT" : "LEFT"));
+            command.append(String.format(" + STRAFE %.2f ft %s",
+                    Math.abs(strafe),
+                    strafe > 0 ? "RIGHT" : "LEFT"));
         }
-        
+
         return command.toString();
     }
 
     private boolean checkAlignment(double forwardError, double rotationError) {
-        return Math.abs(forwardError) < DISTANCE_TOLERANCE_FEET && 
-               Math.abs(rotationError) < ANGLE_TOLERANCE_DEGREES;
+        return Math.abs(forwardError) < DISTANCE_TOLERANCE_FEET &&
+                Math.abs(rotationError) < ANGLE_TOLERANCE_DEGREES;
     }
 
     private void logMovementBreakdown(double forward, double strafe, double rotation) {
         Logger.recordOutput("Movement/Phase1_RotationNeeded", Math.abs(rotation) > ANGLE_TOLERANCE_DEGREES);
         Logger.recordOutput("Movement/Phase2_ForwardNeeded", Math.abs(forward) > DISTANCE_TOLERANCE_FEET);
         Logger.recordOutput("Movement/Phase3_StrafeNeeded", Math.abs(strafe) > 0.1);
-        
+
         Logger.recordOutput("Movement/Direction_Forward", forward < 0);
         Logger.recordOutput("Movement/Direction_Backward", forward > 0);
         Logger.recordOutput("Movement/Direction_StrafeLeft", strafe < 0);
         Logger.recordOutput("Movement/Direction_StrafeRight", strafe > 0);
         Logger.recordOutput("Movement/Direction_RotateLeft", rotation < 0);
         Logger.recordOutput("Movement/Direction_RotateRight", rotation > 0);
-        
+
         Logger.recordOutput("Movement/ForwardError_Inches", forward * 12);
         Logger.recordOutput("Movement/StrafeError_Inches", strafe * 12);
         Logger.recordOutput("Movement/RotationError_Degrees", rotation);
@@ -260,21 +264,22 @@ public class localizationSubsystem extends SubsystemBase {
     public double[] getTcornxy() {
         return tcornxy;
     }
-    
+
     public double getCurrentDistance() {
         if (isCornersValid()) {
             return calculateDistanceFromArea(calculateTagArea());
         }
         return -1.0;
     }
-    
+
     public boolean isAligned() {
-        if (!isCornersValid()) return false;
-        
+        if (!isCornersValid())
+            return false;
+
         double currentDistance = getCurrentDistance();
         double forwardError = currentDistance - TARGET_DISTANCE_FEET;
         double rotationError = tx;
-        
+
         return checkAlignment(forwardError, rotationError);
     }
 }
