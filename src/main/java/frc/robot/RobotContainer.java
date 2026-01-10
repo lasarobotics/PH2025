@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.drivetrain.DriveSubsystem;
+import frc.robot.subsystems.drivetrain.Telemetry;
 import frc.robot.subsystems.endeffector.EndEffectorSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lift.LiftSubsystem;
