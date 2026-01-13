@@ -696,6 +696,12 @@ public class DriveSubsystem extends StateMachine implements AutoCloseable {
     }
   }
 
+  public void soudih() {
+    if (s_drivetrain.getState().Pose.getX() < 14) {
+      Logger.recordOutput("soudih" + "gg", s_drivetrain.getState().Pose.getX());
+    }
+  }
+
   @Override
   public void periodic() {
 
